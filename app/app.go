@@ -205,7 +205,7 @@ type MarsApp struct {
 	AccountKeeper     authkeeper.AccountKeeper
 	AuthzKeeper       authzkeeper.Keeper
 	BankKeeper        bankkeeper.Keeper
-	CapabilityKeeper  *capabilitykeeper.Keeper // why does this need to be a pointer?
+	CapabilityKeeper  *capabilitykeeper.Keeper
 	CrisisKeeper      crisiskeeper.Keeper
 	DistrKeeper       distrkeeper.Keeper
 	EvidenceKeeper    evidencekeeper.Keeper
@@ -215,7 +215,7 @@ type MarsApp struct {
 	SlashingKeeper    slashingkeeper.Keeper
 	StakingKeeper     stakingkeeper.Keeper
 	UpgradeKeeper     upgradekeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper // must be a pointer, so we can `SetRouter`` on it correctly
+	IBCKeeper         *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
 	IBCTransferKeeper ibctransferkeeper.Keeper
 	WasmKeeper        wasm.Keeper
 
