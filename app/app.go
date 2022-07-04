@@ -96,6 +96,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
+	marswasm "github.com/mars-protocol/hub/app/wasm"
 	marsdocs "github.com/mars-protocol/hub/docs"
 )
 
@@ -417,7 +418,7 @@ func NewMarsApp(
 	supportedFeatures := "iterator,staking,stargate,mars"
 
 	// register wasm bindings of Mars modules here
-	// current there is nothing to register
+	wasmOpts = append(marswasm.RegisterCustomPlugins(&app.DistrKeeper), wasmOpts...)
 
 	// create wasm keeper
 	app.WasmKeeper = wasm.NewKeeper(
