@@ -20,12 +20,15 @@ func Handler(title, specURL string) http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, req *http.Request) {
-		t.Execute(w, struct {
+		err := t.Execute(w, struct {
 			Title string
 			URL   string
 		}{
 			title,
 			specURL,
 		})
+		if err != nil {
+			panic(err) // this might not be the right way to check this error.
+		}
 	}
 }
