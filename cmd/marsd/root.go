@@ -82,28 +82,8 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	// **** add subcommands to root command ****
+	// **** add subcommands ****
 
-	// Add genesis-related commands
-	rootCmd.AddCommand(
-		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, marsapp.DefaultNodeHome),
-		genutilcli.MigrateGenesisCmd(),
-		genutilcli.GenTxCmd(
-			marsapp.ModuleBasics,
-			encodingConfig.TxConfig,
-			banktypes.GenesisBalancesIterator{},
-			marsapp.DefaultNodeHome,
-		),
-		genutilcli.ValidateGenesisCmd(marsapp.ModuleBasics),
-		AddGenesisAccountCmd(marsapp.DefaultNodeHome),
-		AddGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
-		tmcli.NewCompletionCmd(rootCmd, true),
-		debug.Cmd(),
-		config.Cmd(),
-	)
-
-	// Add server commands
 	ac := appCreator{encodingConfig}
 	server.AddCommands(
 		rootCmd,
@@ -116,15 +96,45 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		},
 	)
 
-	// add keybase, auxiliary RPC, query, tx commands
 	rootCmd.AddCommand(
+		genesisCommand(encodingConfig),
 		queryCommand(),
 		txCommand(),
-		rpc.StatusCommand(),
+		tmcli.NewCompletionCmd(rootCmd, true),
+		config.Cmd(),
+		debug.Cmd(),
 		keys.Commands(marsapp.DefaultNodeHome),
+		rpc.StatusCommand(),
 	)
 
 	return rootCmd
+}
+
+func genesisCommand(encodingConfig marsapp.EncodingConfig) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "genesis",
+		Short:                      "Utilities for preparing the genesis state",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(
+		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
+		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, marsapp.DefaultNodeHome),
+		genutilcli.MigrateGenesisCmd(),
+		genutilcli.GenTxCmd(
+			marsapp.ModuleBasics,
+			encodingConfig.TxConfig,
+			banktypes.GenesisBalancesIterator{},
+			marsapp.DefaultNodeHome,
+		),
+		genutilcli.ValidateGenesisCmd(marsapp.ModuleBasics),
+		AddGenesisAccountCmd(marsapp.DefaultNodeHome),
+		AddGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
+	)
+
+	return cmd
 }
 
 func queryCommand() *cobra.Command {
