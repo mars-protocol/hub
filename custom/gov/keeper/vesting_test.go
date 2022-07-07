@@ -122,7 +122,7 @@ func TestQueryVotingPowers(t *testing.T) {
 	require.Equal(t, sdk.NewUint(30000000), tokensInVesting[voters[0].String()])
 	require.Equal(t, sdk.NewUint(20000000), tokensInVesting[voters[1].String()])
 
-	// set time to at time 20000
+	// set time to 20000
 	ctx = ctx.WithBlockTime(time.Unix(20000, 0))
 
 	// voters[0] is able to withdraw half of their vested tokens, i.e. 15_000_000 umars
