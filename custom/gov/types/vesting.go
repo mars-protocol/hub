@@ -36,7 +36,7 @@ type Withdraw struct{}
 //
 // NOTE: For covenience, we don't include other enum variants, as they are not needed here
 type QueryMsg struct {
-	VotingPowers *VotingPowersQuery `json:"voting_powers"`
+	VotingPowers *VotingPowersQuery `json:"voting_powers,omitempty"`
 }
 
 // VotingPowerQuery corresponding to the Rust enum variant `mars_vesting::msg::QueryMsg::VotingPowers`
