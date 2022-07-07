@@ -7,7 +7,7 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/mars-protocol/hub/custom/gov/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // Keeper defines the custom governance module Keeper
@@ -17,7 +17,7 @@ import (
 type Keeper struct {
 	govkeeper.Keeper
 
-	wasmKeeper types.WasmKeeper
+	wasmKeeper wasmtypes.ViewKeeper
 }
 
 // NewKeeper returns a custom gov keeper
@@ -27,7 +27,7 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec, key sdk.StoreKey, paramSpace govtypes.ParamSubspace,
 	authKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, sk govtypes.StakingKeeper,
-	wasmKeeper types.WasmKeeper, rtr govtypes.Router,
+	wasmKeeper wasmtypes.ViewKeeper, rtr govtypes.Router,
 ) Keeper {
 	return Keeper{
 		Keeper:     govkeeper.NewKeeper(cdc, key, paramSpace, authKeeper, bankKeeper, sk, rtr),
