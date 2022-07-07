@@ -62,7 +62,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -79,6 +78,10 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	// customized core modules
+	customgov "github.com/mars-protocol/hub/custom/gov"
+	customgovkeeper "github.com/mars-protocol/hub/custom/gov/keeper"
 
 	// ibc modules
 	ibctransfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
@@ -130,7 +133,7 @@ var (
 		evidence.AppModuleBasic{},
 		feegrantmodule.AppModuleBasic{},
 		genutil.AppModuleBasic{},
-		gov.NewAppModuleBasic(govProposalHandlers...),
+		gov.NewAppModuleBasic(govProposalHandlers...), // gov AppModuleBasic is not customized, so we just use the vanilla one
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		staking.AppModuleBasic{},
@@ -211,7 +214,7 @@ type MarsApp struct {
 	DistrKeeper       distrkeeper.Keeper
 	EvidenceKeeper    evidencekeeper.Keeper
 	FeeGrantKeeper    feegrantkeeper.Keeper
-	GovKeeper         govkeeper.Keeper
+	GovKeeper         customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
 	ParamsKeeper      paramskeeper.Keeper
 	SlashingKeeper    slashingkeeper.Keeper
 	StakingKeeper     stakingkeeper.Keeper
@@ -442,13 +445,17 @@ func NewMarsApp(
 	)
 
 	// finally, create gov keeper
-	app.GovKeeper = govkeeper.NewKeeper(
+	//
+	// here we use the customized gov keeper, which requires an additional `wasmKeeper` parameter
+	// compared to the vanilla govkeeper
+	app.GovKeeper = customgovkeeper.NewKeeper(
 		codec,
 		keys[govtypes.StoreKey],
 		getSubspace(app, govtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
 		&stakingKeeper,
+		app.WasmKeeper,
 		initGovRouter(app),
 	)
 
@@ -470,7 +477,7 @@ func NewMarsApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		feegrantmodule.NewAppModule(codec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
-		gov.NewAppModule(codec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		customgov.NewAppModule(codec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		slashing.NewAppModule(codec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(codec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
