@@ -118,9 +118,9 @@ func TestQueryVotingPowers(t *testing.T) {
 	// voters should have 50_000_000 umars locked in vesting combined
 	tokensInVesting, totalTokensInVesting, err := keeper.GetTokensInVesting(ctx, app.WasmKeeper, contractAddr)
 	require.NoError(t, err)
-	require.Equal(t, sdk.NewUint(50000000), totalTokensInVesting)
-	require.Equal(t, sdk.NewUint(30000000), tokensInVesting[voters[0].String()])
-	require.Equal(t, sdk.NewUint(20000000), tokensInVesting[voters[1].String()])
+	require.Equal(t, sdk.NewInt(50000000), totalTokensInVesting)
+	require.Equal(t, sdk.NewInt(30000000), tokensInVesting[voters[0].String()])
+	require.Equal(t, sdk.NewInt(20000000), tokensInVesting[voters[1].String()])
 
 	// set time to 20000
 	ctx = ctx.WithBlockTime(time.Unix(20000, 0))
@@ -142,7 +142,7 @@ func TestQueryVotingPowers(t *testing.T) {
 
 	tokensInVesting, totalTokensInVesting, err = keeper.GetTokensInVesting(ctx, app.WasmKeeper, contractAddr)
 	require.NoError(t, err)
-	require.Equal(t, sdk.NewUint(35000000), totalTokensInVesting)
-	require.Equal(t, sdk.NewUint(15000000), tokensInVesting[voters[0].String()])
-	require.Equal(t, sdk.NewUint(20000000), tokensInVesting[voters[1].String()])
+	require.Equal(t, sdk.NewInt(35000000), totalTokensInVesting)
+	require.Equal(t, sdk.NewInt(15000000), tokensInVesting[voters[0].String()])
+	require.Equal(t, sdk.NewInt(20000000), tokensInVesting[voters[1].String()])
 }
