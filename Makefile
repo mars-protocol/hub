@@ -10,7 +10,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=mars \
 
 BUILD_FLAGS := -ldflags '$(ldflags)'
 
-all: proto-gen test install
+all: proto-gen lint test install
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -23,7 +23,7 @@ install:
 
 build:
 	@echo "🤖 Building marsd..."
-	go build $(BUILD_FLAGS) -o bin/marsd ./cmd/marsd
+	go build $(BUILD_FLAGS) -o build/bin/marsd ./cmd/marsd
 	@echo "✅ Completed build!"
 
 ###############################################################################
@@ -50,3 +50,13 @@ proto-swagger-gen:
 	@echo "🤖 Generating Swagger code from protobuf..."
 	bash ./scripts/protoc-swagger-gen.sh
 	@echo "✅ Completed Swagger code generation!"
+
+###############################################################################
+###                                Linting                                  ###
+###############################################################################
+
+golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
+
+lint:
+	@echo "🤖 Running linter..."
+	go run $(golangci_lint_cmd) run --timeout=10m

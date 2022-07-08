@@ -1,12 +1,11 @@
 run:
   tests: false
-#   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  timeout: 5m
+  timeout: 5m # timeout for analysis, e.g. 30s, 5m, default is 1m
 
 linters:
   disable-all: true
   enable:
-    - bodyclose
+    # - bodyclose # disabled because of go1.18
     - deadcode
     - depguard
     - dogsled
@@ -17,7 +16,7 @@ linters:
     - gofmt
     - gofumpt
     - goimports
-    - golint
+    # - golint # deprecated, replaced by revive
     - gosec
     - gosimple
     - govet
@@ -26,12 +25,12 @@ linters:
     - nakedret
     - prealloc
     - staticcheck
-    - structcheck
+    # - structcheck # disabled because of go1.18
     - stylecheck
     - revive
     - typecheck
     - unconvert
     - unused
-    - unparam
+    # - unparam # disabled because of go1.18
     - misspell
     - nolintlint

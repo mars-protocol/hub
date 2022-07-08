@@ -2,6 +2,7 @@ package app
 
 import (
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -99,6 +100,7 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	marswasm "github.com/mars-protocol/hub/app/wasm"
+	marsdocs "github.com/mars-protocol/hub/docs"
 )
 
 const (
@@ -671,8 +673,8 @@ func (app *MarsApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API
-	//	apiSvr.Router.Handle("/swagger.yml", http.FileServer(http.FS(marsdocs.Swagger)))
-	//	apiSvr.Router.HandleFunc("/swagger/", marsdocs.Handler(Name, "/swagger.yml"))
+	apiSvr.Router.Handle("/swagger.yml", http.FileServer(http.FS(marsdocs.Swagger)))
+	apiSvr.Router.HandleFunc("/swagger/", marsdocs.Handler(Name, "/swagger.yml"))
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
