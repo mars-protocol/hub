@@ -366,7 +366,7 @@ func NewMarsApp(
 		app.BankKeeper,
 		&stakingKeeper,
 		authtypes.FeeCollectorName,
-		app.ModuleAccountAddrs(),
+		app.ModuleAccountAddrs(), // we unblock fee collector in bank keeper, but keep blocking it here
 	)
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		codec,
