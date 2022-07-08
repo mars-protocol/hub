@@ -20,7 +20,6 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 		return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown custom query variant"}
 	}
-
 }
 
 type QueryPlugin struct {
