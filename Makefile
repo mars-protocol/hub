@@ -32,7 +32,7 @@ build:
 
 test:
 	@echo "🤖 Running tests..."
-	go test -mod=readonly ./x/...
+	go test -mod=readonly ./...
 	@echo "✅ Completed tests!"
 
 ###############################################################################
