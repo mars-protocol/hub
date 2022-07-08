@@ -10,7 +10,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=mars \
 
 BUILD_FLAGS := -ldflags '$(ldflags)'
 
-all: proto-gen test install
+all: proto-gen lint test install
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -23,7 +23,7 @@ install:
 
 build:
 	@echo "🤖 Building marsd..."
-	go build $(BUILD_FLAGS) -o bin/marsd ./cmd/marsd
+	go build $(BUILD_FLAGS) -o build/bin/marsd ./cmd/marsd
 	@echo "✅ Completed build!"
 
 ###############################################################################
