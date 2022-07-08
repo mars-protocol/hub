@@ -719,7 +719,7 @@ func getEnabledProposals() []wasm.ProposalType {
 
 // getBlockedModuleAccountAddrs returns all the app's blocked module account addresses
 //
-// forked from: https://github.com/cosmos/gaia/pull/1493/files
+// forked from: https://github.com/cosmos/gaia/pull/1493
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 
