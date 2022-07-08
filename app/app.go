@@ -328,7 +328,7 @@ func NewMarsApp(
 		keys[banktypes.StoreKey],
 		app.AccountKeeper,
 		getSubspace(app, banktypes.ModuleName),
-		app.ModuleAccountAddrs(),
+		getBlockedModuleAccountAddrs(app), // NOTE: fee collector is excluded from blocked addresses
 	)
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		getSubspace(app, crisistypes.ModuleName),
@@ -717,10 +717,19 @@ func getEnabledProposals() []wasm.ProposalType {
 	return proposals
 }
 
+// getBlockedModuleAccountAddrs returns all the app's blocked module account addresses
+//
+// forked from: https://github.com/cosmos/gaia/pull/1493/files
+func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
+	modAccAddrs := app.ModuleAccountAddrs()
+
+	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
+
+	return modAccAddrs
+}
+
 // initializes params keeper and its subspaces
-func initParamsKeeper(
-	codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey,
-) paramskeeper.Keeper {
+func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(codec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
