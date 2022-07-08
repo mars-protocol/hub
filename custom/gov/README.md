@@ -17,6 +17,6 @@ If Alice votes NO, this overrides the validator's voting. The vote will be defea
 
 ## Note
 
-Currently, the module assumes the vesting contract is the first contract to be deployed on the chain, i.e. having the code ID of 1 and instance ID of 1. The module uses this info to derive the contract's address. Developers must make sure this is the case in the chain's genesis state.
+Currently, the module assumes the vesting contract is the first contract to be deployed on the chain, i.e. having the code ID of 1 and instance ID of 1. The module uses this info [to derive the contract's address](https://github.com/mars-protocol/hub/blob/2d233fe074b008c49cf26362e1446d888fc81ca0/custom/gov/keeper/tally.go#L12-L15). Developers must make sure this is the case in the chain's genesis state.
 
 For future releases, it may be a good idea to make the contract address a configurable parameter.
