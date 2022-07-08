@@ -36,20 +36,26 @@ type Withdraw struct{}
 //
 // NOTE: For covenience, we don't include other enum variants, as they are not needed here
 type QueryMsg struct {
+	VotingPower  *VotingPowerQuery  `json:"voting_power,omitempty"`
 	VotingPowers *VotingPowersQuery `json:"voting_powers,omitempty"`
 }
 
-// VotingPowerQuery corresponding to the Rust enum variant `mars_vesting::msg::QueryMsg::VotingPowers`
+// VotingPowerQuery corresponding to the Rust enum variant `mars_vesting::msg::QueryMsg::VotingPower`
+type VotingPowerQuery struct {
+	User string `json:"user,omitempty"`
+}
+
+// VotingPowersQuery corresponding to the Rust enum variant `mars_vesting::msg::QueryMsg::VotingPowers`
 type VotingPowersQuery struct {
 	StartAfter string `json:"start_after,omitempty"`
 	Limit      uint32 `json:"limit,omitempty"`
 }
 
 // VotingPowerResponseItem corresponding to the `voting_powers` query's respons type's repeating element
-type VotingPowersResponseItem struct {
+type VotingPowerResponse struct {
 	User        string   `json:"user"`
 	VotingPower sdk.Uint `json:"voting_power"`
 }
 
 // VotingPowerResponse corresponding to the response type of the `voting_powers` query
-type VotingPowersResponse []VotingPowersResponseItem
+type VotingPowersResponse []VotingPowerResponse
