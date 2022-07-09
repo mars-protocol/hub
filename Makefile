@@ -3,7 +3,7 @@
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT  := $(shell git log -1 --format='%H')
 
-# ********** process build flags **********
+# ********** process build tags **********
 
 build_tags = netgo
 ifeq ($(LEDGER_ENABLED),true)
