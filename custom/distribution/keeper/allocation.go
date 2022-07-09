@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,7 +33,9 @@ func (k Keeper) AllocateTokens(
 	feesCollectedNonRewardDenom := feesCollected.Sub(sdk.NewCoins(feesCollectedRewardDenom))
 
 	// fees that are NOT in the reward denom go directly to the community pool
-	k.FundCommunityPool(ctx, feesCollectedNonRewardDenom, feeCollector.GetAddress())
+	if err := k.FundCommunityPool(ctx, feesCollectedNonRewardDenom, feeCollector.GetAddress()); err != nil {
+		panic(fmt.Sprintf("failed to fund community pool with non-mars tokens: %s", err))
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
