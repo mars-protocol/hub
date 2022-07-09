@@ -4,10 +4,10 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	customdistrkeeper "github.com/mars-protocol/hub/custom/distribution/keeper"
 )
 
-func RegisterCustomPlugins(distrKeeper *distrkeeper.Keeper) []wasm.Option {
+func RegisterCustomPlugins(distrKeeper *customdistrkeeper.Keeper) []wasm.Option {
 	messengerDecoratorOpt := wasmkeeper.WithMessageHandlerDecorator(
 		CustomMessageDecorator(distrKeeper),
 	)

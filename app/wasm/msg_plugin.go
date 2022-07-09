@@ -11,9 +11,11 @@ import (
 
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	customdistrkeeper "github.com/mars-protocol/hub/custom/distribution/keeper"
 )
 
-func CustomMessageDecorator(distrKeeper *distrkeeper.Keeper) func(wasmkeeper.Messenger) wasmkeeper.Messenger {
+func CustomMessageDecorator(distrKeeper *customdistrkeeper.Keeper) func(wasmkeeper.Messenger) wasmkeeper.Messenger {
 	return func(old wasmkeeper.Messenger) wasmkeeper.Messenger {
 		return &CustomMessenger{
 			wrapped:     old,
@@ -24,7 +26,7 @@ func CustomMessageDecorator(distrKeeper *distrkeeper.Keeper) func(wasmkeeper.Mes
 
 type CustomMessenger struct {
 	wrapped     wasmkeeper.Messenger
-	distrKeeper *distrkeeper.Keeper
+	distrKeeper *customdistrkeeper.Keeper
 }
 
 // CustomKeeper must implement the `wasmkeeper.Messenger` interface
@@ -50,9 +52,10 @@ func (m *CustomMessenger) DispatchMsg(
 }
 
 func fundCommunityPool(
-	ctx sdk.Context, k *distrkeeper.Keeper, contractAddr sdk.AccAddress, fundCommunityPool *FundCommunityPool,
+	ctx sdk.Context, k *customdistrkeeper.Keeper, contractAddr sdk.AccAddress,
+	fundCommunityPool *FundCommunityPool,
 ) ([]sdk.Event, [][]byte, error) {
-	msgServer := distrkeeper.NewMsgServerImpl(*k)
+	msgServer := distrkeeper.NewMsgServerImpl(k.Keeper)
 
 	msg := &distrtypes.MsgFundCommunityPool{
 		Amount:    fundCommunityPool.Amount,
