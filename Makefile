@@ -116,3 +116,4 @@ golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
 lint:
 	@echo "🤖 Running linter..."
 	go run $(golangci_lint_cmd) run --timeout=10m
+	@echo "✅ Completed tests!"
