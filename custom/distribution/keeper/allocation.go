@@ -29,18 +29,18 @@ func (k Keeper) AllocateTokens(
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	feesCollected := k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())
 
-	feesCollectedRewardDenom := sdk.NewCoin(types.RewardDenom, feesCollected.AmountOf(types.RewardDenom))
-	feesCollectedNonRewardDenom := feesCollected.Sub(sdk.NewCoins(feesCollectedRewardDenom))
+	feesCollectedReward := sdk.NewCoin(types.RewardDenom, feesCollected.AmountOf(types.RewardDenom))
+	feesCollectedNonReward := feesCollected.Sub(sdk.NewCoins(feesCollectedReward))
 
-	// fees that are NOT in the reward denom go directly to the community pool
-	if err := k.FundCommunityPool(ctx, feesCollectedNonRewardDenom, feeCollector.GetAddress()); err != nil {
+	// fees that are NOT of the reward denom go directly to the community pool
+	if err := k.FundCommunityPool(ctx, feesCollectedNonReward, feeCollector.GetAddress()); err != nil {
 		panic(fmt.Sprintf("failed to fund community pool with non-mars tokens: %s", err))
 	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSafetyFund,
-			sdk.NewAttribute(sdk.AttributeKeyAmount, feesCollectedNonRewardDenom.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, feesCollectedNonReward.String()),
 		),
 	)
 
