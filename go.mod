@@ -3,7 +3,7 @@ module github.com/mars-protocol/hub
 go 1.18
 
 require (
-	github.com/CosmWasm/wasmd v0.27.0
+	github.com/CosmWasm/wasmd v1.0.0
 	github.com/CosmWasm/wasmvm v1.0.0
 	github.com/cosmos/cosmos-sdk v0.46.0-rc2.0.20220708141016-c3b2c7c7b10c
 	github.com/cosmos/ibc-go/v4 v4.0.0-rc0
