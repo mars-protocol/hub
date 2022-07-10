@@ -164,7 +164,6 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 			)
 			require.NoError(t, err)
 		}
-
 	}
 
 	// create a governance proposal
