@@ -29,9 +29,9 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
-ifeq (cleveldb,$(findstring cleveldb,$(OSMOSIS_BUILD_OPTIONS)))
+ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
   build_tags += gcc
-else ifeq (rocksdb,$(findstring rocksdb,$(OSMOSIS_BUILD_OPTIONS)))
+else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
   build_tags += gcc
 endif
 build_tags += $(BUILD_TAGS)
@@ -50,12 +50,12 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=osmosis \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
-ifeq (cleveldb,$(findstring cleveldb,$(OSMOSIS_BUILD_OPTIONS)))
+ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
-else ifeq (rocksdb,$(findstring rocksdb,$(OSMOSIS_BUILD_OPTIONS)))
+else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
 endif
-ifeq (,$(findstring nostrip,$(OSMOSIS_BUILD_OPTIONS)))
+ifeq (,$(findstring nostrip,$(MARS_BUILD_OPTIONS)))
   ldflags += -w -s
 endif
 ifeq ($(LINK_STATICALLY),true)
