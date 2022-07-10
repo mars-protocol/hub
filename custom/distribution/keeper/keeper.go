@@ -2,8 +2,8 @@ package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -30,12 +30,12 @@ type Keeper struct {
 // NOTE: Keeper wraps the vanilla distr keeper to inherit most of its functions. However, we replace
 // the fee distribution logic with our own implementation
 func NewKeeper(
-	cdc codec.BinaryCodec, key sdk.StoreKey, paramSpace paramtypes.Subspace,
+	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
 	ak distrtypes.AccountKeeper, bk distrtypes.BankKeeper, sk distrtypes.StakingKeeper,
 	feeCollectorName string, blockedAddrs map[string]bool,
 ) Keeper {
 	return Keeper{
-		Keeper:           distrkeeper.NewKeeper(cdc, key, paramSpace, ak, bk, sk, feeCollectorName, blockedAddrs),
+		Keeper:           distrkeeper.NewKeeper(cdc, key, paramSpace, ak, bk, sk, feeCollectorName),
 		authKeeper:       ak,
 		bankKeeper:       bk,
 		feeCollectorName: feeCollectorName,
