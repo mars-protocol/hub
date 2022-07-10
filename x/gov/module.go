@@ -10,16 +10,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/mars-protocol/hub/custom/gov/keeper"
+	"github.com/mars-protocol/hub/x/gov/keeper"
 )
 
 // AppModule must implement the `module.AppModule` interface
 var _ module.AppModule = AppModule{}
 
-// AppModule implements an application module for the custom gov module
+// AppModule implements an application module for the x gov module
 //
-// NOTE: our custom AppModule wraps the vanilla `gov.AppModule` to inherit most of its functions.
-// However, we overwrite the `EndBlock` function to replace it with our custom vote tallying logic
+// NOTE: our x AppModule wraps the vanilla `gov.AppModule` to inherit most of its functions.
+// However, we overwrite the `EndBlock` function to replace it with our x vote tallying logic
 type AppModule struct {
 	gov.AppModule
 
@@ -36,7 +36,7 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak govtypes.AccountKeep
 
 // EndBlock returns the end blocker for the gov module. It returns no validator updates.
 //
-// NOTE: this overwrites the vanilla gov module EndBlocker with our custom vote tallying logic
+// NOTE: this overwrites the vanilla gov module EndBlocker with our x vote tallying logic
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	EndBlocker(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}

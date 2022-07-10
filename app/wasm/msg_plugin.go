@@ -12,7 +12,7 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	customdistrkeeper "github.com/mars-protocol/hub/custom/distribution/keeper"
+	customdistrkeeper "github.com/mars-protocol/hub/x/distribution/keeper"
 )
 
 func CustomMessageDecorator(distrKeeper *customdistrkeeper.Keeper) func(wasmkeeper.Messenger) wasmkeeper.Messenger {
@@ -35,12 +35,12 @@ var _ wasmkeeper.Messenger = (*CustomMessenger)(nil)
 func (m *CustomMessenger) DispatchMsg(
 	ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg,
 ) ([]sdk.Event, [][]byte, error) {
-	// if the msg is a custom msg, parse it into `MarsMsg` then dispatch to the appropriate Mars module
+	// if the msg is a x msg, parse it into `MarsMsg` then dispatch to the appropriate Mars module
 	// otherwise, simply dispatch it to the wrapped messenger
 	if msg.Custom != nil {
 		var marsMsg MarsMsg
 		if err := json.Unmarshal(msg.Custom, &marsMsg); err != nil {
-			return nil, nil, sdkerrors.Wrapf(err, "invalid custom msg: %s", msg.Custom)
+			return nil, nil, sdkerrors.Wrapf(err, "invalid x msg: %s", msg.Custom)
 		}
 
 		if marsMsg.FundCommunityPool != nil {

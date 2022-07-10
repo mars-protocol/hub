@@ -79,10 +79,10 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// customized core modules
-	customdistr "github.com/mars-protocol/hub/custom/distribution"
-	customdistrkeeper "github.com/mars-protocol/hub/custom/distribution/keeper"
-	customgov "github.com/mars-protocol/hub/custom/gov"
-	customgovkeeper "github.com/mars-protocol/hub/custom/gov/keeper"
+	customdistr "github.com/mars-protocol/hub/x/distribution"
+	customdistrkeeper "github.com/mars-protocol/hub/x/distribution/keeper"
+	customgov "github.com/mars-protocol/hub/x/gov"
+	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
 
 	// ibc modules
 	ibctransfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
@@ -212,10 +212,10 @@ type MarsApp struct {
 	BankKeeper        bankkeeper.Keeper
 	CapabilityKeeper  *capabilitykeeper.Keeper
 	CrisisKeeper      crisiskeeper.Keeper
-	DistrKeeper       customdistrkeeper.Keeper // replaces the vanilla distr keeper with our custom one
+	DistrKeeper       customdistrkeeper.Keeper // replaces the vanilla distr keeper with our x one
 	EvidenceKeeper    evidencekeeper.Keeper
 	FeeGrantKeeper    feegrantkeeper.Keeper
-	GovKeeper         customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
+	GovKeeper         customgovkeeper.Keeper // replaces the vanilla gov keeper with our x one
 	ParamsKeeper      paramskeeper.Keeper
 	SlashingKeeper    slashingkeeper.Keeper
 	StakingKeeper     stakingkeeper.Keeper

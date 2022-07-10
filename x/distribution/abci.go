@@ -10,7 +10,7 @@ import (
 
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/mars-protocol/hub/custom/distribution/keeper"
+	"github.com/mars-protocol/hub/x/distribution/keeper"
 )
 
 // BeginBlocker sets the proposer for determining distribution during endblock and distribute rewards
@@ -32,7 +32,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) 
 	if ctx.BlockHeight() > 1 {
 		previousProposer := k.GetPreviousProposerConsAddr(ctx)
 
-		// NOTE: this `AllocateTokens` is our custom implementation, which overrides the vanilla one
+		// NOTE: this `AllocateTokens` is our x implementation, which overrides the vanilla one
 		k.AllocateTokens(ctx, sumPreviousPrecommitPower, previousTotalPower, previousProposer, req.LastCommitInfo.GetVotes())
 	}
 

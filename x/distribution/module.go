@@ -10,13 +10,13 @@ import (
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/mars-protocol/hub/custom/distribution/keeper"
+	"github.com/mars-protocol/hub/x/distribution/keeper"
 )
 
 // AppModule must implement the `module.AppModule` interface
 var _ module.AppModule = AppModule{}
 
-// AppModule implements an application module for the custom distribution module
+// AppModule implements an application module for the x distribution module
 type AppModule struct {
 	distr.AppModule
 
@@ -34,9 +34,9 @@ func NewAppModule(
 	}
 }
 
-// BeginBlocker returns the begin blocker for the custom distr module
+// BeginBlocker returns the begin blocker for the x distr module
 //
-// NOTE: this overwrites the vanilla distr module BeginBlocker with our custom fee distribution logic
+// NOTE: this overwrites the vanilla distr module BeginBlocker with our x fee distribution logic
 func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
 	BeginBlocker(ctx, req, am.keeper)
 }

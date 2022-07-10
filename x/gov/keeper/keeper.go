@@ -10,10 +10,10 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
-// Keeper defines the custom governance module Keeper
+// Keeper defines the x governance module Keeper
 //
 // NOTE: Keeper wraps the vanilla gov keeper to inherit most of its functions. However, we include an
-// additional dependency, the wasm keeper, which is needed for our custom vote tallying logic
+// additional dependency, the wasm keeper, which is needed for our x vote tallying logic
 type Keeper struct {
 	govkeeper.Keeper
 
@@ -21,10 +21,10 @@ type Keeper struct {
 	wasmKeeper    wasmtypes.ViewKeeper
 }
 
-// NewKeeper returns a custom gov keeper
+// NewKeeper returns a x gov keeper
 //
 // NOTE: compared to the vanilla gov keeper's constructor function, here we require an additional
-// wasm keeper, which is needed for our custom vote tallying logic
+// wasm keeper, which is needed for our x vote tallying logic
 func NewKeeper(
 	cdc codec.BinaryCodec, key sdk.StoreKey, paramSpace govtypes.ParamSubspace,
 	authKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, stakingKeeper govtypes.StakingKeeper,

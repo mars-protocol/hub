@@ -9,7 +9,7 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/mars-protocol/hub/custom/gov/keeper"
+	"github.com/mars-protocol/hub/x/gov/keeper"
 )
 
 // EndBlocker called at the end of every block, processing proposals
@@ -52,7 +52,7 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 	keeper.IterateActiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govtypes.Proposal) bool {
 		var tagValue, logMsg string
 
-		passes, burnDeposits, tallyResults := keeper.Tally(ctx, proposal) // our custom implementation of tally logics
+		passes, burnDeposits, tallyResults := keeper.Tally(ctx, proposal) // our x implementation of tally logics
 
 		if burnDeposits {
 			keeper.DeleteDeposits(ctx, proposal.ProposalId)

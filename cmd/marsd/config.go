@@ -2,7 +2,7 @@ package main
 
 import serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 
-// Generate contents for `app.toml`. Take the default template and config, append custom parameters
+// Generate contents for `app.toml`. Take the default template and config, append x parameters
 func initAppConfig() (string, interface{}) {
 	template := serverconfig.DefaultConfigTemplate
 	cfg := serverconfig.DefaultConfig()

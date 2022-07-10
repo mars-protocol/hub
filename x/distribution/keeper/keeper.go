@@ -9,7 +9,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-// Keeper define the custom distribution module keeper
+// Keeper define the x distribution module keeper
 //
 // NOTE: Keeper wraps the vanilla distr keeper to inherit most of its functions. However, we replace
 // the fee distribution logic with our own implementation
@@ -25,7 +25,7 @@ type Keeper struct {
 	feeCollectorName string
 }
 
-// NewKeeper returns a custom distr keeper
+// NewKeeper returns a x distr keeper
 //
 // NOTE: Keeper wraps the vanilla distr keeper to inherit most of its functions. However, we replace
 // the fee distribution logic with our own implementation
