@@ -82,10 +82,10 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// customized core modules
-	customdistr "github.com/mars-protocol/hub/custom/distribution"
-	customdistrkeeper "github.com/mars-protocol/hub/custom/distribution/keeper"
-	customgov "github.com/mars-protocol/hub/custom/gov"
-	customgovkeeper "github.com/mars-protocol/hub/custom/gov/keeper"
+	customdistr "github.com/mars-protocol/hub/x/distribution"
+	customdistrkeeper "github.com/mars-protocol/hub/x/distribution/keeper"
+	customgov "github.com/mars-protocol/hub/x/gov"
+	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
 
 	// ibc modules
 	ibctransfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"

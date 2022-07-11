@@ -1,7 +1,9 @@
 #!/usr/bin/make -f
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
-COMMIT  := $(shell git log -1 --format='%H')
+COMMIT := $(shell git log -1 --format='%H')
+BUILDDIR ?= $(CURDIR)/build
+LEDGER_ENABLED ?= true
 
 # ********** process build tags **********
 
@@ -29,10 +31,10 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
-ifeq (cleveldb,$(findstring cleveldb,$(OSMOSIS_BUILD_OPTIONS)))
-  build_tags += gcc
-else ifeq (rocksdb,$(findstring rocksdb,$(OSMOSIS_BUILD_OPTIONS)))
-  build_tags += gcc
+ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
+  build_tags += gcc cleveldb
+else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
+  build_tags += gcc rocksdb
 endif
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
@@ -44,18 +46,18 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # ********** process linker flags **********
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=osmosis \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=osmosisd \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=mars \
+		  -X github.com/cosmos/cosmos-sdk/version.AppName=marsd \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
-ifeq (cleveldb,$(findstring cleveldb,$(OSMOSIS_BUILD_OPTIONS)))
+ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
-else ifeq (rocksdb,$(findstring rocksdb,$(OSMOSIS_BUILD_OPTIONS)))
+else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
 endif
-ifeq (,$(findstring nostrip,$(OSMOSIS_BUILD_OPTIONS)))
+ifeq (,$(findstring nostrip,$(MARS_BUILD_OPTIONS)))
   ldflags += -w -s
 endif
 ifeq ($(LINK_STATICALLY),true)
@@ -64,7 +66,11 @@ endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
-BUILD_FLAGS := -ldflags '$(ldflags)'
+BUILD_FLAGS := -tags '$(build_tags)' -ldflags '$(ldflags)'
+# check for nostrip option
+ifeq (,$(findstring nostrip,$(MARS_BUILD_OPTIONS)))
+  BUILD_FLAGS += -trimpath
+endif
 
 all: proto-gen lint test install
 
@@ -79,7 +85,7 @@ install:
 
 build:
 	@echo "🤖 Building marsd..."
-	go build $(BUILD_FLAGS) -o build/bin/marsd ./cmd/marsd
+	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
 
 ###############################################################################
@@ -88,7 +94,7 @@ build:
 
 test:
 	@echo "🤖 Running tests..."
-	go test -mod=readonly ./...
+	go test -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
 
 ###############################################################################

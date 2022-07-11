@@ -10,7 +10,7 @@ import (
 
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/mars-protocol/hub/custom/distribution/keeper"
+	"github.com/mars-protocol/hub/x/distribution/keeper"
 )
 
 // BeginBlocker sets the proposer for determining distribution during endblock and distribute rewards
