@@ -31,7 +31,6 @@ func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace govtypes.ParamSubspace,
 	authKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, stakingKeeper govtypes.StakingKeeper,
 	wasmKeeper wasmtypes.ViewKeeper, govRouter govv1beta1.Router, router *baseapp.MsgServiceRouter, config govtypes.Config,
-
 ) Keeper {
 	return Keeper{
 		Keeper:        govkeeper.NewKeeper(cdc, key, paramSpace, authKeeper, bankKeeper, stakingKeeper, govRouter, router, config),

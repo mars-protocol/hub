@@ -48,10 +48,10 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	// total amount of tokens bonded with validators
 	//
 	// TODO: does this only include validators in the active set, or also inactive ones?
-	totalTokensBonded := keeper.stakingKeeper.TotalBondedTokens(ctx)
+	totalTokensBonded := sdk.NewDecFromInt(keeper.stakingKeeper.TotalBondedTokens(ctx))
 
 	// total amount of tokens that are eligible to vote in this poll; used to determine quorum
-	totalTokens := totalTokensBonded.Add(totalTokensInVesting)
+	totalTokens := totalTokensBonded.Add(sdk.NewDecFromInt(totalTokensInVesting))
 
 	// total amount of tokens that have voted in this poll; used to determine whether the poll reaches
 	// quorum and the pass threshold
@@ -135,7 +135,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	// if there is not enough quorum of votes, the proposal fails, and deposit burned
 	//
 	// NOTE: should the deposit really be burned here?
-	if totalTokensVoted.Quo(totalTokens).LT(tallyParams.Quorum) {
+	if totalTokensVoted.Quo(totalTokens).LT(sdk.MustNewDecFromStr(tallyParams.Quorum)) {
 		return false, true, tallyResults
 	}
 
@@ -167,7 +167,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	return false, false, tallyResults
 }
 
-func incrementTallyResult(votingPower sdk.Dec, options []*v1.WeightedVoteOption, results map[v1.VoteOption]sdk.Int, totalTokensVoted *sdk.Int) {
+func incrementTallyResult(votingPower sdk.Dec, options []*v1.WeightedVoteOption, results map[v1.VoteOption]sdk.Dec, totalTokensVoted *sdk.Dec) {
 	for _, option := range options {
 		subPower := votingPower.Mul(sdk.MustNewDecFromStr(option.Weight))
 		results[option.Option] = results[option.Option].Add(subPower)
