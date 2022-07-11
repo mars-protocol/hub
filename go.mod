@@ -248,11 +248,10 @@ require (
 	nhooyr.io/websocket v1.8.6 // indirect
 )
 
-// https://github.com/cosmos/cosmos-sdk/issues/8469
 replace (
-	// use cosmos flavored gogo/protobuf
+	// use cosmos flavored gogo/protobuf: https://github.com/cosmos/cosmos-sdk/issues/8469
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	// use fast tm-db
-	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220704213938-a15237b6faf1
 
+	// use fast tm-db: https://github.com/tendermint/tm-db/pull/237
+	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220704213938-a15237b6faf1
 )
