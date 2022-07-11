@@ -43,7 +43,19 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	//
 	// NOTE: for now we simply use the default contract address. later it may be a better idea to use
 	// a configurable parameter
-	tokensInVesting, totalTokensInVesting := MustGetTokensInVesting(ctx, k.wasmKeeper, DefaultContractAddr)
+	tokensInVesting, totalTokensInVesting := MustGetTokensInVesting(ctx, keeper.wasmKeeper, DefaultContractAddr)
+
+	// total amount of tokens bonded with validators
+	//
+	// TODO: does this only include validators in the active set, or also inactive ones?
+	totalTokensBonded := keeper.stakingKeeper.TotalBondedTokens(ctx)
+
+	// total amount of tokens that are eligible to vote in this poll; used to determine quorum
+	totalTokens := totalTokensBonded.Add(totalTokensInVesting)
+
+	// total amount of tokens that have voted in this poll; used to determine whether the poll reaches
+	// quorum and the pass threshold
+	totalTokensVoted := sdk.ZeroDec()
 
 	keeper.IterateVotes(ctx, proposal.Id, func(vote v1.Vote) bool {
 		// if validator, just record it in the map
@@ -54,6 +66,8 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 			val.Vote = vote.Options
 			currValidators[valAddrStr] = val
 		}
+
+		votingPower := sdk.ZeroDec()
 
 		// iterate over all delegations from voter, deduct from any delegated-to validators
 		keeper.stakingKeeper.IterateDelegations(ctx, voter, func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
@@ -79,7 +93,17 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 			return false
 		})
 
-		keeper.deleteVote(ctx, vote.ProposalId, voter)
+		// if the voter has tokens locked in vesting contract, add that to the voting power
+		if votingPowerInVesting, ok := tokensInVesting[vote.Voter]; ok {
+			votingPower = votingPower.Add(sdk.NewDecFromInt(votingPowerInVesting))
+		}
+
+		incrementTallyResult(votingPower, vote.Options, results, &totalTokensVoted)
+
+
+		// the vanilla gov keeper deletes the vote here. however, it doesn't make public the `deleteVote`
+		// method, so we can't do the same.
+		// whatever, i don't think votes should be deleted anyways: https://twitter.com/larry0x/status/1521170260111638528
 		return false
 	})
 
@@ -105,12 +129,19 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 
 	// TODO: Upgrade the spec to cover all of these cases & remove pseudocode.
 	// If there is no staked coins, the proposal fails
-	if keeper.sk.TotalBondedTokens(ctx).IsZero() {
+	if keeper.stakingKeeper.TotalBondedTokens(ctx).IsZero() {
 		return false, false, tallyResults
 	}
 
+	// if there is not enough quorum of votes, the proposal fails, and deposit burned
+	//
+	// NOTE: should the deposit really be burned here?
+	if totalTokensVoted.Quo(totalTokens).LT(tallyParams.Quorum) {
+		return false, true, tallyResults
+	}
+
 	// If there is not enough quorum of votes, the proposal fails
-	percentVoting := totalVotingPower.Quo(sdk.NewDecFromInt(keeper.sk.TotalBondedTokens(ctx)))
+	percentVoting := totalVotingPower.Quo(sdk.NewDecFromInt(keeper.stakingKeeper.TotalBondedTokens(ctx)))
 	quorum, _ := sdk.NewDecFromStr(tallyParams.Quorum)
 	if percentVoting.LT(quorum) {
 		return false, false, tallyResults
@@ -139,7 +170,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 
 func incrementTallyResult(votingPower sdk.Dec, options []v1.WeightedVoteOption, results map[v1.VoteOption]sdk.Dec, totalTokensVoted *sdk.Dec) {
 	for _, option := range options {
-		subPower := votingPower.Mul(option.Weight)
+		subPower := votingPower.Mul(sdk.MustNewDecFromStr(option.Weight))
 		results[option.Option] = results[option.Option].Add(subPower)
 	}
 
