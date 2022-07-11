@@ -33,7 +33,7 @@ jobs:
         run: |
           cd cmd/*
           go build .
-          timeout 120 ./marsd testnet start --enable-logging | true
+          timeout 120 ./marsd testnet start --enable-logging 
 
         
           
