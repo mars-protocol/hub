@@ -33,14 +33,8 @@ jobs:
         run: |
           cd cmd/*
           go build .
-          go install .
+          timeout 120 ./marsd testnet start --enable-logging | true
 
-# todo: figure out if pipe to true is needed
         
           
           
-# uploads bin
-      - uses: actions/upload-artifact@v2
-        with:
-          name: marsd ${{ matrix.targetos }} ${{ matrix.arch }}
-          path: cmd/*
