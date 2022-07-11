@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	math "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -17,22 +18,22 @@ var DefaultContractAddr = wasmkeeper.BuildContractAddress(1, 1)
 // Tally iterates over the votes and updates the tally of a proposal based on the voting power of the voters
 //
 // NOTE: here the voting power of a user is defined as: amount of MARS tokens staked + amount locked in vesting
-func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool, burnDeposits bool, tallyResults govtypes.TallyResult) {
-	results := make(map[govtypes.VoteOption]sdk.Dec)
-	results[govtypes.OptionYes] = sdk.ZeroDec()
-	results[govtypes.OptionAbstain] = sdk.ZeroDec()
-	results[govtypes.OptionNo] = sdk.ZeroDec()
-	results[govtypes.OptionNoWithVeto] = sdk.ZeroDec()
+func (k Keeper) Tally(ctx sdk.Context, proposal govv1.Proposal) (passes bool, burnDeposits bool, tallyResults govv1.TallyResult) {
+	results := make(map[govv1.VoteOption]math.Int)
+	results[govv1.OptionYes] = math.ZeroInt()
+	results[govv1.OptionAbstain] = math.ZeroInt()
+	results[govv1.OptionNo] = math.ZeroInt()
+	results[govv1.OptionNoWithVeto] = math.ZeroInt()
 
 	// fetch all currently bounded validators
-	currValidators := make(map[string]govtypes.ValidatorGovInfo)
+	currValidators := make(map[string]govv1.ValidatorGovInfo)
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx, func(index int64, validator stakingtypes.ValidatorI) (stop bool) {
-		currValidators[validator.GetOperator().String()] = govtypes.NewValidatorGovInfo(
+		currValidators[validator.GetOperator().String()] = govv1.NewValidatorGovInfo(
 			validator.GetOperator(),
 			validator.GetBondedTokens(),
 			validator.GetDelegatorShares(),
 			sdk.ZeroDec(),
-			govtypes.WeightedVoteOptions{},
+			govv1.WeightedVoteOptions{},
 		)
 
 		return false
@@ -50,14 +51,14 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	totalTokensBonded := k.stakingKeeper.TotalBondedTokens(ctx)
 
 	// total amount of tokens that are eligible to vote in this poll; used to determine quorum
-	totalTokens := totalTokensBonded.Add(totalTokensInVesting).ToDec()
+	totalTokens := totalTokensBonded.Add(totalTokensInVesting)
 
 	// total amount of tokens that have voted in this poll; used to determine whether the poll reaches
 	// quorum and the pass threshold
-	totalTokensVoted := sdk.ZeroDec()
+	totalTokensVoted := sdk.ZeroInt()
 
 	// iterate through votes
-	k.IterateVotes(ctx, proposal.ProposalId, func(vote govtypes.Vote) bool {
+	k.IterateVotes(ctx, proposal.ProposalId, func(vote govv1.Vote) bool {
 		voterAddr := sdk.MustAccAddressFromBech32(vote.Voter)
 
 		// if validator, record its vote options in the map
@@ -67,7 +68,7 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 			currValidators[valAddrStr] = val
 		}
 
-		votingPower := sdk.ZeroDec()
+		votingPower := math.ZeroInt()
 
 		// iterate over all delegations from voter, deduct from any delegated-to validators
 		//
@@ -89,7 +90,7 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 
 		// if the voter has tokens locked in vesting contract, add that to the voting power
 		if votingPowerInVesting, ok := tokensInVesting[vote.Voter]; ok {
-			votingPower = votingPower.Add(votingPowerInVesting.ToDec())
+			votingPower = votingPower.Add(votingPowerInVesting)
 		}
 
 		incrementTallyResult(votingPower, vote.Options, results, &totalTokensVoted)
@@ -113,7 +114,7 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	}
 
 	tallyParams := k.GetTallyParams(ctx)
-	tallyResults = govtypes.NewTallyResultFromMap(results)
+	tallyResults = govv1.NewTallyResultFromMap(results)
 
 	// if there is no staked coins, the proposal fails
 	if k.stakingKeeper.TotalBondedTokens(ctx).IsZero() {
@@ -128,7 +129,7 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	}
 
 	// if everyone abstains, proposal fails
-	if totalTokensVoted.Sub(results[govtypes.OptionAbstain]).IsZero() {
+	if totalTokensVoted.Sub(results[govv1.OptionAbstain]).IsZero() {
 		return false, false, tallyResults
 	}
 
@@ -136,12 +137,12 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	//
 	// NOTE: here 1/3 is defined as 1/3 *of all votes*, including abstaining votes. could it make more
 	// sense to instead define it as 1/3 *of all non-abstaining votes*?
-	if results[govtypes.OptionNoWithVeto].Quo(totalTokensVoted).GT(tallyParams.VetoThreshold) {
+	if results[govv1.OptionNoWithVeto].Quo(totalTokensVoted).GT(tallyParams.VetoThreshold) {
 		return false, true, tallyResults
 	}
 
 	// if no less than 1/2 of non-abstaining voters vote No, proposal fails
-	if results[govtypes.OptionNo].Quo(totalTokensVoted.Sub(results[govtypes.OptionAbstain])).GTE(tallyParams.Threshold) {
+	if results[govv1.OptionNo].Quo(totalTokensVoted.Sub(results[govv1.OptionAbstain])).GTE(tallyParams.Threshold) {
 		return false, false, tallyResults
 	}
 
@@ -149,7 +150,7 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	return true, false, tallyResults
 }
 
-func incrementTallyResult(votingPower sdk.Dec, options []govtypes.WeightedVoteOption, results map[govtypes.VoteOption]sdk.Dec, totalTokensVoted *sdk.Dec) {
+func incrementTallyResult(votingPower math.Int, options []govv1.WeightedVoteOption, results map[govv1.VoteOption]math.Int, totalTokensVoted *math.Int) {
 	for _, option := range options {
 		subPower := votingPower.Mul(option.Weight)
 		results[option.Option] = results[option.Option].Add(subPower)
