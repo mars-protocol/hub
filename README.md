@@ -5,12 +5,7 @@ Mars Hub application-specific blockchain
 
 ## Example usage scenario
 *contract on osmo <--------> mars hub <----------> contact on juno
-                                 ^
-                                 |
-                                 |
-                                 |
-                                 |
-                            Contract on qs
+ 
 
 ## Development note:
 
