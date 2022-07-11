@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/mars-protocol/hub/custom/gov/keeper"
+	"github.com/mars-protocol/hub/x/gov/keeper"
 )
 
 // AppModule must implement the `module.AppModule` interface

@@ -12,7 +12,7 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	customdistrkeeper "github.com/mars-protocol/hub/custom/distribution/keeper"
+	customdistrkeeper "github.com/mars-protocol/hub/x/distribution/keeper"
 )
 
 func CustomMessageDecorator(distrKeeper *customdistrkeeper.Keeper) func(wasmkeeper.Messenger) wasmkeeper.Messenger {

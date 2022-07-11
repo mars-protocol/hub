@@ -21,9 +21,9 @@ import (
 	marsapp "github.com/mars-protocol/hub/app"
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
-	"github.com/mars-protocol/hub/custom/gov/keeper"
-	"github.com/mars-protocol/hub/custom/gov/testdata"
-	"github.com/mars-protocol/hub/custom/gov/types"
+	"github.com/mars-protocol/hub/x/gov/keeper"
+	"github.com/mars-protocol/hub/x/gov/testdata"
+	"github.com/mars-protocol/hub/x/gov/types"
 )
 
 var mockSchedule = &types.Schedule{

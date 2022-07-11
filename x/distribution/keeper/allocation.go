@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mars-protocol/hub/custom/distribution/types"
+	"github.com/mars-protocol/hub/x/distribution/types"
 )
 
 // AllocateTokens handles the distribution of fees collected in the previous block
