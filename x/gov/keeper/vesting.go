@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -35,14 +36,14 @@ func queryVotingPowers(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk
 }
 
 // incrementVotingPowers increments the voting power counter based on the contract query response
-func incrementVotingPowers(votingPowersResponse types.VotingPowersResponse, tokensInVesting map[string]sdk.Int, totalTokensInVesting *sdk.Int) error {
+func incrementVotingPowers(votingPowersResponse types.VotingPowersResponse, tokensInVesting map[string]math.Int, totalTokensInVesting *math.Int) error {
 	for _, item := range votingPowersResponse {
 		if _, ok := tokensInVesting[item.User]; ok {
 			return sdkerrors.Wrapf(types.ErrFailedToQueryVesting, "query response contains duplicate address: %s", item.User)
 		}
 
-		tokensInVesting[item.User] = sdk.Int(item.VotingPower)
-		*totalTokensInVesting = totalTokensInVesting.Add(sdk.Int(item.VotingPower))
+		tokensInVesting[item.User] = math.Int(item.VotingPower)
+		*totalTokensInVesting = totalTokensInVesting.Add(math.Int(item.VotingPower))
 	}
 
 	return nil
@@ -50,8 +51,8 @@ func incrementVotingPowers(votingPowersResponse types.VotingPowersResponse, toke
 
 // GetTokensInVesting queries the vesting contract for an array of users who have tokens locked in the
 // contract and their respective amount, as well as computing the total amount of locked tokens.
-func GetTokensInVesting(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk.AccAddress) (map[string]sdk.Int, sdk.Int, error) {
-	tokensInVesting := make(map[string]sdk.Int)
+func GetTokensInVesting(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk.AccAddress) (map[string]math.Int, math.Int, error) {
+	tokensInVesting := make(map[string]math.Int)
 	totalTokensInVesting := sdk.ZeroInt()
 
 	votingPowersResponse, err := queryVotingPowers(ctx, k, contractAddr, &types.VotingPowersQuery{})
@@ -85,7 +86,7 @@ func GetTokensInVesting(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sd
 }
 
 // MustGetTokensInVesting is the same with `GetTokensInVesting`, but panics on error
-func MustGetTokensInVesting(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk.AccAddress) (map[string]sdk.Int, sdk.Int) {
+func MustGetTokensInVesting(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk.AccAddress) (map[string]math.Int, math.Int) {
 	tokensInVesting, totalTokensInVesting, err := GetTokensInVesting(ctx, k, contractAddr)
 	if err != nil {
 		panic(fmt.Sprintf("failed to tally vote: %s", err))
