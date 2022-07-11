@@ -167,7 +167,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	return false, false, tallyResults
 }
 
-func incrementTallyResult(votingPower sdk.Dec, options []v1.WeightedVoteOption, results map[v1.VoteOption]sdk.Dec, totalTokensVoted *sdk.Dec) {
+func incrementTallyResult(votingPower sdk.Dec, options []*v1.WeightedVoteOption, results map[v1.VoteOption]sdk.Int, totalTokensVoted *sdk.Int) {
 	for _, option := range options {
 		subPower := votingPower.Mul(sdk.MustNewDecFromStr(option.Weight))
 		results[option.Option] = results[option.Option].Add(subPower)
