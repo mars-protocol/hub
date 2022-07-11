@@ -281,5 +281,4 @@ replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// use fast tm-db
 	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220704213938-a15237b6faf1
-
 )

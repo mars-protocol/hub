@@ -20,7 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	tmservice "github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	rpc "github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	api "github.com/cosmos/cosmos-sdk/server/api"
@@ -32,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 
 	// core modules
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -61,7 +61,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -134,7 +137,9 @@ var (
 		evidence.AppModuleBasic{},
 		feegrantmodule.AppModuleBasic{},
 		genutil.AppModuleBasic{},
-		gov.NewAppModuleBasic(govProposalHandlers...), // gov AppModuleBasic is not customized, so we just use the vanilla one
+		gov.NewAppModuleBasic(
+			[]govclient.ProposalHandler{paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler},
+		), // gov AppModuleBasic is not customized, so we just use the vanilla one
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		staking.AppModuleBasic{},
@@ -149,8 +154,8 @@ var (
 		wasmclient.ProposalHandlers,
 		paramsclient.ProposalHandler,
 		distrclient.ProposalHandler,
-		upgradeclient.ProposalHandler,
-		upgradeclient.CancelProposalHandler,
+		upgradeclient.LegacyProposalHandler,
+		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
 	)
@@ -202,9 +207,9 @@ type MarsApp struct {
 	invCheckPeriod uint
 
 	// keys to access the substores
-	keys    map[string]*sdk.KVStoreKey
-	tkeys   map[string]*sdk.TransientStoreKey
-	memKeys map[string]*sdk.MemoryStoreKey
+	keys    map[string]*storetypes.KVStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
 	AccountKeeper     authkeeper.AccountKeeper
@@ -295,9 +300,7 @@ func NewMarsApp(
 	)
 
 	// set the BaseApp's parameter store
-	bApp.SetParamStore(
-		app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()),
-	)
+	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable()))
 
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
@@ -313,17 +316,11 @@ func NewMarsApp(
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-		codec,
-		keys[authtypes.StoreKey],
-		getSubspace(app, authtypes.ModuleName),
-		authtypes.ProtoBaseAccount,
-		maccPerms,
+		codec, keys[authtypes.StoreKey], getSubspace(app, authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix,
 	)
-	app.AuthzKeeper = authzkeeper.NewKeeper(
-		keys[authzkeeper.StoreKey],
-		codec,
-		app.BaseApp.MsgServiceRouter(),
-	)
+
+	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], codec, app.MsgServiceRouter(), app.AccountKeeper)
+
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		codec,
 		keys[banktypes.StoreKey],
@@ -331,6 +328,7 @@ func NewMarsApp(
 		getSubspace(app, banktypes.ModuleName),
 		getBlockedModuleAccountAddrs(app), // NOTE: fee collector is excluded from blocked addresses
 	)
+
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		getSubspace(app, crisistypes.ModuleName),
 		invCheckPeriod,
@@ -342,13 +340,8 @@ func NewMarsApp(
 		keys[feegrant.StoreKey],
 		app.AccountKeeper,
 	)
-	app.UpgradeKeeper = upgradekeeper.NewKeeper(
-		skipUpgradeHeights,
-		keys[upgradetypes.StoreKey],
-		codec,
-		homePath,
-		nil,
-	)
+
+	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], codec, homePath, app.BaseApp, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
 	// staking keeper and its dependencies
 	// NOTE: the order here (e.g. evidence keeper depends on slashing keeper, so must be defined after it)
@@ -665,9 +658,6 @@ func (app *MarsApp) SimulationManager() *module.SimulationManager {
 func (app *MarsApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 
-	// register RPC routes
-	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
-
 	// register REST routes
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -685,7 +675,12 @@ func (app *MarsApp) RegisterTxService(clientCtx client.Context) {
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *MarsApp) RegisterTendermintService(clientCtx client.Context) {
-	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
+	tmservice.RegisterTendermintService(
+		clientCtx,
+		app.BaseApp.GRPCQueryRouter(),
+		app.interfaceRegistry,
+		app.Query,
+	)
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -730,14 +725,14 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 }
 
 // initializes params keeper and its subspaces
-func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(codec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
-	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
+	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable())
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
@@ -748,11 +743,11 @@ func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, k
 }
 
 // initializes governance proposal router
-func initGovRouter(app *MarsApp) govtypes.Router {
-	govRouter := govtypes.NewRouter()
+func initGovRouter(app *MarsApp) govv1beta1.Router {
+	govRouter := govv1beta1.NewRouter()
 
 	// core modules
-	govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler)
+	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler)
 	govRouter.AddRoute(paramsproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper))
 	govRouter.AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper.Keeper))
 	govRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))

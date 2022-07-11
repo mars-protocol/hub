@@ -30,7 +30,7 @@ func (k Keeper) AllocateTokens(
 	feesCollected := k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())
 
 	feesCollectedReward := sdk.NewCoin(types.RewardDenom, feesCollected.AmountOf(types.RewardDenom))
-	feesCollectedNonReward := feesCollected.Sub(feesCollectedReward)
+	feesCollectedNonReward := feesCollected.Sub(sdk.NewCoins(feesCollectedReward)...)
 
 	// fees that are NOT of the reward denom go directly to the community pool
 	if err := k.FundCommunityPool(ctx, feesCollectedNonReward, feeCollector.GetAddress()); err != nil {
