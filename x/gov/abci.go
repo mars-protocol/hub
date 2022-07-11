@@ -23,24 +23,24 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 	logger := keeper.Logger(ctx)
 
 	// delete inactive proposal from store and its deposits
-	keeper.IterateInactiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govv1.Legacy) bool {
-		keeper.DeleteProposal(ctx, proposal.ProposalId)
-		keeper.DeleteDeposits(ctx, proposal.ProposalId)
+	keeper.IterateInactiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govv1.Proposal) bool {
+		keeper.DeleteProposal(ctx, proposal.Id)
+		keeper.DeleteAndBurnDeposits(ctx, proposal.Id)
 
 		// called when proposal become inactive
-		keeper.AfterProposalFailedMinDeposit(ctx, proposal.ProposalId)
+		keeper.AfterProposalFailedMinDeposit(ctx, proposal.Id)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				govtypes.EventTypeInactiveProposal,
-				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.ProposalId)),
+				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.Id)),
 				sdk.NewAttribute(govtypes.AttributeKeyProposalResult, govtypes.AttributeValueProposalDropped),
 			),
 		)
 
 		logger.Info(
 			"proposal did not meet minimum deposit; deleted",
-			"proposal", proposal.ProposalId,
+			"proposal", proposal.Id,
 			"title", proposal.GetTitle(),
 			"min_deposit", keeper.GetDepositParams(ctx).MinDeposit.String(),
 			"total_deposit", proposal.TotalDeposit.String(),
@@ -56,20 +56,20 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 		passes, burnDeposits, tallyResults := keeper.Tally(ctx, proposal) // our custom implementation of tally logics
 
 		if burnDeposits {
-			keeper.DeleteDeposits(ctx, proposal.ProposalId)
+			keeper.DeleteAndBurnDeposits(ctx, proposal.Id)
 		} else {
-			keeper.RefundDeposits(ctx, proposal.ProposalId)
+			keeper.RefundAndDeleteDeposits(ctx, proposal.Id)
 		}
 
 		if passes {
-			handler := keeper.Router().GetRoute(proposal.ProposalRoute())
+			handler := keeper.Router().Handler(proposal.Id())
 			cacheCtx, writeCache := ctx.CacheContext()
 
 			// The proposal handler may execute state mutating logic depending on the proposal content.
 			// If the handler fails, no state mutation is written and the error message is logged.
 			err := handler(cacheCtx, proposal.GetContent())
 			if err == nil {
-				proposal.Status = govtypes.StatusPassed
+				proposal.Status = govv1.StatusPassed
 				tagValue = govtypes.AttributeValueProposalPassed
 				logMsg = "passed"
 
@@ -81,12 +81,12 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 				// write state to the underlying multi-store
 				writeCache()
 			} else {
-				proposal.Status = govtypes.StatusFailed
+				proposal.Status = govv1.StatusFailed
 				tagValue = govtypes.AttributeValueProposalFailed
 				logMsg = fmt.Sprintf("passed, but failed on execution: %s", err)
 			}
 		} else {
-			proposal.Status = govtypes.StatusRejected
+			proposal.Status = govv1.StatusRejected
 			tagValue = govtypes.AttributeValueProposalRejected
 			logMsg = "rejected"
 		}
@@ -94,14 +94,14 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 		proposal.FinalTallyResult = tallyResults
 
 		keeper.SetProposal(ctx, proposal)
-		keeper.RemoveFromActiveProposalQueue(ctx, proposal.ProposalId, proposal.VotingEndTime)
+		keeper.RemoveFromActiveProposalQueue(ctx, proposal.Id, *proposal.VotingEndTime)
 
 		// when proposal become active
-		keeper.AfterProposalVotingPeriodEnded(ctx, proposal.ProposalId)
+		keeper.AfterProposalVotingPeriodEnded(ctx, proposal.Id)
 
 		logger.Info(
 			"proposal tallied",
-			"proposal", proposal.ProposalId,
+			"proposal", proposal.Id,
 			"title", proposal.GetTitle(),
 			"result", logMsg,
 		)
@@ -109,7 +109,7 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				govtypes.EventTypeActiveProposal,
-				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.ProposalId)),
+				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.Id)),
 				sdk.NewAttribute(govtypes.AttributeKeyProposalResult, tagValue),
 			),
 		)

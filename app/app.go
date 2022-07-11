@@ -442,6 +442,12 @@ func NewMarsApp(
 	//
 	// here we use the customized gov keeper, which requires an additional `wasmKeeper` parameter
 	// compared to the vanilla govkeeper
+	govConfig := govtypes.DefaultConfig()
+	/*
+		Example of setting gov params:
+		govConfig.MaxMetadataLen = 10000
+	*/
+
 	app.GovKeeper = customgovkeeper.NewKeeper(
 		codec,
 		keys[govtypes.StoreKey],
@@ -451,6 +457,8 @@ func NewMarsApp(
 		&stakingKeeper,
 		app.WasmKeeper,
 		initGovRouter(app),
+		app.MsgServiceRouter(),
+		govConfig,
 	)
 
 	// **** module options ****
