@@ -102,6 +102,7 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		queryCommand(),
 		txCommand(),
 		tmcli.NewCompletionCmd(rootCmd, true),
+		NewTestnetCmd(marsapp.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		config.Cmd(),
 		debug.Cmd(),
 		keys.Commands(marsapp.DefaultNodeHome),
