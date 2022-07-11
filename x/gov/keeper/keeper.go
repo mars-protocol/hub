@@ -32,7 +32,7 @@ func NewKeeper(
 	wasmKeeper wasmtypes.ViewKeeper, rtr govv1beta1.Router,
 ) Keeper {
 	return Keeper{
-		Keeper:        govkeeper.NewKeeper(cdc, key, paramSpace, authKeeper, bankKeeper, stakingKeeper, rtr),
+		Keeper:        govkeeper.NewKeeper(cdc, key, paramSpace, authKeeper, bankKeeper, stakingKeeper, rtr, govconfig),
 		stakingKeeper: stakingKeeper,
 		wasmKeeper:    wasmKeeper,
 	}
