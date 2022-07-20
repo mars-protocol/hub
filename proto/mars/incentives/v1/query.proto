@@ -1,0 +1,52 @@
+syntax = "proto3";
+package mars.hub.incentives.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "mars/hub/incentives/v1/incentives.proto";
+
+option go_package = "github.com/mars-protocol/hub/x/incentives/types";
+
+// Query defines the gRPC querier service for the incentives module
+service Query {
+  // Program queries the release schedule of an incentives program
+  rpc Program(QueryProgramRequest) returns (QueryProgramResponse) {
+    option (google.api.http).get = "/mars/incentives/v1/program/{id}";
+  }
+
+  // Programs queries the release schedules of all incentives programs
+  rpc Programs(QueryProgramsRequest) returns (QueryProgramsResponse) {
+    option (google.api.http).get = "/mars/incentives/v1/programs";
+  }
+}
+
+// QueryProgramRequest is the request type for the Query/Program RPC method
+message QueryProgramRequest {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // ID is the identifier of the incentives program to be queried
+  uint32 id = 1;
+}
+
+// QueryProgramResponse is the response type for the Query/Program RPC method
+message QueryProgramResponse {
+  // Program is the parameters of the incentives program
+  Program program = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryProgramsRequest is the request type for the Query/Programs RPC method
+message QueryProgramsRequest {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // Pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryProgramResponse is the response type for the Query/Programs RPC method
+message QueryProgramsResponse {
+  // Program is the parameters of the incentives program
+  repeated Program programs = 1 [(gogoproto.nullable) = false];
+}

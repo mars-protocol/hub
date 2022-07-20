@@ -1,0 +1,7 @@
+syntax = "proto3";
+package mars.hub.incentives.v1;
+
+option go_package = "github.com/mars-protocol/hub/x/incentives/types";
+
+// GenesisState defines the incentives module's genesis state
+message GenesisState {}

@@ -1,0 +1,92 @@
+syntax = "proto3";
+package mars.hub.incentives.v1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/mars-protocol/hub/x/incentives/types";
+
+// Program defines the parameters of an incentives program
+message Program {
+  // ID is the identifier of this incentives program
+  uint32 id = 1;
+
+  // StartTime is the UNIX timestamp of which this incentives program shall begin
+  google.protobuf.Timestamp start_time = 2 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"start_time\""
+  ];
+
+  // EndTime is the UNIX timestamp of which this incentives program shall finish
+  google.protobuf.Timestamp end_time = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"end_time\""
+  ];
+
+  // TotalAmount is the total amount of coins that shall be released to stakers throughout the span of this incentives program
+  repeated cosmos.base.v1beta1.Coin total_amount = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"total_amount\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+
+  // ReleasedAmount is the amount of coins that have already been released to the stakers as part of this incentives program
+  repeated cosmos.base.v1beta1.Coin released_amount = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"released_amount\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// CreateIncentivesProgramProposal defines a governance proposal for starting a new incentives program
+message CreateIncentivesProgramProposal {
+  option (gogoproto.equal)            = false;
+  option (gogoproto.goproto_getters)  = false;
+  option (gogoproto.goproto_stringer) = false;
+
+  // Title is the title of the proposal
+  string title = 1;
+
+  // Description is the description of the proposal
+  string description = 2;
+
+  // StartTime is the UNIX timestamp of which this incentives program shall begin
+  google.protobuf.Timestamp start_time = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"start_time\""
+  ];
+
+  // EndTime is the UNIX timestamp of which this incentives program shall finish
+  google.protobuf.Timestamp end_time = 4 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"end_time\""
+  ];
+
+  // TotalAmount is the total amount of coins that shall be released to stakers throughout the span of this incentives program
+  repeated cosmos.base.v1beta1.Coin total_amount = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"total_amount\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// TerminateIncentivesProgramsProposal defines a governance proposal for pre-mature ending of one or more incentives programs
+message TerminateIncentivesProgramsProposal {
+  option (gogoproto.equal)            = false;
+  option (gogoproto.goproto_getters)  = false;
+  option (gogoproto.goproto_stringer) = false;
+
+  // Title is the title of the proposal
+  string title = 1;
+
+  // Description is the description of the proposal
+  string description = 2;
+
+  // IDs is the identifiers of the incentives programs which are to be terminated
+  repeated uint32 ids = 3;
+}
