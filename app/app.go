@@ -51,6 +51,7 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
@@ -79,8 +80,6 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// customized core modules
-	customdistr "github.com/mars-protocol/hub/x/distribution"
-	customdistrkeeper "github.com/mars-protocol/hub/x/distribution/keeper"
 	customgov "github.com/mars-protocol/hub/x/gov"
 	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
 
@@ -212,7 +211,7 @@ type MarsApp struct {
 	BankKeeper        bankkeeper.Keeper
 	CapabilityKeeper  *capabilitykeeper.Keeper
 	CrisisKeeper      crisiskeeper.Keeper
-	DistrKeeper       customdistrkeeper.Keeper // replaces the vanilla distr keeper with our custom one
+	DistrKeeper       distrkeeper.Keeper
 	EvidenceKeeper    evidencekeeper.Keeper
 	FeeGrantKeeper    feegrantkeeper.Keeper
 	GovKeeper         customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
@@ -359,7 +358,7 @@ func NewMarsApp(
 		app.BankKeeper,
 		getSubspace(app, stakingtypes.ModuleName),
 	)
-	app.DistrKeeper = customdistrkeeper.NewKeeper(
+	app.DistrKeeper = distrkeeper.NewKeeper(
 		codec,
 		keys[distrtypes.StoreKey],
 		getSubspace(app, distrtypes.ModuleName),
@@ -474,7 +473,7 @@ func NewMarsApp(
 		bank.NewAppModule(codec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(codec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
-		customdistr.NewAppModule(codec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		distr.NewAppModule(codec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		feegrantmodule.NewAppModule(codec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
@@ -724,7 +723,7 @@ func getEnabledProposals() []wasm.ProposalType {
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 
-	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
+	// delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
 
 	return modAccAddrs
 }
@@ -754,7 +753,7 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	// core modules
 	govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler)
 	govRouter.AddRoute(paramsproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper))
-	govRouter.AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper.Keeper))
+	govRouter.AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper))
 	govRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
 
 	// ibc modules
