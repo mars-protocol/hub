@@ -99,6 +99,12 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
+	// mars modules
+	"github.com/mars-protocol/hub/x/safetyfund"
+	safetyfundclient "github.com/mars-protocol/hub/x/safetyfund/client"
+	safetyfundkeeper "github.com/mars-protocol/hub/x/safetyfund/keeper"
+	safetyfundtypes "github.com/mars-protocol/hub/x/safetyfund/types"
+
 	marswasm "github.com/mars-protocol/hub/app/wasm"
 	marsdocs "github.com/mars-protocol/hub/docs"
 )
@@ -141,6 +147,7 @@ var (
 		ibc.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		safetyfund.AppModuleBasic{},
 	)
 
 	// governance proposal handlers
@@ -152,6 +159,7 @@ var (
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+		safetyfundclient.ProposalHandler,
 	)
 
 	// module account permissions
@@ -163,6 +171,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                {authtypes.Burner},
+		safetyfundtypes.ModuleName:     nil,
 	}
 )
 
@@ -222,6 +231,7 @@ type MarsApp struct {
 	IBCKeeper         *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
 	IBCTransferKeeper ibctransferkeeper.Keeper
 	WasmKeeper        wasm.Keeper
+	SafetyFundKeeper  safetyfundkeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
@@ -444,6 +454,9 @@ func NewMarsApp(
 		wasmOpts...,
 	)
 
+	// mars module keepers
+	app.SafetyFundKeeper = safetyfundkeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
+
 	// finally, create gov keeper
 	//
 	// here we use the customized gov keeper, which requires an additional `wasmKeeper` parameter
@@ -485,6 +498,7 @@ func NewMarsApp(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		safetyfund.NewAppModule(app.SafetyFundKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that there is nothing left
@@ -508,6 +522,7 @@ func NewMarsApp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
+		safetyfundtypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -528,6 +543,7 @@ func NewMarsApp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
+		safetyfundtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are properly initialized with
@@ -552,6 +568,7 @@ func NewMarsApp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
+		safetyfundtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -723,7 +740,8 @@ func getEnabledProposals() []wasm.ProposalType {
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 
-	// delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(safetyfundtypes.ModuleName).String())
 
 	return modAccAddrs
 }
@@ -750,17 +768,13 @@ func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, k
 func initGovRouter(app *MarsApp) govtypes.Router {
 	govRouter := govtypes.NewRouter()
 
-	// core modules
 	govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler)
 	govRouter.AddRoute(paramsproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper))
 	govRouter.AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper))
 	govRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
-
-	// ibc modules
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
-
-	// wasm modules
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
+	govRouter.AddRoute(safetyfundtypes.RouterKey, safetyfund.NewSafetyFundSpendProposalHandler(app.SafetyFundKeeper))
 
 	return govRouter
 }
