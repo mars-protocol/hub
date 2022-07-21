@@ -54,7 +54,7 @@ func (sfsp *SafetyFundSpendProposal) ValidateBasic() error {
 	}
 
 	if sfsp.Recipient == "" {
-		return ErrEmptyProposalRecipient
+		return ErrInvalidProposalRecipient
 	}
 
 	return nil
