@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -14,6 +16,16 @@ var _ govtypes.Content = &SafetyFundSpendProposal{}
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeSafetyFundSpend)
 	govtypes.RegisterProposalTypeCodec(&SafetyFundSpendProposal{}, "mars/SafetyFundSpendProposal")
+}
+
+// NewSafetyFundSpendProposal creates a new instance of SafetyFundSpendProposal
+func NewSafetyFundSpendProposal(title, description string, recipientAddr sdk.AccAddress, amount sdk.Coins) *SafetyFundSpendProposal {
+	return &SafetyFundSpendProposal{
+		Title:       title,
+		Description: description,
+		Recipient:   recipientAddr.String(),
+		Amount:      amount,
+	}
 }
 
 func (sfsp *SafetyFundSpendProposal) GetTitle() string {

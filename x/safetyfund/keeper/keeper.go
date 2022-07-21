@@ -7,6 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/mars-protocol/hub/x/safetyfund/types"
 )
 
@@ -31,11 +33,14 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("")
 }
 
+// GetModuleAccount returns the safety fund module account
+func (k Keeper) GetModuleAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
 // GetBalances returns the amount of coins available in the safety fund
 func (k Keeper) GetBalances(ctx sdk.Context) sdk.Coins {
-	safetyFundAddr := k.authKeeper.GetModuleAddress(types.ModuleName)
-
-	return k.bankKeeper.GetAllBalances(ctx, safetyFundAddr)
+	return k.bankKeeper.GetAllBalances(ctx, k.authKeeper.GetModuleAddress(types.ModuleName))
 }
 
 // ReleaseFund releases coins from the safety fund to the specified recipient
