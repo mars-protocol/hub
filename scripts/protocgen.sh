@@ -42,8 +42,8 @@ for dir in $proto_dirs; do
 done
 
 # move proto files to the right places
-if [ -d "./github.com/mars-protocol/mars" ]; then
-  cp -r github.com/mars-protocol/mars/* ./
+if [ -d "./github.com/mars-protocol/hub" ]; then
+  cp -r github.com/mars-protocol/hub/* ./
   rm -rf github.com
 fi
 

@@ -103,6 +103,7 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		tmcli.NewCompletionCmd(rootCmd, true),
 		config.Cmd(),
 		debug.Cmd(),
+		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
 		keys.Commands(marsapp.DefaultNodeHome),
 		rpc.StatusCommand(),
 	)
@@ -120,7 +121,6 @@ func genesisCommand(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, marsapp.DefaultNodeHome),
 		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(
