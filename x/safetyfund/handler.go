@@ -10,13 +10,15 @@ import (
 	"github.com/mars-protocol/hub/x/safetyfund/types"
 )
 
-func NewHandler() sdk.Handler {
+// NewMsgHandler creates a new handler for messages
+func NewMsgHandler() sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized safetyfund message type: %T", msg)
 	}
 }
 
-func NewSafetyFundSpendProposalHandler(k keeper.Keeper) govtypes.Handler {
+// NewProposalHandler creates a new handler for governance proposals
+func NewProposalHandler(k keeper.Keeper) govtypes.Handler {
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c := content.(type) {
 		case *types.SafetyFundSpendProposal:
