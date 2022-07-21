@@ -4,7 +4,7 @@ package mars.hub.incentives.v1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "mars/hub/incentives/v1/incentives.proto";
+import "mars/incentives/v1/incentives.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
