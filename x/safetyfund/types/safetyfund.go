@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -61,8 +60,7 @@ func (sfsp *SafetyFundSpendProposal) ValidateBasic() error {
 }
 
 func (sfsp SafetyFundSpendProposal) String() string {
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf(
+	return fmt.Sprintf(
 		`Community Pool Spend Proposal:
   Title:       %s
   Description: %s
@@ -73,6 +71,5 @@ func (sfsp SafetyFundSpendProposal) String() string {
 		sfsp.Description,
 		sfsp.Recipient,
 		sfsp.Amount,
-	))
-	return b.String()
+	)
 }
