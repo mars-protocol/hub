@@ -41,7 +41,7 @@ message Schedule {
   ];
 }
 
-// CreateIncentivesProgramProposal defines a governance proposal for starting a new incentives schedule
+// CreateIncentivesScheduleProposal defines a governance proposal for starting a new incentives schedule
 message CreateIncentivesScheduleProposal {
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_getters)  = false;
@@ -74,8 +74,8 @@ message CreateIncentivesScheduleProposal {
   ];
 }
 
-// TerminateIncentivesProgramsProposal defines a governance proposal for pre-mature ending of one or more incentives schedules
-message TerminateIncentivesPScheduleProposal {
+// TerminateIncentivesScheduleProposal defines a governance proposal for pre-mature ending of one or more incentives schedules
+message TerminateIncentivesScheduleProposal {
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_getters)  = false;
   option (gogoproto.goproto_stringer) = false;
