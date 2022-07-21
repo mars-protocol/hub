@@ -5,7 +5,6 @@ run:
 linters:
   disable-all: true
   enable:
-    # - bodyclose # disabled because of go1.18
     - deadcode
     - depguard
     - dogsled
@@ -16,7 +15,6 @@ linters:
     - gofmt
     - gofumpt
     - goimports
-    # - golint # deprecated, replaced by revive
     - gosec
     - gosimple
     - govet
@@ -25,12 +23,10 @@ linters:
     - nakedret
     - prealloc
     - staticcheck
-    # - structcheck # disabled because of go1.18
     - stylecheck
     - revive
     - typecheck
     - unconvert
     - unused
-    # - unparam # disabled because of go1.18
     - misspell
     - nolintlint
