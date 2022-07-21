@@ -10,34 +10,34 @@ option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
 // Query defines the gRPC querier service for the incentives module
 service Query {
-  // Program queries the release schedule of an incentives program
-  rpc Program(QueryProgramRequest) returns (QueryProgramResponse) {
-    option (google.api.http).get = "/mars/incentives/v1/program/{id}";
+  // Schedule queries the release schedule of an incentives schedule
+  rpc Schedule(QueryScheduleRequest) returns (QueryScheduleResponse) {
+    option (google.api.http).get = "/mars/incentives/v1/schedule/{id}";
   }
 
-  // Programs queries the release schedules of all incentives programs
-  rpc Programs(QueryProgramsRequest) returns (QueryProgramsResponse) {
-    option (google.api.http).get = "/mars/incentives/v1/programs";
+  // Schedules queries the release schedules of all incentives schedules
+  rpc Schedules(QuerySchedulesRequest) returns (QuerySchedulesResponse) {
+    option (google.api.http).get = "/mars/incentives/v1/schedules";
   }
 }
 
-// QueryProgramRequest is the request type for the Query/Program RPC method
-message QueryProgramRequest {
+// QueryScheduleRequest is the request type for the Query/Schedule RPC method
+message QueryScheduleRequest {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  // ID is the identifier of the incentives program to be queried
+  // ID is the identifier of the incentives schedule to be queried
   uint32 id = 1;
 }
 
-// QueryProgramResponse is the response type for the Query/Program RPC method
-message QueryProgramResponse {
-  // Program is the parameters of the incentives program
-  Program program = 1 [(gogoproto.nullable) = false];
+// QueryScheduleResponse is the response type for the Query/Schedule RPC method
+message QueryScheduleResponse {
+  // Schedule is the parameters of the incentives schedule
+  Schedule schedule = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryProgramsRequest is the request type for the Query/Programs RPC method
-message QueryProgramsRequest {
+// QuerySchedulesRequest is the request type for the Query/Schedules RPC method
+message QuerySchedulesRequest {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -45,8 +45,8 @@ message QueryProgramsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryProgramResponse is the response type for the Query/Programs RPC method
-message QueryProgramsResponse {
-  // Program is the parameters of the incentives program
-  repeated Program programs = 1 [(gogoproto.nullable) = false];
+// QueryScheduleResponse is the response type for the Query/Schedules RPC method
+message QuerySchedulesResponse {
+  // Schedule is the parameters of the incentives schedule
+  repeated Schedule schedules = 1 [(gogoproto.nullable) = false];
 }

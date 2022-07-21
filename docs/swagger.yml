@@ -31888,36 +31888,36 @@ paths:
           type: boolean
       tags:
         - Query
-  /mars/incentives/v1/program/{id}:
+  /mars/incentives/v1/schedule/{id}:
     get:
-      summary: Program queries the release schedule of an incentives program
-      operationId: Program
+      summary: Schedule queries the release schedule of an incentives schedule
+      operationId: Schedule
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              program:
-                title: Program is the parameters of the incentives program
+              schedule:
+                title: Schedule is the parameters of the incentives schedule
                 type: object
                 properties:
                   id:
                     type: integer
                     format: int64
-                    title: ID is the identifier of this incentives program
+                    title: ID is the identifier of this incentives schedule
                   start_time:
                     type: string
                     format: date-time
                     title: >-
                       StartTime is the UNIX timestamp of which this incentives
-                      program shall begin
+                      schedule shall begin
                   end_time:
                     type: string
                     format: date-time
                     title: >-
                       EndTime is the UNIX timestamp of which this incentives
-                      program shall finish
+                      schedule shall finish
                   total_amount:
                     type: array
                     items:
@@ -31938,7 +31938,7 @@ paths:
                     title: >-
                       TotalAmount is the total amount of coins that shall be
                       released to stakers throughout the span of this incentives
-                      program
+                      schedule
                   released_amount:
                     type: array
                     items:
@@ -31959,9 +31959,9 @@ paths:
                     title: >-
                       ReleasedAmount is the amount of coins that have already
                       been released to the stakers as part of this incentives
-                      program
+                      schedule
             title: >-
-              QueryProgramResponse is the response type for the Query/Program
+              QueryScheduleResponse is the response type for the Query/Schedule
               RPC method
         default:
           description: An unexpected error response.
@@ -31987,24 +31987,24 @@ paths:
                       format: byte
       parameters:
         - name: id
-          description: ID is the identifier of the incentives program to be queried
+          description: ID is the identifier of the incentives schedule to be queried
           in: path
           required: true
           type: integer
           format: int64
       tags:
         - Query
-  /mars/incentives/v1/programs:
+  /mars/incentives/v1/schedules:
     get:
-      summary: Programs queries the release schedules of all incentives programs
-      operationId: Programs
+      summary: Schedules queries the release schedules of all incentives schedules
+      operationId: Schedules
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              programs:
+              schedules:
                 type: array
                 items:
                   type: object
@@ -32012,19 +32012,19 @@ paths:
                     id:
                       type: integer
                       format: int64
-                      title: ID is the identifier of this incentives program
+                      title: ID is the identifier of this incentives schedule
                     start_time:
                       type: string
                       format: date-time
                       title: >-
                         StartTime is the UNIX timestamp of which this incentives
-                        program shall begin
+                        schedule shall begin
                     end_time:
                       type: string
                       format: date-time
                       title: >-
                         EndTime is the UNIX timestamp of which this incentives
-                        program shall finish
+                        schedule shall finish
                     total_amount:
                       type: array
                       items:
@@ -32046,7 +32046,7 @@ paths:
                       title: >-
                         TotalAmount is the total amount of coins that shall be
                         released to stakers throughout the span of this
-                        incentives program
+                        incentives schedule
                     released_amount:
                       type: array
                       items:
@@ -32068,11 +32068,13 @@ paths:
                       title: >-
                         ReleasedAmount is the amount of coins that have already
                         been released to the stakers as part of this incentives
-                        program
-                  title: Program defines the parameters of an incentives program
-                title: Program is the parameters of the incentives program
+                        schedule
+                  title: >-
+                    Schedule defines the parameters of an incentives releasing
+                    schedule
+                title: Schedule is the parameters of the incentives schedule
             title: >-
-              QueryProgramResponse is the response type for the Query/Programs
+              QueryScheduleResponse is the response type for the Query/Schedules
               RPC method
         default:
           description: An unexpected error response.
@@ -53541,82 +53543,28 @@ definitions:
     title: |-
       QuerySmartContractStateResponse is the response type for the
       Query/SmartContractState RPC method
-  mars.hub.incentives.v1.Program:
+  mars.hub.incentives.v1.QueryScheduleResponse:
     type: object
     properties:
-      id:
-        type: integer
-        format: int64
-        title: ID is the identifier of this incentives program
-      start_time:
-        type: string
-        format: date-time
-        title: >-
-          StartTime is the UNIX timestamp of which this incentives program shall
-          begin
-      end_time:
-        type: string
-        format: date-time
-        title: >-
-          EndTime is the UNIX timestamp of which this incentives program shall
-          finish
-      total_amount:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-            amount:
-              type: string
-          description: |-
-            Coin defines a token with a denomination and an amount.
-
-            NOTE: The amount field is an Int which implements the custom method
-            signatures required by gogoproto.
-        title: >-
-          TotalAmount is the total amount of coins that shall be released to
-          stakers throughout the span of this incentives program
-      released_amount:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-            amount:
-              type: string
-          description: |-
-            Coin defines a token with a denomination and an amount.
-
-            NOTE: The amount field is an Int which implements the custom method
-            signatures required by gogoproto.
-        title: >-
-          ReleasedAmount is the amount of coins that have already been released
-          to the stakers as part of this incentives program
-    title: Program defines the parameters of an incentives program
-  mars.hub.incentives.v1.QueryProgramResponse:
-    type: object
-    properties:
-      program:
-        title: Program is the parameters of the incentives program
+      schedule:
+        title: Schedule is the parameters of the incentives schedule
         type: object
         properties:
           id:
             type: integer
             format: int64
-            title: ID is the identifier of this incentives program
+            title: ID is the identifier of this incentives schedule
           start_time:
             type: string
             format: date-time
             title: >-
-              StartTime is the UNIX timestamp of which this incentives program
+              StartTime is the UNIX timestamp of which this incentives schedule
               shall begin
           end_time:
             type: string
             format: date-time
             title: >-
-              EndTime is the UNIX timestamp of which this incentives program
+              EndTime is the UNIX timestamp of which this incentives schedule
               shall finish
           total_amount:
             type: array
@@ -53637,7 +53585,7 @@ definitions:
                 signatures required by gogoproto.
             title: >-
               TotalAmount is the total amount of coins that shall be released to
-              stakers throughout the span of this incentives program
+              stakers throughout the span of this incentives schedule
           released_amount:
             type: array
             items:
@@ -53657,12 +53605,14 @@ definitions:
                 signatures required by gogoproto.
             title: >-
               ReleasedAmount is the amount of coins that have already been
-              released to the stakers as part of this incentives program
-    title: QueryProgramResponse is the response type for the Query/Program RPC method
-  mars.hub.incentives.v1.QueryProgramsResponse:
+              released to the stakers as part of this incentives schedule
+    title: >-
+      QueryScheduleResponse is the response type for the Query/Schedule RPC
+      method
+  mars.hub.incentives.v1.QuerySchedulesResponse:
     type: object
     properties:
-      programs:
+      schedules:
         type: array
         items:
           type: object
@@ -53670,18 +53620,18 @@ definitions:
             id:
               type: integer
               format: int64
-              title: ID is the identifier of this incentives program
+              title: ID is the identifier of this incentives schedule
             start_time:
               type: string
               format: date-time
               title: >-
-                StartTime is the UNIX timestamp of which this incentives program
-                shall begin
+                StartTime is the UNIX timestamp of which this incentives
+                schedule shall begin
             end_time:
               type: string
               format: date-time
               title: >-
-                EndTime is the UNIX timestamp of which this incentives program
+                EndTime is the UNIX timestamp of which this incentives schedule
                 shall finish
             total_amount:
               type: array
@@ -53702,7 +53652,7 @@ definitions:
                   signatures required by gogoproto.
               title: >-
                 TotalAmount is the total amount of coins that shall be released
-                to stakers throughout the span of this incentives program
+                to stakers throughout the span of this incentives schedule
             released_amount:
               type: array
               items:
@@ -53722,12 +53672,66 @@ definitions:
                   signatures required by gogoproto.
               title: >-
                 ReleasedAmount is the amount of coins that have already been
-                released to the stakers as part of this incentives program
-          title: Program defines the parameters of an incentives program
-        title: Program is the parameters of the incentives program
+                released to the stakers as part of this incentives schedule
+          title: Schedule defines the parameters of an incentives releasing schedule
+        title: Schedule is the parameters of the incentives schedule
     title: >-
-      QueryProgramResponse is the response type for the Query/Programs RPC
+      QueryScheduleResponse is the response type for the Query/Schedules RPC
       method
+  mars.hub.incentives.v1.Schedule:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+        title: ID is the identifier of this incentives schedule
+      start_time:
+        type: string
+        format: date-time
+        title: >-
+          StartTime is the UNIX timestamp of which this incentives schedule
+          shall begin
+      end_time:
+        type: string
+        format: date-time
+        title: >-
+          EndTime is the UNIX timestamp of which this incentives schedule shall
+          finish
+      total_amount:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a token with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+        title: >-
+          TotalAmount is the total amount of coins that shall be released to
+          stakers throughout the span of this incentives schedule
+      released_amount:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a token with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+        title: >-
+          ReleasedAmount is the amount of coins that have already been released
+          to the stakers as part of this incentives schedule
+    title: Schedule defines the parameters of an incentives releasing schedule
   mars.safetyfund.v1.QueryBalancesResponse:
     type: object
     properties:
