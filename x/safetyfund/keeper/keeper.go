@@ -6,7 +6,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/mars-protocol/hub/x/safetyfund/types"
@@ -30,7 +29,7 @@ func NewKeeper(authKeeper types.AccountKeeper, bankKeeper types.BankKeeper) Keep
 
 // Logger returns a module-specific logger
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("")
+	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // GetModuleAccount returns the safety fund module account
