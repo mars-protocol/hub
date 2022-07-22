@@ -336,8 +336,12 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 	// validator votes yes
 	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, valoper, govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
 
+	// NOTE: we now delete the votes after tallying, so in order for the 2nd test to work, we have to
+	// use a cache context for the 1st test
+	cacheCtx, _ := ctx.CacheContext()
+
 	// if voters[0] does not override validator's vote, proposal should pass with 79 yes vs 21 not-voting
-	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
+	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(cacheCtx, proposal)
 	require.True(t, passes)
 	require.False(t, burnDeposits)
 	require.Equal(
@@ -357,4 +361,23 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 		govtypes.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
 		tallyResults,
 	)
+}
+
+func TestDeleteVoteAfterTally(t *testing.T) {
+	ctx, app, proposal, _, voters := setupTest(t, []VotingPower{{Staked: 1, Vesting: 0}})
+
+	voter := voters[0]
+
+	// the user votes
+	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voter, govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+
+	// the vote should have been registered
+	votes := app.GovKeeper.GetVotes(ctx, proposal.ProposalId)
+	require.Equal(t, 1, len(votes))
+
+	_, _, _ = app.GovKeeper.Tally(ctx, proposal)
+
+	// the vote should have been deleted
+	votes = app.GovKeeper.GetVotes(ctx, proposal.ProposalId)
+	require.Empty(t, votes)
 }
