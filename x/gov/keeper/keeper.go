@@ -44,7 +44,7 @@ func NewKeeper(
 //
 // NOTE: the vanilla gov module does not make the `deleteVote` function public, so in order to delete
 // votes, we need to redefine the function here
-func (keeper Keeper) deleteVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
-	store := ctx.KVStore(keeper.storeKey)
+func (k Keeper) deleteVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
+	store := ctx.KVStore(k.storeKey)
 	store.Delete(govtypes.VoteKey(proposalID, voterAddr))
 }
