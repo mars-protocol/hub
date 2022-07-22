@@ -86,7 +86,6 @@ func NewAppModule(keeper keeper.Keeper) AppModule {
 }
 
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
