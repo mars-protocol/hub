@@ -336,8 +336,8 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 	// validator votes yes
 	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, valoper, govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
 
-	// NOTE: we now delete the votes after tallying, so in order for the 2nd test to work, we have to
-	// use a cache context for the 1st test
+	// NOTE: we now delete the votes after tallying, so in order for the 2nd part of this test to work,
+	// we have to use a cached context for the 1st part
 	cacheCtx, _ := ctx.CacheContext()
 
 	// if voters[0] does not override validator's vote, proposal should pass with 79 yes vs 21 not-voting
