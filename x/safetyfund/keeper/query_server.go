@@ -11,16 +11,21 @@ import (
 	"github.com/mars-protocol/hub/x/safetyfund/types"
 )
 
-var _ types.QueryServer = Keeper{}
+type queryServer struct{ k Keeper }
 
-func (k Keeper) Balances(goCtx context.Context, req *types.QueryBalancesRequest) (*types.QueryBalancesResponse, error) {
+// NewQueryServerImpl creates an implementation of the `QueryServer` interface for the given keeper
+func NewQueryServerImpl(k Keeper) types.QueryServer {
+	return &queryServer{k}
+}
+
+func (qs queryServer) Balances(goCtx context.Context, req *types.QueryBalancesRequest) (*types.QueryBalancesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	balances := k.GetBalances(ctx)
+	balances := qs.k.GetBalances(ctx)
 
 	return &types.QueryBalancesResponse{Balances: balances}, nil
 }
