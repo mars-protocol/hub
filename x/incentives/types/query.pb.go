@@ -30,24 +30,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryProgramRequest is the request type for the Query/Program RPC method
-type QueryProgramRequest struct {
-	// ID is the identifier of the incentives program to be queried
+// QueryScheduleRequest is the request type for the Query/Schedule RPC method
+type QueryScheduleRequest struct {
+	// ID is the identifier of the incentives schedule to be queried
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
-func (m *QueryProgramRequest) Reset()         { *m = QueryProgramRequest{} }
-func (m *QueryProgramRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryProgramRequest) ProtoMessage()    {}
-func (*QueryProgramRequest) Descriptor() ([]byte, []int) {
+func (m *QueryScheduleRequest) Reset()         { *m = QueryScheduleRequest{} }
+func (m *QueryScheduleRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryScheduleRequest) ProtoMessage()    {}
+func (*QueryScheduleRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b5ccb4babaf29c00, []int{0}
 }
-func (m *QueryProgramRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryScheduleRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryProgramRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryScheduleRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryProgramRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryScheduleRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,36 +57,36 @@ func (m *QueryProgramRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QueryProgramRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryProgramRequest.Merge(m, src)
+func (m *QueryScheduleRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryScheduleRequest.Merge(m, src)
 }
-func (m *QueryProgramRequest) XXX_Size() int {
+func (m *QueryScheduleRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryProgramRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryProgramRequest.DiscardUnknown(m)
+func (m *QueryScheduleRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryScheduleRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryProgramRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryScheduleRequest proto.InternalMessageInfo
 
-// QueryProgramResponse is the response type for the Query/Program RPC method
-type QueryProgramResponse struct {
-	// Program is the parameters of the incentives program
-	Program Program `protobuf:"bytes,1,opt,name=program,proto3" json:"program"`
+// QueryScheduleResponse is the response type for the Query/Schedule RPC method
+type QueryScheduleResponse struct {
+	// Schedule is the parameters of the incentives schedule
+	Schedule Schedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule"`
 }
 
-func (m *QueryProgramResponse) Reset()         { *m = QueryProgramResponse{} }
-func (m *QueryProgramResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryProgramResponse) ProtoMessage()    {}
-func (*QueryProgramResponse) Descriptor() ([]byte, []int) {
+func (m *QueryScheduleResponse) Reset()         { *m = QueryScheduleResponse{} }
+func (m *QueryScheduleResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryScheduleResponse) ProtoMessage()    {}
+func (*QueryScheduleResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b5ccb4babaf29c00, []int{1}
 }
-func (m *QueryProgramResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryScheduleResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryProgramResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryProgramResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryScheduleResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -96,43 +96,43 @@ func (m *QueryProgramResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryProgramResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryProgramResponse.Merge(m, src)
+func (m *QueryScheduleResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryScheduleResponse.Merge(m, src)
 }
-func (m *QueryProgramResponse) XXX_Size() int {
+func (m *QueryScheduleResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryProgramResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryProgramResponse.DiscardUnknown(m)
+func (m *QueryScheduleResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryScheduleResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryProgramResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryScheduleResponse proto.InternalMessageInfo
 
-func (m *QueryProgramResponse) GetProgram() Program {
+func (m *QueryScheduleResponse) GetSchedule() Schedule {
 	if m != nil {
-		return m.Program
+		return m.Schedule
 	}
-	return Program{}
+	return Schedule{}
 }
 
-// QueryProgramsRequest is the request type for the Query/Programs RPC method
-type QueryProgramsRequest struct {
+// QuerySchedulesRequest is the request type for the Query/Schedules RPC method
+type QuerySchedulesRequest struct {
 	// Pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryProgramsRequest) Reset()         { *m = QueryProgramsRequest{} }
-func (m *QueryProgramsRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryProgramsRequest) ProtoMessage()    {}
-func (*QueryProgramsRequest) Descriptor() ([]byte, []int) {
+func (m *QuerySchedulesRequest) Reset()         { *m = QuerySchedulesRequest{} }
+func (m *QuerySchedulesRequest) String() string { return proto.CompactTextString(m) }
+func (*QuerySchedulesRequest) ProtoMessage()    {}
+func (*QuerySchedulesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b5ccb4babaf29c00, []int{2}
 }
-func (m *QueryProgramsRequest) XXX_Unmarshal(b []byte) error {
+func (m *QuerySchedulesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryProgramsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QuerySchedulesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryProgramsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QuerySchedulesRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -142,36 +142,36 @@ func (m *QueryProgramsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryProgramsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryProgramsRequest.Merge(m, src)
+func (m *QuerySchedulesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuerySchedulesRequest.Merge(m, src)
 }
-func (m *QueryProgramsRequest) XXX_Size() int {
+func (m *QuerySchedulesRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryProgramsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryProgramsRequest.DiscardUnknown(m)
+func (m *QuerySchedulesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuerySchedulesRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryProgramsRequest proto.InternalMessageInfo
+var xxx_messageInfo_QuerySchedulesRequest proto.InternalMessageInfo
 
-// QueryProgramResponse is the response type for the Query/Programs RPC method
-type QueryProgramsResponse struct {
-	// Program is the parameters of the incentives program
-	Programs []Program `protobuf:"bytes,1,rep,name=programs,proto3" json:"programs"`
+// QueryScheduleResponse is the response type for the Query/Schedules RPC method
+type QuerySchedulesResponse struct {
+	// Schedule is the parameters of the incentives schedule
+	Schedules []Schedule `protobuf:"bytes,1,rep,name=schedules,proto3" json:"schedules"`
 }
 
-func (m *QueryProgramsResponse) Reset()         { *m = QueryProgramsResponse{} }
-func (m *QueryProgramsResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryProgramsResponse) ProtoMessage()    {}
-func (*QueryProgramsResponse) Descriptor() ([]byte, []int) {
+func (m *QuerySchedulesResponse) Reset()         { *m = QuerySchedulesResponse{} }
+func (m *QuerySchedulesResponse) String() string { return proto.CompactTextString(m) }
+func (*QuerySchedulesResponse) ProtoMessage()    {}
+func (*QuerySchedulesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b5ccb4babaf29c00, []int{3}
 }
-func (m *QueryProgramsResponse) XXX_Unmarshal(b []byte) error {
+func (m *QuerySchedulesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryProgramsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QuerySchedulesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryProgramsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QuerySchedulesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -181,64 +181,64 @@ func (m *QueryProgramsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryProgramsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryProgramsResponse.Merge(m, src)
+func (m *QuerySchedulesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuerySchedulesResponse.Merge(m, src)
 }
-func (m *QueryProgramsResponse) XXX_Size() int {
+func (m *QuerySchedulesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryProgramsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryProgramsResponse.DiscardUnknown(m)
+func (m *QuerySchedulesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuerySchedulesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryProgramsResponse proto.InternalMessageInfo
+var xxx_messageInfo_QuerySchedulesResponse proto.InternalMessageInfo
 
-func (m *QueryProgramsResponse) GetPrograms() []Program {
+func (m *QuerySchedulesResponse) GetSchedules() []Schedule {
 	if m != nil {
-		return m.Programs
+		return m.Schedules
 	}
 	return nil
 }
 
 func init() {
-	proto.RegisterType((*QueryProgramRequest)(nil), "mars.hub.incentives.v1.QueryProgramRequest")
-	proto.RegisterType((*QueryProgramResponse)(nil), "mars.hub.incentives.v1.QueryProgramResponse")
-	proto.RegisterType((*QueryProgramsRequest)(nil), "mars.hub.incentives.v1.QueryProgramsRequest")
-	proto.RegisterType((*QueryProgramsResponse)(nil), "mars.hub.incentives.v1.QueryProgramsResponse")
+	proto.RegisterType((*QueryScheduleRequest)(nil), "mars.hub.incentives.v1.QueryScheduleRequest")
+	proto.RegisterType((*QueryScheduleResponse)(nil), "mars.hub.incentives.v1.QueryScheduleResponse")
+	proto.RegisterType((*QuerySchedulesRequest)(nil), "mars.hub.incentives.v1.QuerySchedulesRequest")
+	proto.RegisterType((*QuerySchedulesResponse)(nil), "mars.hub.incentives.v1.QuerySchedulesResponse")
 }
 
 func init() { proto.RegisterFile("mars/incentives/v1/query.proto", fileDescriptor_b5ccb4babaf29c00) }
 
 var fileDescriptor_b5ccb4babaf29c00 = []byte{
-	// 435 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0x3f, 0x6f, 0xd4, 0x30,
-	0x1c, 0x8d, 0x8f, 0x3f, 0x3d, 0x19, 0xc1, 0x60, 0x0a, 0xaa, 0xa2, 0xca, 0x39, 0x05, 0x84, 0x2a,
-	0xa0, 0xb6, 0x52, 0x36, 0x16, 0x44, 0x07, 0x24, 0xb6, 0x92, 0x05, 0xa9, 0x9b, 0x93, 0xb3, 0x7c,
-	0x96, 0x9a, 0x38, 0x8d, 0x9d, 0x88, 0x0a, 0xb1, 0x30, 0xb1, 0x80, 0x90, 0xf8, 0x02, 0x1d, 0xf9,
-	0x28, 0x1d, 0x2b, 0xb1, 0x30, 0x21, 0x74, 0xc7, 0xc0, 0xc7, 0x40, 0x71, 0x1c, 0x9a, 0x43, 0xa1,
-	0xca, 0x66, 0xd9, 0xef, 0xbd, 0xdf, 0x7b, 0xef, 0x67, 0x88, 0x33, 0x56, 0x6a, 0x2a, 0xf3, 0x94,
-	0xe7, 0x46, 0xd6, 0x5c, 0xd3, 0x3a, 0xa2, 0xc7, 0x15, 0x2f, 0x4f, 0x48, 0x51, 0x2a, 0xa3, 0xd0,
-	0xdd, 0xe6, 0x9d, 0x2c, 0xaa, 0x84, 0x5c, 0x60, 0x48, 0x1d, 0xf9, 0x0f, 0x53, 0xa5, 0x33, 0xa5,
-	0x69, 0xc2, 0x34, 0x6f, 0x09, 0xb4, 0x8e, 0x12, 0x6e, 0x58, 0x44, 0x0b, 0x26, 0x64, 0xce, 0x8c,
-	0x54, 0x79, 0xab, 0xe1, 0x6f, 0x0a, 0x25, 0x94, 0x3d, 0xd2, 0xe6, 0xe4, 0x6e, 0xb7, 0x85, 0x52,
-	0xe2, 0x88, 0x53, 0x56, 0x48, 0xca, 0xf2, 0x5c, 0x19, 0x4b, 0xd1, 0xee, 0xf5, 0xde, 0x80, 0xaf,
-	0x9e, 0x03, 0x0b, 0x0a, 0x29, 0xbc, 0xfd, 0xaa, 0x19, 0x7d, 0x50, 0x2a, 0x51, 0xb2, 0x2c, 0xe6,
-	0xc7, 0x15, 0xd7, 0x06, 0xdd, 0x82, 0x13, 0x39, 0xdf, 0x02, 0x33, 0xb0, 0x73, 0x33, 0x9e, 0xc8,
-	0xf9, 0xd3, 0xe9, 0x87, 0xd3, 0xc0, 0xfb, 0x7d, 0x1a, 0x78, 0xe1, 0x6b, 0xb8, 0xb9, 0x4e, 0xd0,
-	0x85, 0xca, 0x35, 0x47, 0xcf, 0xe0, 0x46, 0xd1, 0x5e, 0x59, 0xda, 0x8d, 0xbd, 0x80, 0x0c, 0xe7,
-	0x26, 0x8e, 0xb9, 0x7f, 0xf5, 0xec, 0x47, 0xe0, 0xc5, 0x1d, 0x2b, 0x5c, 0xac, 0x0b, 0xeb, 0xce,
-	0xca, 0x0b, 0x08, 0x2f, 0xea, 0x70, 0xda, 0x0f, 0x48, 0xdb, 0x1d, 0x69, 0xba, 0x23, 0x6d, 0xd9,
-	0xae, 0x3b, 0x72, 0xc0, 0x04, 0x77, 0xdc, 0xb8, 0xc7, 0xec, 0x45, 0x38, 0x84, 0x77, 0xfe, 0x99,
-	0xe4, 0x32, 0x3c, 0x87, 0x53, 0xe7, 0x46, 0x6f, 0x81, 0xd9, 0x95, 0xf1, 0x21, 0xfe, 0xd2, 0xf6,
-	0xbe, 0x4e, 0xe0, 0x35, 0x2b, 0x8e, 0x3e, 0x01, 0xb8, 0xe1, 0x50, 0xe8, 0xd1, 0xff, 0x64, 0x06,
-	0xba, 0xf7, 0x1f, 0x8f, 0x03, 0xb7, 0x9e, 0xc3, 0x9d, 0xf7, 0xdf, 0x7e, 0x7d, 0x99, 0x84, 0x68,
-	0x46, 0x07, 0xd6, 0xed, 0x6c, 0xd1, 0xb7, 0x72, 0xfe, 0x0e, 0x7d, 0x04, 0x70, 0xda, 0x45, 0x46,
-	0xa3, 0x86, 0x74, 0x3b, 0xf0, 0x77, 0x47, 0xa2, 0x9d, 0xa7, 0xfb, 0xd6, 0x13, 0x46, 0xdb, 0x97,
-	0x78, 0xd2, 0xfb, 0x2f, 0xcf, 0x96, 0x18, 0x9c, 0x2f, 0x31, 0xf8, 0xb9, 0xc4, 0xe0, 0xf3, 0x0a,
-	0x7b, 0xe7, 0x2b, 0xec, 0x7d, 0x5f, 0x61, 0xef, 0x90, 0x0a, 0x69, 0x9a, 0x59, 0xa9, 0xca, 0xac,
-	0xc2, 0xae, 0xfd, 0xab, 0xa9, 0x3a, 0xa2, 0x8b, 0x2a, 0xa1, 0x6f, 0xfa, 0x82, 0xe6, 0xa4, 0xe0,
-	0x3a, 0xb9, 0x6e, 0x01, 0x4f, 0xfe, 0x04, 0x00, 0x00, 0xff, 0xff, 0x1f, 0x9e, 0xd6, 0xec, 0x8b,
-	0x03, 0x00, 0x00,
+	// 436 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0xcd, 0xaa, 0xd3, 0x40,
+	0x18, 0xcd, 0xc4, 0x1f, 0x7a, 0x47, 0x74, 0x31, 0x5c, 0x2f, 0x25, 0x68, 0x52, 0x53, 0x14, 0x15,
+	0x3b, 0x63, 0xea, 0xce, 0x65, 0x11, 0xc1, 0x9d, 0xc6, 0x9d, 0x82, 0x30, 0x49, 0x86, 0x74, 0xa0,
+	0xcd, 0xa4, 0x9d, 0x49, 0xb0, 0x88, 0x1b, 0x57, 0x2e, 0xfd, 0x79, 0x81, 0x3e, 0x82, 0x8f, 0xd1,
+	0x65, 0xc1, 0x8d, 0x2b, 0x91, 0xd6, 0x85, 0x8f, 0x21, 0x99, 0x24, 0x6d, 0x28, 0x51, 0x7a, 0x77,
+	0xc3, 0xcc, 0x39, 0xe7, 0x3b, 0xe7, 0x7c, 0x03, 0xed, 0x29, 0x9d, 0x4b, 0xc2, 0x93, 0x90, 0x25,
+	0x8a, 0xe7, 0x4c, 0x92, 0xdc, 0x23, 0xb3, 0x8c, 0xcd, 0x17, 0x38, 0x9d, 0x0b, 0x25, 0xd0, 0x59,
+	0xf1, 0x8e, 0xc7, 0x59, 0x80, 0xf7, 0x18, 0x9c, 0x7b, 0xd6, 0xfd, 0x50, 0xc8, 0xa9, 0x90, 0x24,
+	0xa0, 0x92, 0x95, 0x04, 0x92, 0x7b, 0x01, 0x53, 0xd4, 0x23, 0x29, 0x8d, 0x79, 0x42, 0x15, 0x17,
+	0x49, 0xa9, 0x61, 0x9d, 0xc6, 0x22, 0x16, 0xfa, 0x48, 0x8a, 0x53, 0x75, 0x7b, 0x23, 0x16, 0x22,
+	0x9e, 0x30, 0x42, 0x53, 0x4e, 0x68, 0x92, 0x08, 0xa5, 0x29, 0xb2, 0x7a, 0xed, 0xb7, 0xf8, 0x6a,
+	0x38, 0xd0, 0x20, 0xf7, 0x21, 0x3c, 0x7d, 0x51, 0x8c, 0x7e, 0x19, 0x8e, 0x59, 0x94, 0x4d, 0x98,
+	0xcf, 0x66, 0x19, 0x93, 0x0a, 0x5d, 0x83, 0x26, 0x8f, 0xba, 0xa0, 0x07, 0xee, 0x5e, 0xf5, 0x4d,
+	0x1e, 0x3d, 0xee, 0x7c, 0x5c, 0x3a, 0xc6, 0x9f, 0xa5, 0x63, 0xb8, 0xaf, 0xe1, 0xf5, 0x03, 0x86,
+	0x4c, 0x45, 0x22, 0x19, 0x1a, 0xc1, 0x8e, 0xac, 0xee, 0x34, 0xf1, 0xca, 0xb0, 0x87, 0xdb, 0xa3,
+	0xe3, 0x9a, 0x3b, 0xba, 0xb8, 0xfa, 0xe9, 0x18, 0xfe, 0x8e, 0xe7, 0xf2, 0x03, 0x71, 0x59, 0xfb,
+	0x79, 0x0a, 0xe1, 0xbe, 0x94, 0x4a, 0xfe, 0x0e, 0x2e, 0x1b, 0xc4, 0x45, 0x83, 0xb8, 0xac, 0xbc,
+	0x6a, 0x10, 0x3f, 0xa7, 0x71, 0x9d, 0xc5, 0x6f, 0x30, 0x1b, 0x39, 0xde, 0xc0, 0xb3, 0xc3, 0x51,
+	0x55, 0x90, 0x27, 0xf0, 0xa4, 0x36, 0x24, 0xbb, 0xa0, 0x77, 0xe1, 0x1c, 0x49, 0xf6, 0xc4, 0xe1,
+	0x37, 0x13, 0x5e, 0xd2, 0x03, 0xd0, 0x17, 0x00, 0x3b, 0x35, 0x0e, 0x3d, 0xf8, 0x97, 0x52, 0xdb,
+	0x1a, 0xac, 0xc1, 0x91, 0xe8, 0xd2, 0xb9, 0x7b, 0xef, 0xc3, 0xf7, 0xdf, 0x5f, 0xcd, 0x3e, 0xba,
+	0x45, 0x5a, 0x76, 0x5f, 0x5b, 0x23, 0xef, 0x78, 0xf4, 0x1e, 0x7d, 0x06, 0xf0, 0x64, 0x17, 0x1d,
+	0x1d, 0x37, 0xa7, 0xde, 0x86, 0x85, 0x8f, 0x85, 0x57, 0xbe, 0x6e, 0x6b, 0x5f, 0x0e, 0xba, 0xf9,
+	0x3f, 0x5f, 0x72, 0xf4, 0x6c, 0xb5, 0xb1, 0xc1, 0x7a, 0x63, 0x83, 0x5f, 0x1b, 0x1b, 0x7c, 0xda,
+	0xda, 0xc6, 0x7a, 0x6b, 0x1b, 0x3f, 0xb6, 0xb6, 0xf1, 0x8a, 0xc4, 0x5c, 0x15, 0xd3, 0x42, 0x31,
+	0xd5, 0x12, 0x03, 0xfd, 0x7b, 0x43, 0x31, 0x21, 0xe3, 0x2c, 0x20, 0x6f, 0x9b, 0x8a, 0x6a, 0x91,
+	0x32, 0x19, 0x5c, 0xd6, 0x80, 0x47, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0x72, 0xb0, 0x2a, 0xec,
+	0x9d, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -253,10 +253,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Program queries the release schedule of an incentives program
-	Program(ctx context.Context, in *QueryProgramRequest, opts ...grpc.CallOption) (*QueryProgramResponse, error)
-	// Programs queries the release schedules of all incentives programs
-	Programs(ctx context.Context, in *QueryProgramsRequest, opts ...grpc.CallOption) (*QueryProgramsResponse, error)
+	// Schedule queries the release schedule of an incentives schedule
+	Schedule(ctx context.Context, in *QueryScheduleRequest, opts ...grpc.CallOption) (*QueryScheduleResponse, error)
+	// Schedules queries the release schedules of all incentives schedules
+	Schedules(ctx context.Context, in *QuerySchedulesRequest, opts ...grpc.CallOption) (*QuerySchedulesResponse, error)
 }
 
 type queryClient struct {
@@ -267,18 +267,18 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) Program(ctx context.Context, in *QueryProgramRequest, opts ...grpc.CallOption) (*QueryProgramResponse, error) {
-	out := new(QueryProgramResponse)
-	err := c.cc.Invoke(ctx, "/mars.hub.incentives.v1.Query/Program", in, out, opts...)
+func (c *queryClient) Schedule(ctx context.Context, in *QueryScheduleRequest, opts ...grpc.CallOption) (*QueryScheduleResponse, error) {
+	out := new(QueryScheduleResponse)
+	err := c.cc.Invoke(ctx, "/mars.hub.incentives.v1.Query/Schedule", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) Programs(ctx context.Context, in *QueryProgramsRequest, opts ...grpc.CallOption) (*QueryProgramsResponse, error) {
-	out := new(QueryProgramsResponse)
-	err := c.cc.Invoke(ctx, "/mars.hub.incentives.v1.Query/Programs", in, out, opts...)
+func (c *queryClient) Schedules(ctx context.Context, in *QuerySchedulesRequest, opts ...grpc.CallOption) (*QuerySchedulesResponse, error) {
+	out := new(QuerySchedulesResponse)
+	err := c.cc.Invoke(ctx, "/mars.hub.incentives.v1.Query/Schedules", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -287,59 +287,59 @@ func (c *queryClient) Programs(ctx context.Context, in *QueryProgramsRequest, op
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Program queries the release schedule of an incentives program
-	Program(context.Context, *QueryProgramRequest) (*QueryProgramResponse, error)
-	// Programs queries the release schedules of all incentives programs
-	Programs(context.Context, *QueryProgramsRequest) (*QueryProgramsResponse, error)
+	// Schedule queries the release schedule of an incentives schedule
+	Schedule(context.Context, *QueryScheduleRequest) (*QueryScheduleResponse, error)
+	// Schedules queries the release schedules of all incentives schedules
+	Schedules(context.Context, *QuerySchedulesRequest) (*QuerySchedulesResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) Program(ctx context.Context, req *QueryProgramRequest) (*QueryProgramResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Program not implemented")
+func (*UnimplementedQueryServer) Schedule(ctx context.Context, req *QueryScheduleRequest) (*QueryScheduleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Schedule not implemented")
 }
-func (*UnimplementedQueryServer) Programs(ctx context.Context, req *QueryProgramsRequest) (*QueryProgramsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Programs not implemented")
+func (*UnimplementedQueryServer) Schedules(ctx context.Context, req *QuerySchedulesRequest) (*QuerySchedulesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Schedules not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_Program_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryProgramRequest)
+func _Query_Schedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryScheduleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Program(ctx, in)
+		return srv.(QueryServer).Schedule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mars.hub.incentives.v1.Query/Program",
+		FullMethod: "/mars.hub.incentives.v1.Query/Schedule",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Program(ctx, req.(*QueryProgramRequest))
+		return srv.(QueryServer).Schedule(ctx, req.(*QueryScheduleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Programs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryProgramsRequest)
+func _Query_Schedules_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuerySchedulesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Programs(ctx, in)
+		return srv.(QueryServer).Schedules(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mars.hub.incentives.v1.Query/Programs",
+		FullMethod: "/mars.hub.incentives.v1.Query/Schedules",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Programs(ctx, req.(*QueryProgramsRequest))
+		return srv.(QueryServer).Schedules(ctx, req.(*QuerySchedulesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -349,19 +349,19 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Program",
-			Handler:    _Query_Program_Handler,
+			MethodName: "Schedule",
+			Handler:    _Query_Schedule_Handler,
 		},
 		{
-			MethodName: "Programs",
-			Handler:    _Query_Programs_Handler,
+			MethodName: "Schedules",
+			Handler:    _Query_Schedules_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "mars/incentives/v1/query.proto",
 }
 
-func (m *QueryProgramRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryScheduleRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -371,12 +371,12 @@ func (m *QueryProgramRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryProgramRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryScheduleRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryProgramRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryScheduleRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -389,7 +389,7 @@ func (m *QueryProgramRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryProgramResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryScheduleResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -399,18 +399,18 @@ func (m *QueryProgramResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryProgramResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryScheduleResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryProgramResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryScheduleResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.Program.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -422,7 +422,7 @@ func (m *QueryProgramResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryProgramsRequest) Marshal() (dAtA []byte, err error) {
+func (m *QuerySchedulesRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -432,12 +432,12 @@ func (m *QueryProgramsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryProgramsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QuerySchedulesRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryProgramsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QuerySchedulesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -457,7 +457,7 @@ func (m *QueryProgramsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryProgramsResponse) Marshal() (dAtA []byte, err error) {
+func (m *QuerySchedulesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -467,20 +467,20 @@ func (m *QueryProgramsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryProgramsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QuerySchedulesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryProgramsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QuerySchedulesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Programs) > 0 {
-		for iNdEx := len(m.Programs) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Schedules) > 0 {
+		for iNdEx := len(m.Schedules) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Programs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Schedules[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -505,7 +505,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryProgramRequest) Size() (n int) {
+func (m *QueryScheduleRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -517,18 +517,18 @@ func (m *QueryProgramRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryProgramResponse) Size() (n int) {
+func (m *QueryScheduleResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Program.Size()
+	l = m.Schedule.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
-func (m *QueryProgramsRequest) Size() (n int) {
+func (m *QuerySchedulesRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -541,14 +541,14 @@ func (m *QueryProgramsRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryProgramsResponse) Size() (n int) {
+func (m *QuerySchedulesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Programs) > 0 {
-		for _, e := range m.Programs {
+	if len(m.Schedules) > 0 {
+		for _, e := range m.Schedules {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -562,7 +562,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryProgramRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryScheduleRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -585,10 +585,10 @@ func (m *QueryProgramRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryProgramRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryScheduleRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryProgramRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryScheduleRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -631,7 +631,7 @@ func (m *QueryProgramRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryProgramResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryScheduleResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -654,15 +654,15 @@ func (m *QueryProgramResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryProgramResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryScheduleResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryProgramResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryScheduleResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Program", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -689,7 +689,7 @@ func (m *QueryProgramResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Program.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -714,7 +714,7 @@ func (m *QueryProgramResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryProgramsRequest) Unmarshal(dAtA []byte) error {
+func (m *QuerySchedulesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -737,10 +737,10 @@ func (m *QueryProgramsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryProgramsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QuerySchedulesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryProgramsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QuerySchedulesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -800,7 +800,7 @@ func (m *QueryProgramsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryProgramsResponse) Unmarshal(dAtA []byte) error {
+func (m *QuerySchedulesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -823,15 +823,15 @@ func (m *QueryProgramsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryProgramsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QuerySchedulesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryProgramsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QuerySchedulesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Programs", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedules", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -858,8 +858,8 @@ func (m *QueryProgramsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Programs = append(m.Programs, Program{})
-			if err := m.Programs[len(m.Programs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Schedules = append(m.Schedules, Schedule{})
+			if err := m.Schedules[len(m.Schedules)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

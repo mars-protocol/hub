@@ -31903,8 +31903,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: integer
-                    format: int64
+                    type: string
+                    format: uint64
                     title: ID is the identifier of this incentives schedule
                   start_time:
                     type: string
@@ -32010,8 +32010,8 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: integer
-                      format: int64
+                      type: string
+                      format: uint64
                       title: ID is the identifier of this incentives schedule
                     start_time:
                       type: string
@@ -53551,8 +53551,8 @@ definitions:
         type: object
         properties:
           id:
-            type: integer
-            format: int64
+            type: string
+            format: uint64
             title: ID is the identifier of this incentives schedule
           start_time:
             type: string
@@ -53618,8 +53618,8 @@ definitions:
           type: object
           properties:
             id:
-              type: integer
-              format: int64
+              type: string
+              format: uint64
               title: ID is the identifier of this incentives schedule
             start_time:
               type: string
@@ -53682,8 +53682,8 @@ definitions:
     type: object
     properties:
       id:
-        type: integer
-        format: int64
+        type: string
+        format: uint64
         title: ID is the identifier of this incentives schedule
       start_time:
         type: string

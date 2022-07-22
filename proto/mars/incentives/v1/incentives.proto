@@ -9,8 +9,8 @@ option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
 // Schedule defines the parameters of an incentives releasing schedule
 message Schedule {
-  // ID is the identifier of this incentives schedule
-  uint32 id = 1;
+  // Index is the index of this incentives schedule
+  uint64 index = 1;
 
   // StartTime is the UNIX timestamp of which this incentives schedule shall begin
   google.protobuf.Timestamp start_time = 2 [
@@ -86,6 +86,6 @@ message TerminateIncentivesScheduleProposal {
   // Description is the description of the proposal
   string description = 2;
 
-  // IDs is the identifiers of the incentives schedules which are to be terminated
-  repeated uint32 ids = 3;
+  // Indexes is the array of indexes of the incentives schedules which are to be terminated
+  repeated uint64 indexes = 3;
 }
