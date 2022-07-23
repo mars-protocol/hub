@@ -338,7 +338,7 @@ func NewMarsApp(
 		keys[banktypes.StoreKey],
 		app.AccountKeeper,
 		getSubspace(app, banktypes.ModuleName),
-		getBlockedModuleAccountAddrs(app), // NOTE: fee collector is excluded from blocked addresses
+		getBlockedModuleAccountAddrs(app), // NOTE: fee collector & safety fund are excluded from blocked addresses
 	)
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		getSubspace(app, crisistypes.ModuleName),
