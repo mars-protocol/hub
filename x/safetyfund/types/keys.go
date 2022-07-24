@@ -2,7 +2,7 @@ package types
 
 const (
 	// ModuleName is the safetyfund module's name
-	ModuleName = "safetyfund"
+	ModuleName = "safety_fund"
 
 	// StoreKey is the safetyfund module's store key
 	StoreKey = ModuleName

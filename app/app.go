@@ -757,6 +757,18 @@ func getEnabledProposals() []wasm.ProposalType {
 
 // getBlockedModuleAccountAddrs returns all the app's blocked module account addresses
 //
+// Specifically, we allow the following module accounts to receive funds:
+//
+// - `fee_collector` and `safety_fund`, so that protocol revenue can be sent from outposts to the hub
+// via IBC fungible token transfers
+//
+// - `incentives`, so that the incentives module can draw funds from the community pool in order to
+// create new incentives schedules upon successful governance proposals
+//
+// Further note on the 2nd point: the distrkeeper's `DistributeFromFeePool` function uses bankkeeper's
+// `SendCoinsFromModuleToAccount` instead of `SendCoinsFromModuleToModule`. If it had used `FromModuleToModule`
+// then we won't need to allow incentives module account to receive funds here.
+//
 // forked from: https://github.com/cosmos/gaia/pull/1493
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
