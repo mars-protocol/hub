@@ -26,10 +26,10 @@ func TotalUnreleasedIncentives(k Keeper) sdk.Invariant {
 		maccAddr := k.GetModuleAddress()
 		actualTotal := k.bankKeeper.GetAllBalances(ctx, maccAddr)
 
-		// NOTE: the actual amount does not necessarily need to be exactly equal the expected amount.
+		// NOTE: the actual amount does not necessarily need to be _exactly_ equal the expected amount.
 		// we allow it as long as it's all greater or equal than expected.
 		//
-		// the reason is- if we assert exactly equal, then anyone can cause the invariance to break
+		// the reason is- if we assert exact equality, then anyone can cause the invariance to break
 		// (and hence halt the chain) by sending some coins to the incentives module account.
 		broken := actualTotal.IsAllGTE(expectedTotal)
 
