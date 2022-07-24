@@ -31,7 +31,7 @@ func TotalUnreleasedIncentives(k Keeper) sdk.Invariant {
 		msg := sdk.FormatInvariant(
 			types.ModuleName,
 			"total-unreleased-incentives",
-			fmt.Sprintf("\tsum of unreleased incentives: %s\n\tmodule account balances: %s\n", expectedTotal.String(), actualTotal.String()),
+			fmt.Sprintf("\tsum of unreleased incentives: %s\n\tmodule account balances: %s", expectedTotal.String(), actualTotal.String()),
 		)
 
 		return msg, broken
