@@ -19,6 +19,6 @@ func TestCreatesModuleAccountAtGenesis(t *testing.T) {
 	app := marsapptesting.MakeMockApp()
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	acc := app.AccountKeeper.GetAccount(ctx, authtypes.NewModuleAddress(types.ModuleName))
+	acc := app.AccountKeeper.GetAccount(ctx, authtypes.NewModuleAddress(types.ModuleAccountName))
 	require.NotNil(t, acc)
 }

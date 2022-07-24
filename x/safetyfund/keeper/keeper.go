@@ -6,7 +6,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/mars-protocol/hub/x/safetyfund/types"
 )
@@ -32,14 +31,14 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// GetModuleAccount returns the safety fund module account
-func (k Keeper) GetModuleAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+// GetModuleAddress returns the safety fund module account's address
+func (k Keeper) GetModuleAddress() sdk.AccAddress {
+	return k.authKeeper.GetModuleAddress(types.ModuleAccountName)
 }
 
 // GetBalances returns the amount of coins available in the safety fund
 func (k Keeper) GetBalances(ctx sdk.Context) sdk.Coins {
-	return k.bankKeeper.GetAllBalances(ctx, k.GetModuleAccount(ctx).GetAddress())
+	return k.bankKeeper.GetAllBalances(ctx, k.GetModuleAddress())
 }
 
 // ReleaseFund releases coins from the safety fund to the specified recipient
