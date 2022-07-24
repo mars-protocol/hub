@@ -62,14 +62,18 @@ func getCmdSubmitProposal() *cobra.Command {
 				return fmt.Errorf("invalid deposit: %s", err)
 			}
 
-			content := &types.SafetyFundSpendProposal{
+			proposal := &types.SafetyFundSpendProposal{
 				Title:       title,
 				Description: description,
 				Recipient:   recipient,
 				Amount:      amount,
 			}
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, clientCtx.GetFromAddress())
+			if err := proposal.ValidateBasic(); err != nil {
+				return fmt.Errorf("invalid proposal: %s", err)
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
 			if err != nil {
 				return err
 			}
