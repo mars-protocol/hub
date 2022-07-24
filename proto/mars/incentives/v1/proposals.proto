@@ -7,40 +7,6 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
-// Schedule defines the parameters of an incentives releasing schedule
-message Schedule {
-  // Index is the index of this incentives schedule
-  uint64 index = 1;
-
-  // StartTime is the UNIX timestamp of which this incentives schedule shall begin
-  google.protobuf.Timestamp start_time = 2 [
-    (gogoproto.stdtime) = true,
-    (gogoproto.nullable) = false,
-    (gogoproto.moretags) = "yaml:\"start_time\""
-  ];
-
-  // EndTime is the UNIX timestamp of which this incentives schedule shall finish
-  google.protobuf.Timestamp end_time = 3 [
-    (gogoproto.stdtime) = true,
-    (gogoproto.nullable) = false,
-    (gogoproto.moretags) = "yaml:\"end_time\""
-  ];
-
-  // TotalAmount is the total amount of coins that shall be released to stakers throughout the span of this incentives schedule
-  repeated cosmos.base.v1beta1.Coin total_amount = 4 [
-    (gogoproto.nullable) = false,
-    (gogoproto.moretags) = "yaml:\"total_amount\"",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-
-  // ReleasedAmount is the amount of coins that have already been released to the stakers as part of this incentives schedule
-  repeated cosmos.base.v1beta1.Coin released_amount = 5 [
-    (gogoproto.nullable) = false,
-    (gogoproto.moretags) = "yaml:\"released_amount\"",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-}
-
 // CreateIncentivesScheduleProposal defines a governance proposal for starting a new incentives schedule
 message CreateIncentivesScheduleProposal {
   option (gogoproto.equal)            = false;
@@ -86,6 +52,6 @@ message TerminateIncentivesScheduleProposal {
   // Description is the description of the proposal
   string description = 2;
 
-  // Indexes is the array of indexes of the incentives schedules which are to be terminated
-  repeated uint64 indexes = 3;
+  // Ids is the array of identifiers of the incentives schedules which are to be terminated
+  repeated uint64 ids = 3;
 }

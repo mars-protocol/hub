@@ -4,18 +4,18 @@ package mars.hub.incentives.v1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "mars/incentives/v1/incentives.proto";
+import "mars/incentives/v1/store.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
 // Query defines the gRPC querier service for the incentives module
 service Query {
-  // Schedule queries the release schedule of an incentives schedule
+  // Schedule queries an incentives schedule by identifier
   rpc Schedule(QueryScheduleRequest) returns (QueryScheduleResponse) {
     option (google.api.http).get = "/mars/incentives/v1/schedule/{id}";
   }
 
-  // Schedules queries the release schedules of all incentives schedules
+  // Schedules queries all incentives schedules
   rpc Schedules(QuerySchedulesRequest) returns (QuerySchedulesResponse) {
     option (google.api.http).get = "/mars/incentives/v1/schedules";
   }
@@ -27,7 +27,7 @@ message QueryScheduleRequest {
   option (gogoproto.goproto_getters) = false;
 
   // ID is the identifier of the incentives schedule to be queried
-  uint32 id = 1;
+  uint64 id = 1;
 }
 
 // QueryScheduleResponse is the response type for the Query/Schedule RPC method
@@ -41,7 +41,7 @@ message QuerySchedulesRequest {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  // Pagination defines an optional pagination for the request.
+  // Pagination defines an optional pagination for the request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
@@ -49,4 +49,7 @@ message QuerySchedulesRequest {
 message QuerySchedulesResponse {
   // Schedule is the parameters of the incentives schedule
   repeated Schedule schedules = 1 [(gogoproto.nullable) = false];
+
+  // Pagination defines the pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
