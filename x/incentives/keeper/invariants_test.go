@@ -26,7 +26,7 @@ func TestUnreleasedIncentivesInvariant(t *testing.T) {
 	invariant := keeper.TotalUnreleasedIncentives(app.IncentivesKeeper)
 
 	// set incorrect balances for the incentives module account
-	maccAddr := app.IncentivesKeeper.GetModuleAddress(ctx)
+	maccAddr := app.IncentivesKeeper.GetModuleAddress()
 	app.BankKeeper.InitGenesis(
 		ctx,
 		&banktypes.GenesisState{

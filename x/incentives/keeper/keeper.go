@@ -49,8 +49,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // GetModuleAddress returns the incentives module account's address
-func (k Keeper) GetModuleAddress(ctx sdk.Context) sdk.AccAddress {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName).GetAddress()
+func (k Keeper) GetModuleAddress() sdk.AccAddress {
+	return k.authKeeper.GetModuleAddress(types.ModuleName)
 }
 
 //--------------------------------------------------------------------------------------------------

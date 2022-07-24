@@ -23,7 +23,7 @@ func TotalUnreleasedIncentives(k Keeper) sdk.Invariant {
 			return false
 		})
 
-		maccAddr := k.GetModuleAddress(ctx)
+		maccAddr := k.GetModuleAddress()
 		actualTotal := k.bankKeeper.GetAllBalances(ctx, maccAddr)
 
 		broken := !expectedTotal.IsEqual(actualTotal)

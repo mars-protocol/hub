@@ -111,7 +111,7 @@ func setupRewardTest(t *testing.T, schedules []types.Schedule) *testSuite {
 	}
 
 	// set mars token balance for the staker and the incentives module account
-	maccAddr := app.IncentivesKeeper.GetModuleAddress(ctx)
+	maccAddr := app.IncentivesKeeper.GetModuleAddress()
 	app.BankKeeper.InitGenesis(
 		ctx,
 		&banktypes.GenesisState{
