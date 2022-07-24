@@ -39,7 +39,7 @@ func (k Keeper) GetModuleAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 
 // GetBalances returns the amount of coins available in the safety fund
 func (k Keeper) GetBalances(ctx sdk.Context) sdk.Coins {
-	return k.bankKeeper.GetAllBalances(ctx, k.authKeeper.GetModuleAddress(types.ModuleName))
+	return k.bankKeeper.GetAllBalances(ctx, k.GetModuleAccount(ctx).GetAddress())
 }
 
 // ReleaseFund releases coins from the safety fund to the specified recipient

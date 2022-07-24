@@ -16,5 +16,5 @@ func (k Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) {
 
 // ExportGenesis returns a genesis state for a given context and keeper
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
-	return types.NewGenesisState()
+	return &types.GenesisState{}
 }
