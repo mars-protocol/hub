@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govclientcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	marsutils "github.com/mars-protocol/hub/utils"
@@ -78,9 +77,7 @@ func getCreateIncentivesProposalCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String(govclientcli.FlagTitle, "", "Title of proposal")
-	cmd.Flags().String(govclientcli.FlagDescription, "", "Description of proposal")
-	cmd.Flags().String(govclientcli.FlagDeposit, "", "Deposit of proposal")
+	marsutils.AddGovProposalFlags(cmd)
 
 	return cmd
 }
@@ -131,9 +128,7 @@ func getTerminateIncentivesProposalCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String(govclientcli.FlagTitle, "", "Title of proposal")
-	cmd.Flags().String(govclientcli.FlagDescription, "", "Description of proposal")
-	cmd.Flags().String(govclientcli.FlagDeposit, "", "Deposit of proposal")
+	marsutils.AddGovProposalFlags(cmd)
 
 	return cmd
 }
