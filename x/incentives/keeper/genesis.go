@@ -20,12 +20,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, gs *types.GenesisState) {
 	}
 
 	// set next schedule id
-	k.SetNextScheduleId(ctx, gs.NextScheduleId)
+	k.SetNextScheduleID(ctx, gs.NextScheduleId)
 }
 
 // ExportGenesis returns a genesis state for a given context and keeper
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
-	nextScheduleId := k.GetNextScheduleId(ctx)
+	nextScheduleID := k.GetNextScheduleID(ctx)
 
 	schedules := []types.Schedule{}
 	k.IterateSchedules(ctx, func(schedule types.Schedule) bool {
@@ -34,7 +34,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	})
 
 	return &types.GenesisState{
-		NextScheduleId: nextScheduleId,
+		NextScheduleId: nextScheduleID,
 		Schedules:      schedules,
 	}
 }

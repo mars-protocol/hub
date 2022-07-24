@@ -52,7 +52,10 @@ func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo)
 	}
 
 	// transfer the coins to distribution module account so that they can be distributed
-	k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distrtypes.ModuleName, totalBlockReward)
+	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distrtypes.ModuleName, totalBlockReward)
+	if err != nil {
+		panic(err)
+	}
 
 	// sum up the total voting power voted in the last block
 	//

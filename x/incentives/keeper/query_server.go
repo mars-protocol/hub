@@ -57,7 +57,6 @@ func (qs queryServer) Schedules(goCtx context.Context, req *types.QuerySchedules
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "paginate: %v", err)
 	}

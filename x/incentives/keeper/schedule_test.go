@@ -22,7 +22,7 @@ func TestCreateSchedule(t *testing.T) {
 	deployer := accts[0]
 
 	// assume we already have mockSchedule[0] active; a successful gov proposal about to add mockSchedule[1]
-	app.IncentivesKeeper.SetNextScheduleId(ctx, 2)
+	app.IncentivesKeeper.SetNextScheduleID(ctx, 2)
 	app.IncentivesKeeper.SetSchedule(ctx, mockSchedules[0])
 
 	// assign appropriate amount of coins to the deployer and incentives module account
@@ -53,7 +53,7 @@ func TestCreateSchedule(t *testing.T) {
 	require.NoError(t, err)
 
 	// next schedule id should have been updated
-	nextScheduleId := app.IncentivesKeeper.GetNextScheduleId(ctx)
+	nextScheduleId := app.IncentivesKeeper.GetNextScheduleID(ctx)
 	require.Equal(t, uint64(3), nextScheduleId)
 
 	// the new schedule should have been saved
@@ -80,7 +80,7 @@ func TestTerminateSchedule(t *testing.T) {
 	app := marsapptesting.MakeMockApp()
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	app.IncentivesKeeper.SetNextScheduleId(ctx, 3)
+	app.IncentivesKeeper.SetNextScheduleID(ctx, 3)
 	for _, mockSchedule := range mockSchedulesReleased {
 		app.IncentivesKeeper.SetSchedule(ctx, mockSchedule)
 	}
@@ -106,7 +106,7 @@ func TestTerminateSchedule(t *testing.T) {
 	require.NoError(t, err)
 
 	// next schedule id should have not been changed
-	nextScheduleId := app.IncentivesKeeper.GetNextScheduleId(ctx)
+	nextScheduleId := app.IncentivesKeeper.GetNextScheduleID(ctx)
 	require.Equal(t, uint64(3), nextScheduleId)
 
 	// the two schedules should have been deleted

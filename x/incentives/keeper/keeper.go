@@ -61,10 +61,10 @@ func (k Keeper) GetModuleAddress() sdk.AccAddress {
 //
 // NOTE: the id should have been initialized in genesis, so it being undefined is a fatal error. we
 // have the module panic in this case, instead of returning an error
-func (k Keeper) GetNextScheduleId(ctx sdk.Context) uint64 {
+func (k Keeper) GetNextScheduleID(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.KeyNextScheduleId)
+	bz := store.Get(types.KeyNextScheduleID)
 	if bz == nil {
 		panic("stored next schedule id should not have been nil")
 	}
@@ -73,16 +73,16 @@ func (k Keeper) GetNextScheduleId(ctx sdk.Context) uint64 {
 }
 
 // SetNextScheduleId sets the next schedule id to the provided value
-func (k Keeper) SetNextScheduleId(ctx sdk.Context, id uint64) {
+func (k Keeper) SetNextScheduleID(ctx sdk.Context, id uint64) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.KeyNextScheduleId, sdk.Uint64ToBigEndian(id))
+	store.Set(types.KeyNextScheduleID, sdk.Uint64ToBigEndian(id))
 }
 
 // IncrementNextScheduleId increases the next id by one, and returns the previous value
-func (k Keeper) IncrementNextScheduleId(ctx sdk.Context) uint64 {
-	id := k.GetNextScheduleId(ctx)
+func (k Keeper) IncrementNextScheduleID(ctx sdk.Context) uint64 {
+	id := k.GetNextScheduleID(ctx)
 
-	k.SetNextScheduleId(ctx, id+1)
+	k.SetNextScheduleID(ctx, id+1)
 
 	return id
 }

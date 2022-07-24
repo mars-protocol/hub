@@ -13,7 +13,7 @@ import (
 // funds from the community pool, and initializes a new schedule in module store. Returns the new schedule
 // that was created.
 func (k Keeper) CreateSchedule(ctx sdk.Context, startTime, endTime time.Time, amount sdk.Coins) (schedule types.Schedule, err error) {
-	id := k.IncrementNextScheduleId(ctx)
+	id := k.IncrementNextScheduleID(ctx)
 
 	schedule = types.Schedule{
 		Id:             id,

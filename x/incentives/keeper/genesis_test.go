@@ -25,7 +25,7 @@ func setupGenesisTest() (ctx sdk.Context, app *marsapp.MarsApp) {
 func TestInitGenesis(t *testing.T) {
 	ctx, app := setupGenesisTest()
 
-	nextScheduleId := app.IncentivesKeeper.GetNextScheduleId(ctx)
+	nextScheduleId := app.IncentivesKeeper.GetNextScheduleID(ctx)
 	require.Equal(t, uint64(3), nextScheduleId)
 
 	for _, mockSchedule := range mockSchedules {

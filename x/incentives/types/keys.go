@@ -22,7 +22,7 @@ const (
 // - 0x00: uint64
 // - 0x01<uint64_bytes>: Schedule
 var (
-	KeyNextScheduleId = []byte{0x00} // key for the the next schedule id
+	KeyNextScheduleID = []byte{0x00} // key for the the next schedule id
 	KeySchedule       = []byte{0x01} // key for the incentives schedules
 )
 

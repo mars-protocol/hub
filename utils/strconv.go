@@ -27,5 +27,5 @@ func StringToUintArray(str, delim string) ([]uint64, error) {
 //
 // Forked from https://stackoverflow.com/questions/37532255/one-liner-to-transform-int-into-string
 func UintArrayToString(uints []uint64, delim string) string {
-	return strings.Trim(strings.Replace(fmt.Sprint(uints), " ", delim, -1), "[]")
+	return strings.Trim(strings.ReplaceAll(fmt.Sprint(uints), " ", delim), "[]")
 }
