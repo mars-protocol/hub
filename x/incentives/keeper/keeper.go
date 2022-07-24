@@ -6,6 +6,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/mars-protocol/hub/x/incentives/types"
@@ -132,4 +133,10 @@ func (k Keeper) IterateSchedules(ctx sdk.Context, cb func(types.Schedule) bool) 
 func (k Keeper) DeleteSchedule(ctx sdk.Context, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetScheduleKey(id))
+}
+
+// GetSchedulePrefixStore returns a prefix store of all schedules
+func (k Keeper) GetSchedulePrefixStore(ctx sdk.Context) prefix.Store {
+	store := ctx.KVStore(k.storeKey)
+	return prefix.NewStore(store, types.KeySchedule)
 }

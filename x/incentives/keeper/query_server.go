@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -44,8 +45,9 @@ func (qs queryServer) Schedules(goCtx context.Context, req *types.QuerySchedules
 
 	schedules := []types.Schedule{}
 
-	pageRes, err := query.Paginate(ctx.KVStore(qs.k.storeKey), req.Pagination, func(_, value []byte) error {
+	pageRes, err := query.Paginate(qs.k.GetSchedulePrefixStore(ctx), req.Pagination, func(_, value []byte) error {
 		var schedule types.Schedule
+		fmt.Println("value:", value)
 		err := qs.k.cdc.Unmarshal(value, &schedule)
 		if err != nil {
 			return err
@@ -55,6 +57,7 @@ func (qs queryServer) Schedules(goCtx context.Context, req *types.QuerySchedules
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "paginate: %v", err)
 	}
