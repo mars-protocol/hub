@@ -159,7 +159,7 @@ var (
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-		safetyfundclient.ProposalHandler,
+		safetyfundclient.SafetyFundSpendProposalHandler,
 	)
 
 	// module account permissions
