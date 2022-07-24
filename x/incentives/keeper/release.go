@@ -10,18 +10,21 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
-// ReleaseBlockReward handles the release of incentives./
+// ReleaseBlockReward handles the release of incentives. Returns the total amount of block reward released
+// and the list of relevant schedule ids.
 //
 // `bondedBotes` is a list of {validator address, validator voted on last block flag} for all validators
 // in the bonded set.
-func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo) {
+func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo) (ids []uint64, totalBlockReward sdk.Coins) {
 	// iterate through all active schedules, sum up all rewards to be released in this block.
 	//
 	// If an incentives schedule has been fully released, delete it from the store; otherwise, update
 	// the released amount and save
 	currentTime := ctx.BlockTime()
-	totalBlockReward := sdk.NewCoins()
+	ids = []uint64{}
+	totalBlockReward = sdk.NewCoins()
 	k.IterateSchedules(ctx, func(schedule types.Schedule) bool {
+		ids = append(ids, schedule.Id)
 		blockReward := schedule.GetBlockReward(currentTime)
 		totalBlockReward = totalBlockReward.Add(blockReward...)
 
@@ -64,6 +67,8 @@ func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo)
 
 		k.distrKeeper.AllocateTokensToValidator(ctx, validator, reward)
 	}
+
+	return ids, totalBlockReward
 }
 
 func newDecFromInt64(i int64) sdk.Dec {

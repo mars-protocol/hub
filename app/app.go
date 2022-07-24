@@ -100,6 +100,10 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	// mars modules
+	"github.com/mars-protocol/hub/x/incentives"
+	incentivesclient "github.com/mars-protocol/hub/x/incentives/client"
+	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
+	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
 	"github.com/mars-protocol/hub/x/safetyfund"
 	safetyfundclient "github.com/mars-protocol/hub/x/safetyfund/client"
 	safetyfundkeeper "github.com/mars-protocol/hub/x/safetyfund/keeper"
@@ -147,6 +151,7 @@ var (
 		ibc.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		incentives.AppModuleBasic{},
 		safetyfund.AppModuleBasic{},
 	)
 
@@ -159,6 +164,8 @@ var (
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+		incentivesclient.CreateIncentivesProposalHandler,
+		incentivesclient.TerminateIncentivesProposalHandler,
 		safetyfundclient.SafetyFundSpendProposalHandler,
 	)
 
@@ -171,6 +178,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                {authtypes.Burner},
+		incentivestypes.ModuleName:     nil,
 		safetyfundtypes.ModuleName:     nil,
 	}
 )
@@ -231,6 +239,7 @@ type MarsApp struct {
 	IBCKeeper         *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
 	IBCTransferKeeper ibctransferkeeper.Keeper
 	WasmKeeper        wasm.Keeper
+	IncentivesKeeper  incentiveskeeper.Keeper
 	SafetyFundKeeper  safetyfundkeeper.Keeper
 
 	// make scoped keepers public for testing purposes
@@ -279,6 +288,7 @@ func NewMarsApp(
 		ibchost.StoreKey,
 		ibctransfertypes.StoreKey,
 		wasm.StoreKey,
+		incentivestypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -455,6 +465,13 @@ func NewMarsApp(
 	)
 
 	// mars module keepers
+	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
+		codec, keys[incentivestypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
+		app.StakingKeeper,
+	)
 	app.SafetyFundKeeper = safetyfundkeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
 
 	// finally, create gov keeper
@@ -498,6 +515,7 @@ func NewMarsApp(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		incentives.NewAppModule(app.IncentivesKeeper),
 		safetyfund.NewAppModule(app.SafetyFundKeeper),
 	)
 
@@ -522,6 +540,7 @@ func NewMarsApp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
+		incentivestypes.ModuleName,
 		safetyfundtypes.ModuleName,
 	)
 
@@ -543,6 +562,7 @@ func NewMarsApp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
+		incentivestypes.ModuleName,
 		safetyfundtypes.ModuleName,
 	)
 
@@ -568,6 +588,7 @@ func NewMarsApp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
+		incentivestypes.ModuleName,
 		safetyfundtypes.ModuleName,
 	)
 

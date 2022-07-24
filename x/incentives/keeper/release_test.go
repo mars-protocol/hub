@@ -23,7 +23,7 @@ func setupTest(t *testing.T, schedules []types.Schedule) (ctx sdk.Context, app *
 	staker := accts[0]
 
 	pks := simapp.CreateTestPubKeys(1)
-	valPubKey := accts[0]
+	valPubKey := pks[0]
 
 	// calculate the total mars token amount needed to be given to incentives module account
 	totalIncentives := sdk.NewCoins()
@@ -40,7 +40,7 @@ func setupTest(t *testing.T, schedules []types.Schedule) (ctx sdk.Context, app *
 				DefaultSendEnabled: true, // must set this to true so that tokens can be transferred
 			},
 			Balances: []banktypes.Balance{{
-				Address: macc.GetAddress(),
+				Address: macc.GetAddress().String(),
 				Coins:   totalIncentives,
 			}},
 		},
