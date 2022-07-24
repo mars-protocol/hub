@@ -21,8 +21,8 @@ func getMockCreateScheduleProposal() types.CreateIncentivesScheduleProposal {
 	}
 }
 
-func getMockTerminateScheduleProposal() types.TerminateIncentivesScheduleProposal {
-	return types.TerminateIncentivesScheduleProposal{
+func getMockTerminateScheduleProposal() types.TerminateIncentivesSchedulesProposal {
+	return types.TerminateIncentivesSchedulesProposal{
 		Title:       "title",
 		Description: "description",
 		Ids:         []uint64{1, 2, 3, 4, 5},

@@ -14,7 +14,7 @@ const (
 
 var (
 	_ govtypes.Content = &CreateIncentivesScheduleProposal{}
-	_ govtypes.Content = &TerminateIncentivesScheduleProposal{}
+	_ govtypes.Content = &TerminateIncentivesSchedulesProposal{}
 )
 
 //--------------------------------------------------------------------------------------------------
@@ -71,26 +71,26 @@ func (p CreateIncentivesScheduleProposal) String() string {
 }
 
 //--------------------------------------------------------------------------------------------------
-// TerminateIncentivesScheduleProposal
+// TerminateIncentivesSchedulesProposal
 //--------------------------------------------------------------------------------------------------
 
-func (p *TerminateIncentivesScheduleProposal) GetTitle() string {
+func (p *TerminateIncentivesSchedulesProposal) GetTitle() string {
 	return p.Title
 }
 
-func (p *TerminateIncentivesScheduleProposal) GetDescription() string {
+func (p *TerminateIncentivesSchedulesProposal) GetDescription() string {
 	return p.Description
 }
 
-func (p *TerminateIncentivesScheduleProposal) ProposalRoute() string {
+func (p *TerminateIncentivesSchedulesProposal) ProposalRoute() string {
 	return RouterKey
 }
 
-func (p *TerminateIncentivesScheduleProposal) ProposalType() string {
+func (p *TerminateIncentivesSchedulesProposal) ProposalType() string {
 	return ProposalTerminalIncentivesSchedule
 }
 
-func (p *TerminateIncentivesScheduleProposal) ValidateBasic() error {
+func (p *TerminateIncentivesSchedulesProposal) ValidateBasic() error {
 	if err := govtypes.ValidateAbstract(p); err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (p *TerminateIncentivesScheduleProposal) ValidateBasic() error {
 	return nil
 }
 
-func (p TerminateIncentivesScheduleProposal) String() string {
+func (p TerminateIncentivesSchedulesProposal) String() string {
 	return fmt.Sprintf(
 		`Incentives Schedule Termination Proposal:
   Title:       %s

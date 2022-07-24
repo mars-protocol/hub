@@ -263,9 +263,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Schedule queries the release schedule of an incentives schedule
+	// Schedule queries an incentives schedule by identifier
 	Schedule(ctx context.Context, in *QueryScheduleRequest, opts ...grpc.CallOption) (*QueryScheduleResponse, error)
-	// Schedules queries the release schedules of all incentives schedules
+	// Schedules queries all incentives schedules
 	Schedules(ctx context.Context, in *QuerySchedulesRequest, opts ...grpc.CallOption) (*QuerySchedulesResponse, error)
 }
 
@@ -297,9 +297,9 @@ func (c *queryClient) Schedules(ctx context.Context, in *QuerySchedulesRequest, 
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Schedule queries the release schedule of an incentives schedule
+	// Schedule queries an incentives schedule by identifier
 	Schedule(context.Context, *QueryScheduleRequest) (*QueryScheduleResponse, error)
-	// Schedules queries the release schedules of all incentives schedules
+	// Schedules queries all incentives schedules
 	Schedules(context.Context, *QuerySchedulesRequest) (*QuerySchedulesResponse, error)
 }
 

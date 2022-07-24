@@ -23,7 +23,7 @@ import (
 
 var (
 	CreateIncentivesProposalHandler    = govclient.NewProposalHandler(getCreateIncentivesProposalCmd, marsutils.GetProposalRESTHandler("create_incentives_schedule"))
-	TerminateIncentivesProposalHandler = govclient.NewProposalHandler(getTerminateIncentivesPeoposalCmd, marsutils.GetProposalRESTHandler("terminate_incentives_schedule"))
+	TerminateIncentivesProposalHandler = govclient.NewProposalHandler(getTerminateIncentivesProposalCmd, marsutils.GetProposalRESTHandler("terminate_incentives_schedule"))
 )
 
 func getCreateIncentivesProposalCmd() *cobra.Command {
@@ -85,7 +85,7 @@ func getCreateIncentivesProposalCmd() *cobra.Command {
 	return cmd
 }
 
-func getTerminateIncentivesPeoposalCmd() *cobra.Command {
+func getTerminateIncentivesProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "terminate-incentives-schedules [ids] --title [text] --description [text] --deposit [amount]",
 		Args:  cobra.ExactArgs(1),
@@ -112,7 +112,7 @@ func getTerminateIncentivesPeoposalCmd() *cobra.Command {
 				return err
 			}
 
-			proposal := &types.TerminateIncentivesScheduleProposal{
+			proposal := &types.TerminateIncentivesSchedulesProposal{
 				Title:       title,
 				Description: description,
 				Ids:         ids,

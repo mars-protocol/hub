@@ -40,8 +40,8 @@ message CreateIncentivesScheduleProposal {
   ];
 }
 
-// TerminateIncentivesScheduleProposal defines a governance proposal for pre-mature ending of one or more incentives schedules
-message TerminateIncentivesScheduleProposal {
+// TerminateIncentivesSchedulesProposal defines a governance proposal for pre-mature ending of one or more incentives schedules
+message TerminateIncentivesSchedulesProposal {
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_getters)  = false;
   option (gogoproto.goproto_stringer) = false;
