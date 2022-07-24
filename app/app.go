@@ -171,15 +171,15 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		govtypes.ModuleName:            {authtypes.Burner},
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		wasm.ModuleName:                {authtypes.Burner},
-		incentivestypes.ModuleName:     nil,
-		safetyfundtypes.ModuleName:     nil,
+		authtypes.FeeCollectorName:        nil,
+		distrtypes.ModuleName:             nil,
+		govtypes.ModuleName:               {authtypes.Burner},
+		stakingtypes.BondedPoolName:       {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		ibctransfertypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
+		wasm.ModuleName:                   {authtypes.Burner},
+		incentivestypes.ModuleName:        nil,
+		safetyfundtypes.ModuleAccountName: nil,
 	}
 )
 

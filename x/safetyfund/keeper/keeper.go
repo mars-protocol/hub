@@ -19,8 +19,8 @@ type Keeper struct {
 // NewKeeper creates a new safetyfund Keeper instance
 func NewKeeper(authKeeper types.AccountKeeper, bankKeeper types.BankKeeper) Keeper {
 	// ensure the module account is set
-	if authKeeper.GetModuleAddress(types.ModuleName) == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	if authKeeper.GetModuleAddress(types.ModuleAccountName) == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleAccountName))
 	}
 
 	return Keeper{authKeeper, bankKeeper}
@@ -43,5 +43,5 @@ func (k Keeper) GetBalances(ctx sdk.Context) sdk.Coins {
 
 // ReleaseFund releases coins from the safety fund to the specified recipient
 func (k Keeper) ReleaseFund(ctx sdk.Context, recipient sdk.AccAddress, amount sdk.Coins) error {
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, amount)
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleAccountName, recipient, amount)
 }
