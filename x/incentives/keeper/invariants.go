@@ -31,7 +31,7 @@ func TotalUnreleasedIncentives(k Keeper) sdk.Invariant {
 		//
 		// the reason is- if we assert exact equality, then anyone can cause the invariance to break
 		// (and hence halt the chain) by sending some coins to the incentives module account.
-		broken := actualTotal.IsAllGTE(expectedTotal)
+		broken := !actualTotal.IsAllGTE(expectedTotal)
 
 		msg := sdk.FormatInvariant(
 			types.ModuleName,
