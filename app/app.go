@@ -762,6 +762,7 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 
 	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(incentivestypes.ModuleName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(safetyfundtypes.ModuleName).String())
 
 	return modAccAddrs

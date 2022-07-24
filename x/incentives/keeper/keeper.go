@@ -78,12 +78,11 @@ func (k Keeper) SetNextScheduleId(ctx sdk.Context, id uint64) {
 	store.Set(types.KeyNextScheduleId, sdk.Uint64ToBigEndian(id))
 }
 
-// IncrementNextScheduleId increases the next id by one, and returns the incremented value
+// IncrementNextScheduleId increases the next id by one, and returns the previous value
 func (k Keeper) IncrementNextScheduleId(ctx sdk.Context) uint64 {
 	id := k.GetNextScheduleId(ctx)
 
-	id += 1
-	k.SetNextScheduleId(ctx, id)
+	k.SetNextScheduleId(ctx, id+1)
 
 	return id
 }

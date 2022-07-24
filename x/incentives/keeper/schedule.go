@@ -25,7 +25,7 @@ func (k Keeper) CreateSchedule(ctx sdk.Context, startTime, endTime time.Time, am
 
 	k.SetSchedule(ctx, schedule)
 
-	maccAddr := k.GetModuleAddress(ctx)
+	maccAddr := k.GetModuleAddress()
 	if err := k.distrKeeper.DistributeFromFeePool(ctx, amount, maccAddr); err != nil {
 		return types.Schedule{}, sdkerrors.Wrap(types.ErrFailedWithdrawFromCommunityPool, err.Error())
 	}
@@ -50,7 +50,7 @@ func (k Keeper) TerminateSchedules(ctx sdk.Context, ids []uint64) (amount sdk.Co
 		k.DeleteSchedule(ctx, id)
 	}
 
-	maccAddr := k.GetModuleAddress(ctx)
+	maccAddr := k.GetModuleAddress()
 	if err := k.distrKeeper.FundCommunityPool(ctx, amount, maccAddr); err != nil {
 		return sdk.NewCoins(), sdkerrors.Wrap(types.ErrFailedRefundToCommunityPool, err.Error())
 	}
