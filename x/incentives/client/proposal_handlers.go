@@ -2,13 +2,11 @@ package client
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -16,15 +14,16 @@ import (
 
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govclientcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govclientrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	marsutils "github.com/mars-protocol/hub/utils"
 
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
 var (
-	CreateIncentivesProposalHandler    = govclient.NewProposalHandler(getCreateIncentivesProposalCmd, getProposalRESTHandler("create_incentives_schedule"))
-	TerminateIncentivesProposalHandler = govclient.NewProposalHandler(getTerminateIncentivesPeoposalCmd, getProposalRESTHandler("terminate_incentives_schedule"))
+	CreateIncentivesProposalHandler    = govclient.NewProposalHandler(getCreateIncentivesProposalCmd, marsutils.GetProposalRESTHandler("create_incentives_schedule"))
+	TerminateIncentivesProposalHandler = govclient.NewProposalHandler(getTerminateIncentivesPeoposalCmd, marsutils.GetProposalRESTHandler("terminate_incentives_schedule"))
 )
 
 func getCreateIncentivesProposalCmd() *cobra.Command {
@@ -53,7 +52,7 @@ func getCreateIncentivesProposalCmd() *cobra.Command {
 				return fmt.Errorf("invalid amount: %s", err)
 			}
 
-			title, description, deposit, err := parseGovProposalFlags(cmd.Flags())
+			title, description, deposit, err := marsutils.ParseGovProposalFlags(cmd)
 			if err != nil {
 				return err
 			}
@@ -108,7 +107,7 @@ func getTerminateIncentivesPeoposalCmd() *cobra.Command {
 				ids = append(ids, id)
 			}
 
-			title, description, deposit, err := parseGovProposalFlags(cmd.Flags())
+			title, description, deposit, err := marsutils.ParseGovProposalFlags(cmd)
 			if err != nil {
 				return err
 			}
@@ -137,37 +136,4 @@ func getTerminateIncentivesPeoposalCmd() *cobra.Command {
 	cmd.Flags().String(govclientcli.FlagDeposit, "", "Deposit of proposal")
 
 	return cmd
-}
-
-func parseGovProposalFlags(flags *flag.FlagSet) (title, description string, deposit sdk.Coins, err error) {
-	title, err = flags.GetString(govclientcli.FlagTitle)
-	if err != nil {
-		return "", "", sdk.NewCoins(), fmt.Errorf("invalid title: %s", err)
-	}
-
-	description, err = flags.GetString(govclientcli.FlagDescription)
-	if err != nil {
-		return "", "", sdk.NewCoins(), fmt.Errorf("invalid description: %s", err)
-	}
-
-	depositStr, err := flags.GetString(govclientcli.FlagDeposit)
-	if err != nil {
-		return "", "", sdk.NewCoins(), fmt.Errorf("invalid deposit: %s", err)
-	}
-
-	deposit, err = sdk.ParseCoinsNormalized(depositStr)
-	if err != nil {
-		return "", "", sdk.NewCoins(), fmt.Errorf("invalid deposit: %s", err)
-	}
-
-	return title, description, deposit, nil
-}
-
-func getProposalRESTHandler(subRoute string) govclient.RESTHandlerFn {
-	return func(client.Context) govclientrest.ProposalRESTHandler {
-		return govclientrest.ProposalRESTHandler{
-			SubRoute: subRoute,
-			Handler:  func(w http.ResponseWriter, r *http.Request) {}, // deprecated, do nothing
-		}
-	}
 }
