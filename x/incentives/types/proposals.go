@@ -18,6 +18,14 @@ var (
 	_ govtypes.Content = &TerminateIncentivesSchedulesProposal{}
 )
 
+func init() {
+	govtypes.RegisterProposalType(ProposalCreateIncentivesSchedule)
+	govtypes.RegisterProposalTypeCodec(&CreateIncentivesScheduleProposal{}, "mars/CreateIncentivesScheduleProposal")
+
+	govtypes.RegisterProposalType(ProposalTerminalIncentivesSchedule)
+	govtypes.RegisterProposalTypeCodec(&TerminateIncentivesSchedulesProposal{}, "mars/TerminateIncentivesSchedulesProposal")
+}
+
 //--------------------------------------------------------------------------------------------------
 // CreateIncentivesScheduleProposal
 //--------------------------------------------------------------------------------------------------
