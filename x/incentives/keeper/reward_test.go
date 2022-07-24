@@ -195,16 +195,7 @@ func TestNoActiveSchedule(t *testing.T) {
 }
 
 func TestBeforeStartTime(t *testing.T) {
-	suite := setupRewardTest(
-		t,
-		[]types.Schedule{{
-			Id:             1,
-			StartTime:      time.Unix(10000, 0),
-			EndTime:        time.Unix(20000, 0),
-			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(69420))),
-			ReleasedAmount: sdk.NewCoins(),
-		}},
-	)
+	suite := setupRewardTest(t, mockSchedules)
 
 	// set time to 1 sec before the schedule starsuite. no token should be released
 	suite.setBlockTime(9999)
@@ -215,22 +206,7 @@ func TestBeforeStartTime(t *testing.T) {
 }
 
 func TestTwoActiveSchedules(t *testing.T) {
-	suite := setupRewardTest(
-		t,
-		[]types.Schedule{{
-			Id:             1,
-			StartTime:      time.Unix(10000, 0),
-			EndTime:        time.Unix(20000, 0),
-			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(69420))),
-			ReleasedAmount: sdk.NewCoins(),
-		}, {
-			Id:             2,
-			StartTime:      time.Unix(15000, 0),
-			EndTime:        time.Unix(30000, 0),
-			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(10000))),
-			ReleasedAmount: sdk.NewCoins(),
-		}},
-	)
+	suite := setupRewardTest(t, mockSchedules)
 
 	//----------------------------------------
 	// part 1
@@ -278,22 +254,7 @@ func TestTwoActiveSchedules(t *testing.T) {
 }
 
 func TestDeleteEndedSchedules(t *testing.T) {
-	suite := setupRewardTest(
-		t,
-		[]types.Schedule{{
-			Id:             1,
-			StartTime:      time.Unix(10000, 0),
-			EndTime:        time.Unix(20000, 0),
-			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(69420))),
-			ReleasedAmount: sdk.NewCoins(),
-		}, {
-			Id:             2,
-			StartTime:      time.Unix(15000, 0),
-			EndTime:        time.Unix(30000, 0),
-			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(10000))),
-			ReleasedAmount: sdk.NewCoins(),
-		}},
-	)
+	suite := setupRewardTest(t, mockSchedules)
 
 	ctx, keeper := suite.ctx, &suite.app.IncentivesKeeper
 

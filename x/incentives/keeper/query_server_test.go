@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -17,26 +16,6 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/keeper"
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
-
-var mockSchedules = []types.Schedule{{
-	Id:             1,
-	StartTime:      time.Unix(10000, 0).Local(),
-	EndTime:        time.Unix(20000, 0).Local(),
-	TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(12345))),
-	ReleasedAmount: sdk.NewCoins(),
-}, {
-	Id:             2,
-	StartTime:      time.Unix(20000, 0).Local(),
-	EndTime:        time.Unix(30000, 0).Local(),
-	TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(23456))),
-	ReleasedAmount: sdk.NewCoins(),
-}, {
-	Id:             3,
-	StartTime:      time.Unix(30000, 0).Local(),
-	EndTime:        time.Unix(40000, 0).Local(),
-	TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(34567))),
-	ReleasedAmount: sdk.NewCoins(),
-}}
 
 func setupQueryServerTest() (ctx sdk.Context, app *marsapp.MarsApp) {
 	app = marsapptesting.MakeMockApp()
@@ -84,12 +63,12 @@ func TestQuerySchedules(t *testing.T) {
 
 	pageReq := &query.PageRequest{
 		Key:        nil,
-		Limit:      2,
+		Limit:      1,
 		CountTotal: false,
 	}
 	res, err := queryServer.Schedules(sdk.WrapSDKContext(ctx), &types.QuerySchedulesRequest{Pagination: pageReq})
 	require.NoError(t, err)
-	require.Equal(t, 2, len(res.Schedules))
+	require.Equal(t, 1, len(res.Schedules))
 
 	pageReq = &query.PageRequest{
 		Key:        res.Pagination.NextKey,
