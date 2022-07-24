@@ -2,8 +2,6 @@ package client
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -93,15 +91,9 @@ func getTerminateIncentivesProposalCmd() *cobra.Command {
 				return err
 			}
 
-			idStrs := strings.Split(args[0], ",")
-			ids := []uint64{}
-			for _, idStr := range idStrs {
-				id, err := strconv.ParseUint(idStr, 10, 64)
-				if err != nil {
-					return fmt.Errorf("invalid ids: %s", err)
-				}
-
-				ids = append(ids, id)
+			ids, err := marsutils.StringToUintArray(args[0], ",")
+			if err != nil {
+				return err
 			}
 
 			title, description, deposit, err := marsutils.ParseGovProposalFlags(cmd)
