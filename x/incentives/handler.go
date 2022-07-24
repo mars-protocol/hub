@@ -15,7 +15,7 @@ import (
 // NewMsgHandler creates a new handler for messages
 func NewMsgHandler() sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized safetyfund message type: %T", msg)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized incentives message type: %T", msg)
 	}
 }
 
@@ -28,7 +28,7 @@ func NewProposalHandler(k keeper.Keeper) govtypes.Handler {
 		case *types.TerminateIncentivesSchedulesProposal:
 			return handleTerminateIncentivesSchedulesProposal(ctx, k, c)
 		default:
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized safetyfund proposal content type: %T", c)
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized incentives proposal content type: %T", c)
 		}
 	}
 }
