@@ -796,6 +796,7 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	govRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
+	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
 	govRouter.AddRoute(safetyfundtypes.RouterKey, safetyfund.NewProposalHandler(app.SafetyFundKeeper))
 
 	return govRouter
