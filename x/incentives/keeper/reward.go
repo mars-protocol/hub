@@ -10,6 +10,10 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
+func newDecFromInt64(i int64) sdk.Dec {
+	return sdk.NewDecFromInt(sdk.NewInt(i))
+}
+
 // ReleaseBlockReward handles the release of incentives. Returns the total amount of block reward released
 // and the list of relevant schedule ids.
 //
@@ -51,6 +55,8 @@ func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo)
 	k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distrtypes.ModuleName, totalBlockReward)
 
 	// sum up the total voting power voted in the last block
+	//
+	// TODO: we don't need to check `SignedLastBlock`? the allocate function in distr module doesn't
 	totalPower := sdk.ZeroDec()
 	for _, vote := range bondedVotes {
 		totalPower = totalPower.Add(newDecFromInt64(vote.Validator.Power))
@@ -73,8 +79,4 @@ func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo)
 	}
 
 	return ids, totalBlockReward
-}
-
-func newDecFromInt64(i int64) sdk.Dec {
-	return sdk.NewDecFromInt(sdk.NewInt(i))
 }
