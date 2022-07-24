@@ -81,7 +81,7 @@ func (suite *testSuite) calculateDelegationReward() sdk.DecCoins {
 // Test Setup
 //--------------------------------------------------------------------------------------------------
 
-func setupTest(t *testing.T, schedules []types.Schedule) *testSuite {
+func setupRewardTest(t *testing.T, schedules []types.Schedule) *testSuite {
 	app := marsapptesting.MakeMockApp()
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
@@ -187,7 +187,7 @@ func setupTest(t *testing.T, schedules []types.Schedule) *testSuite {
 //--------------------------------------------------------------------------------------------------
 
 func TestNoActiveSchedule(t *testing.T) {
-	suite := setupTest(t, []types.Schedule{})
+	suite := setupRewardTest(t, []types.Schedule{})
 
 	ids, blockReward := suite.releaseBlockReward()
 	require.Empty(t, ids)
@@ -195,7 +195,7 @@ func TestNoActiveSchedule(t *testing.T) {
 }
 
 func TestBeforeStartTime(t *testing.T) {
-	suite := setupTest(
+	suite := setupRewardTest(
 		t,
 		[]types.Schedule{{
 			Id:             1,
@@ -215,7 +215,7 @@ func TestBeforeStartTime(t *testing.T) {
 }
 
 func TestTwoActiveSchedules(t *testing.T) {
-	suite := setupTest(
+	suite := setupRewardTest(
 		t,
 		[]types.Schedule{{
 			Id:             1,
@@ -277,4 +277,36 @@ func TestTwoActiveSchedules(t *testing.T) {
 	require.Equal(t, expectedDelReward, delegationReward)
 }
 
-func TestDeleteEndedSchedules(t *testing.T) {}
+func TestDeleteEndedSchedules(t *testing.T) {
+	suite := setupRewardTest(
+		t,
+		[]types.Schedule{{
+			Id:             1,
+			StartTime:      time.Unix(10000, 0),
+			EndTime:        time.Unix(20000, 0),
+			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(69420))),
+			ReleasedAmount: sdk.NewCoins(),
+		}, {
+			Id:             2,
+			StartTime:      time.Unix(15000, 0),
+			EndTime:        time.Unix(30000, 0),
+			TotalAmount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(10000))),
+			ReleasedAmount: sdk.NewCoins(),
+		}},
+	)
+
+	ctx, keeper := suite.ctx, &suite.app.IncentivesKeeper
+
+	suite.setBlockHeight(1)
+	suite.setBlockTime(20001)
+
+	_, _ = suite.releaseBlockReward()
+
+	// schedule 1 should have been deleted
+	_, found := keeper.GetSchedule(ctx, 1)
+	require.False(t, found)
+
+	// schedule 2 should NOT have been deleted
+	_, found = keeper.GetSchedule(ctx, 2)
+	require.True(t, found)
+}
