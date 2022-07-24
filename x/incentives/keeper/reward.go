@@ -16,17 +16,21 @@ import (
 // `bondedBotes` is a list of {validator address, validator voted on last block flag} for all validators
 // in the bonded set.
 func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo) (ids []uint64, totalBlockReward sdk.Coins) {
+	currentTime := ctx.BlockTime()
+
 	// iterate through all active schedules, sum up all rewards to be released in this block.
 	//
 	// If an incentives schedule has been fully released, delete it from the store; otherwise, update
 	// the released amount and save
-	currentTime := ctx.BlockTime()
 	ids = []uint64{}
 	totalBlockReward = sdk.NewCoins()
 	k.IterateSchedules(ctx, func(schedule types.Schedule) bool {
-		ids = append(ids, schedule.Id)
 		blockReward := schedule.GetBlockReward(currentTime)
-		totalBlockReward = totalBlockReward.Add(blockReward...)
+
+		if !blockReward.Empty() {
+			ids = append(ids, schedule.Id)
+			totalBlockReward = totalBlockReward.Add(blockReward...)
+		}
 
 		if currentTime.After(schedule.EndTime) {
 			k.DeleteSchedule(ctx, schedule.Id)
