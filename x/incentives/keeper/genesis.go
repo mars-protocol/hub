@@ -10,7 +10,7 @@ import (
 //
 // NOTE: we call `GetModuleAccount` instead of `SetModuleAccount` because the "get" function automatically
 // sets the module account if it doesn't exist
-func (k Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, gs *types.GenesisState) {
 	// set module account
 	k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 
