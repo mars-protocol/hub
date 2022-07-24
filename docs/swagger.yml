@@ -31890,7 +31890,7 @@ paths:
         - Query
   /mars/incentives/v1/schedule/{id}:
     get:
-      summary: Schedule queries the release schedule of an incentives schedule
+      summary: Schedule queries an incentives schedule by identifier
       operationId: Schedule
       responses:
         '200':
@@ -31905,7 +31905,7 @@ paths:
                   id:
                     type: string
                     format: uint64
-                    title: ID is the identifier of this incentives schedule
+                    title: Id is the identifier of this incentives schedule
                   start_time:
                     type: string
                     format: date-time
@@ -31990,13 +31990,13 @@ paths:
           description: ID is the identifier of the incentives schedule to be queried
           in: path
           required: true
-          type: integer
-          format: int64
+          type: string
+          format: uint64
       tags:
         - Query
   /mars/incentives/v1/schedules:
     get:
-      summary: Schedules queries the release schedules of all incentives schedules
+      summary: Schedules queries all incentives schedules
       operationId: Schedules
       responses:
         '200':
@@ -32012,7 +32012,7 @@ paths:
                     id:
                       type: string
                       format: uint64
-                      title: ID is the identifier of this incentives schedule
+                      title: Id is the identifier of this incentives schedule
                     start_time:
                       type: string
                       format: date-time
@@ -32073,6 +32073,35 @@ paths:
                     Schedule defines the parameters of an incentives releasing
                     schedule
                 title: Schedule is the parameters of the incentives schedule
+              pagination:
+                title: Pagination defines the pagination in the response
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             title: >-
               QueryScheduleResponse is the response type for the Query/Schedules
               RPC method
@@ -53543,7 +53572,7 @@ definitions:
     title: |-
       QuerySmartContractStateResponse is the response type for the
       Query/SmartContractState RPC method
-  mars.hub.incentives.v1.QueryScheduleResponse:
+  mars.incentives.v1.QueryScheduleResponse:
     type: object
     properties:
       schedule:
@@ -53553,7 +53582,7 @@ definitions:
           id:
             type: string
             format: uint64
-            title: ID is the identifier of this incentives schedule
+            title: Id is the identifier of this incentives schedule
           start_time:
             type: string
             format: date-time
@@ -53609,7 +53638,7 @@ definitions:
     title: >-
       QueryScheduleResponse is the response type for the Query/Schedule RPC
       method
-  mars.hub.incentives.v1.QuerySchedulesResponse:
+  mars.incentives.v1.QuerySchedulesResponse:
     type: object
     properties:
       schedules:
@@ -53620,7 +53649,7 @@ definitions:
             id:
               type: string
               format: uint64
-              title: ID is the identifier of this incentives schedule
+              title: Id is the identifier of this incentives schedule
             start_time:
               type: string
               format: date-time
@@ -53675,16 +53704,43 @@ definitions:
                 released to the stakers as part of this incentives schedule
           title: Schedule defines the parameters of an incentives releasing schedule
         title: Schedule is the parameters of the incentives schedule
+      pagination:
+        title: Pagination defines the pagination in the response
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     title: >-
       QueryScheduleResponse is the response type for the Query/Schedules RPC
       method
-  mars.hub.incentives.v1.Schedule:
+  mars.incentives.v1.Schedule:
     type: object
     properties:
       id:
         type: string
         format: uint64
-        title: ID is the identifier of this incentives schedule
+        title: Id is the identifier of this incentives schedule
       start_time:
         type: string
         format: date-time

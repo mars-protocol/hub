@@ -1,5 +1,5 @@
 syntax = "proto3";
-package mars.hub.incentives.v1;
+package mars.incentives.v1;
 
 import "gogoproto/gogo.proto";
 import "mars/incentives/v1/store.proto";
