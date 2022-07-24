@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
@@ -49,9 +47,9 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// GetModuleAccount returns the incentives module account
-func (k Keeper) GetModuleAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+// GetModuleAddress returns the incentives module account's address
+func (k Keeper) GetModuleAddress(ctx sdk.Context) sdk.AccAddress {
+	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName).GetAddress()
 }
 
 //--------------------------------------------------------------------------------------------------
