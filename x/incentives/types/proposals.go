@@ -2,9 +2,10 @@ package types
 
 import (
 	"fmt"
-	"strings"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	marsutils "github.com/mars-protocol/hub/utils"
 )
 
 const (
@@ -111,11 +112,6 @@ func (p TerminateIncentivesSchedulesProposal) String() string {
 `,
 		p.Title,
 		p.Description,
-		arrayToString(p.Ids, ", "),
+		marsutils.UintArrayToString(p.Ids, ", "),
 	)
-}
-
-// https://stackoverflow.com/questions/37532255/one-liner-to-transform-int-into-string
-func arrayToString(a []uint64, delim string) string {
-	return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
 }
