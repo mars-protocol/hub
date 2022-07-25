@@ -130,8 +130,8 @@ func genesisCommand(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 			marsapp.DefaultNodeHome,
 		),
 		genutilcli.ValidateGenesisCmd(marsapp.ModuleBasics),
-		AddGenesisAccountCmd(marsapp.DefaultNodeHome),
-		AddGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
+		addGenesisAccountCmd(marsapp.DefaultNodeHome),
+		addGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
 	)
 
 	return cmd
