@@ -87,10 +87,10 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		genesisCommand(encodingConfig),
 		queryCommand(),
 		txCommand(),
+		initCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		config.Cmd(),
 		debug.Cmd(),
-		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
 		keys.Commands(marsapp.DefaultNodeHome),
 		rpc.StatusCommand(),
 	)
