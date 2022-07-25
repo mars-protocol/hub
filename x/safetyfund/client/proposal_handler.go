@@ -17,7 +17,7 @@ import (
 	"github.com/mars-protocol/hub/x/safetyfund/types"
 )
 
-// ProposalHandler is the safety fund spend proposal handler
+// SafetyFundSpendProposalHandler is the safety fund spend proposal handler
 var SafetyFundSpendProposalHandler = govclient.NewProposalHandler(getSafetyFundCommandProposalCmd, marsutils.GetProposalRESTHandler("safety_fund_spend"))
 
 func getSafetyFundCommandProposalCmd() *cobra.Command {
