@@ -93,10 +93,8 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 		}
 
 		incrementTallyResult(votingPower, vote.Options, results, &totalTokensVoted)
+		k.deleteVote(ctx, vote.ProposalId, voterAddr)
 
-		// the vanilla gov keeper deletes the vote here. however, it doesn't make public the `deleteVote`
-		// method, so we can't do the same.
-		// whatever, i don't think votes should be deleted anyways: https://twitter.com/larry0x/status/1521170260111638528
 		return false
 	})
 

@@ -1,4 +1,4 @@
-package safetyfund
+package incentives
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/mars-protocol/hub/x/safetyfund/client/cli"
-	"github.com/mars-protocol/hub/x/safetyfund/keeper"
-	"github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/incentives/client/cli"
+	"github.com/mars-protocol/hub/x/incentives/keeper"
+	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
 var (
@@ -96,7 +96,8 @@ func (AppModule) ConsensusVersion() uint64 {
 	return 1
 }
 
-func (AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
+	BeginBlocker(ctx, req, am.keeper)
 }
 
 func (AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.ValidatorUpdate {
@@ -107,7 +108,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 
-	am.keeper.InitGenesis(ctx, genesisState)
+	am.keeper.InitGenesis(ctx, &genesisState)
 
 	return []abci.ValidatorUpdate{}
 }

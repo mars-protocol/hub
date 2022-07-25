@@ -27,7 +27,7 @@ func setupTest(t *testing.T, maccBalances sdk.Coins) (ctx sdk.Context, app *mars
 	app = marsapptesting.MakeMockApp()
 	ctx = app.BaseApp.NewContext(false, tmproto.Header{})
 
-	maccAddr = app.SafetyFundKeeper.GetModuleAccount(ctx).GetAddress()
+	maccAddr = app.SafetyFundKeeper.GetModuleAddress()
 
 	// mint the specified amount of coins to safety fund module account
 	app.BankKeeper.InitGenesis(

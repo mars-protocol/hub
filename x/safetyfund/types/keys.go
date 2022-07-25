@@ -12,4 +12,7 @@ const (
 
 	// QuerierRoute is the safetyfund module's querier route
 	QuerierRoute = ModuleName
+
+	// ModuleAccountName is the name of the safetyfund module account
+	ModuleAccountName = "safety_fund"
 )
