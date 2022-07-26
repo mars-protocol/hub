@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/mars-protocol/hub/x/incentives/types"
@@ -15,7 +16,7 @@ import (
 // Keeper is the incentives module's keeper
 type Keeper struct {
 	cdc      codec.BinaryCodec
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
@@ -25,7 +26,7 @@ type Keeper struct {
 
 // NewKeeper creates a new incentives module keeper
 func NewKeeper(
-	cdc codec.BinaryCodec, storeKey sdk.StoreKey, authKeeper types.AccountKeeper,
+	cdc codec.BinaryCodec, storeKey storetypes.StoreKey, authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper, distrKeeper types.DistrKeeper, stakingKeeper types.StakingKeeper,
 ) Keeper {
 	// ensure incentives module account is set

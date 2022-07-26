@@ -108,7 +108,7 @@ func TestTallyOnlyValidators51No(t *testing.T) {
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.NewInt(79), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
+		v1.NewTallyResult(sdk.NewInt(79), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 
@@ -117,7 +117,7 @@ func TestTallyOnlyValidators51No(t *testing.T) {
 
 	proposal, ok := app.GovKeeper.GetProposal(ctx, proposalID)
 	require.True(t, ok)
-	passes, burnDeposits, _ := app.GovKeeper.Tally(ctx, proposal)
+	passes, burnDeposits, _ = app.GovKeeper.Tally(ctx, proposal)
 
 	require.False(t, passes)
 	require.False(t, burnDeposits)
@@ -493,7 +493,7 @@ func TestDeleteVoteAfterTally(t *testing.T) {
 	voter := voters[0]
 
 	// the user votes
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voter, govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+	app.GovKeeper.SetVote(ctx, v1.NewVote(proposal.ProposalId, voter, v1.NewNonSplitVoteOption(v1.OptionYes)))
 
 	// the vote should have been registered
 	votes := app.GovKeeper.GetVotes(ctx, proposal.ProposalId)

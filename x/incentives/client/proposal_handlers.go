@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	marsutils "github.com/mars-protocol/hub/utils"
 
@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	CreateIncentivesProposalHandler    = govclient.NewProposalHandler(getCreateIncentivesProposalCmd, marsutils.GetProposalRESTHandler("create_incentives_schedule"))
-	TerminateIncentivesProposalHandler = govclient.NewProposalHandler(getTerminateIncentivesProposalCmd, marsutils.GetProposalRESTHandler("terminate_incentives_schedule"))
+	CreateIncentivesProposalHandler    = govclient.NewProposalHandler(getCreateIncentivesProposalCmd)
+	TerminateIncentivesProposalHandler = govclient.NewProposalHandler(getTerminateIncentivesProposalCmd)
 )
 
 func getCreateIncentivesProposalCmd() *cobra.Command {
@@ -66,7 +66,7 @@ func getCreateIncentivesProposalCmd() *cobra.Command {
 				return fmt.Errorf("invalid proposal: %s", err)
 			}
 
-			msg, err := govtypes.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
+			msg, err := govv1.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
 			if err != nil {
 				return fmt.Errorf("failed to create msg: %s", err)
 			}
@@ -111,7 +111,7 @@ func getTerminateIncentivesProposalCmd() *cobra.Command {
 				return fmt.Errorf("invalid proposal: %s", err)
 			}
 
-			msg, err := govtypes.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
+			msg, err := govv1.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
 			if err != nil {
 				return fmt.Errorf("failed to create msg: %s", err)
 			}

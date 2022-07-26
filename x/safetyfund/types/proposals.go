@@ -5,16 +5,17 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 const ProposalTypeSafetyFundSpend = "SafetyFundSpend"
 
-var _ govtypes.Content = &SafetyFundSpendProposal{}
+var _ govv1beta1.Content = &SafetyFundSpendProposal{}
 
 func init() {
-	govtypes.RegisterProposalType(ProposalTypeSafetyFundSpend)
-	govtypes.RegisterProposalTypeCodec(&SafetyFundSpendProposal{}, "mars/SafetyFundSpendProposal")
+	govv1beta1.RegisterProposalType(ProposalTypeSafetyFundSpend)
+	govv1.RegisterLegacyAminoCodec(&SafetyFundSpendProposal{}, "mars/SafetyFundSpendProposal", nil)
 }
 
 // NewSafetyFundSpendProposal creates a new instance of SafetyFundSpendProposal
@@ -44,7 +45,7 @@ func (sfsp *SafetyFundSpendProposal) ProposalType() string {
 }
 
 func (sfsp *SafetyFundSpendProposal) ValidateBasic() error {
-	if err := govtypes.ValidateAbstract(sfsp); err != nil {
+	if err := govv1beta1.ValidateAbstract(sfsp); err != nil {
 		return err
 	}
 

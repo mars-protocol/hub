@@ -4,6 +4,7 @@ import (
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -19,7 +20,7 @@ import (
 type Keeper struct {
 	govkeeper.Keeper
 
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 
 	stakingKeeper govtypes.StakingKeeper // gov keeper has `sk` as a private field; we can't access it when tallying
 	wasmKeeper    wasmtypes.ViewKeeper

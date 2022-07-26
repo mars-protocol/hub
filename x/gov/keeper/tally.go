@@ -99,7 +99,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 		}
 
 		incrementTallyResult(votingPower, vote.Options, results, &totalTokensVoted)
-		k.deleteVote(ctx, vote.ProposalId, voterAddr)
+		keeper.deleteVote(ctx, vote.ProposalId, voterAddr)
 
 		return false
 	})

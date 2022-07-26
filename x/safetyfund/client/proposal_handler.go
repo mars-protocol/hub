@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	marsutils "github.com/mars-protocol/hub/utils"
 
@@ -18,7 +18,7 @@ import (
 )
 
 // SafetyFundSpendProposalHandler is the safety fund spend proposal handler
-var SafetyFundSpendProposalHandler = govclient.NewProposalHandler(getSafetyFundCommandProposalCmd, marsutils.GetProposalRESTHandler("safety_fund_spend"))
+var SafetyFundSpendProposalHandler = govclient.NewProposalHandler(getSafetyFundCommandProposalCmd)
 
 func getSafetyFundCommandProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -57,7 +57,7 @@ func getSafetyFundCommandProposalCmd() *cobra.Command {
 				return fmt.Errorf("invalid proposal: %s", err)
 			}
 
-			msg, err := govtypes.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
+			msg, err := govv1beta1.NewMsgSubmitProposal(proposal, deposit, clientCtx.GetFromAddress())
 			if err != nil {
 				return err
 			}
