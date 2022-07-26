@@ -23,12 +23,6 @@ git checkout <tag>
 make install
 ```
 
-To use [the experimental RocksDB backend](https://github.com/tendermint/tm-db/pull/237):
-
-```bash
-make MARS_BUILD_OPTIONS='rocksdb' install
-```
-
 A `marsd` executable will be created in the `$GOBIN` directory
 
 ## License

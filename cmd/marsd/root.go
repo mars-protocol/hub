@@ -1,19 +1,12 @@
 package main
 
 import (
-	"errors"
-	"io"
 	"os"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
 	tmcli "github.com/tendermint/tendermint/libs/cli"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -26,6 +19,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tmcfg "github.com/tendermint/tendermint/config"
 
+
 	authcli "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -33,7 +27,6 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	marsapp "github.com/mars-protocol/hub/app"
 )
@@ -101,6 +94,7 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		genesisCommand(encodingConfig),
 		queryCommand(),
 		txCommand(),
+		initCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		NewTestnetCmd(marsapp.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		config.Cmd(),
@@ -134,7 +128,6 @@ func genesisCommand(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, marsapp.DefaultNodeHome),
 		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(
@@ -144,8 +137,8 @@ func genesisCommand(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 			marsapp.DefaultNodeHome,
 		),
 		genutilcli.ValidateGenesisCmd(marsapp.ModuleBasics),
-		AddGenesisAccountCmd(marsapp.DefaultNodeHome),
-		AddGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
+		addGenesisAccountCmd(marsapp.DefaultNodeHome),
+		addGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
 	)
 
 	return cmd
@@ -201,6 +194,7 @@ func txCommand() *cobra.Command {
 
 	return cmd
 }
+<<<<<<< HEAD
 
 //--------------------------------------------------------------------------------------------------
 // `appCreator` is a wrapper for `EncodingConfig`. This allows us to reuse `encodingConfig` received
@@ -290,3 +284,5 @@ func (ac appCreator) exportApp(
 
 	return app.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }
+=======
+>>>>>>> upstream/main

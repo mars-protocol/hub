@@ -19,6 +19,8 @@ import (
 type Keeper struct {
 	govkeeper.Keeper
 
+	storeKey sdk.StoreKey
+
 	stakingKeeper govtypes.StakingKeeper // gov keeper has `sk` as a private field; we can't access it when tallying
 	wasmKeeper    wasmtypes.ViewKeeper
 }
@@ -37,4 +39,13 @@ func NewKeeper(
 		stakingKeeper: stakingKeeper,
 		wasmKeeper:    wasmKeeper,
 	}
+}
+
+// deleteVote deletes a vote from a given proposalID and voter from the store
+//
+// NOTE: the vanilla gov module does not make the `deleteVote` function public, so in order to delete
+// votes, we need to redefine the function here
+func (k Keeper) deleteVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(govtypes.VoteKey(proposalID, voterAddr))
 }

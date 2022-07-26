@@ -133,6 +133,22 @@
           "Params": "WASMParams"
         }
       }
+    },
+    {
+      "url": "./tmp-swagger-gen/mars/incentives/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "IncentivesParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/mars/safetyfund/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "SafetyFundParams"
+        }
+      }
     }
   ]
 }
