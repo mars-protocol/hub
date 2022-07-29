@@ -35,6 +35,8 @@ func queryVotingPowers(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk
 }
 
 // incrementVotingPowers increments the voting power counter based on the contract query response
+//
+// NOTE: This function modifies the `tokensInVesting` and `totalTokensInVesting` variables in place.
 func incrementVotingPowers(votingPowersResponse types.VotingPowersResponse, tokensInVesting map[string]sdk.Int, totalTokensInVesting *sdk.Int) error {
 	for _, item := range votingPowersResponse {
 		if _, ok := tokensInVesting[item.User]; ok {
