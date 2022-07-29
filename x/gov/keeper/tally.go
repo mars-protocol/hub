@@ -45,8 +45,6 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	tokensInVesting, totalTokensInVesting := MustGetTokensInVesting(ctx, k.wasmKeeper, DefaultContractAddr)
 
 	// total amount of tokens bonded with validators
-	//
-	// TODO: does this only include validators in the active set, or also inactive ones?
 	totalTokensBonded := k.stakingKeeper.TotalBondedTokens(ctx)
 
 	// total amount of tokens that are eligible to vote in this poll; used to determine quorum
