@@ -117,6 +117,9 @@ const (
 	AccountAddressPrefix = "mars"
 	Name                 = "mars"
 
+	// BondDenom is the staking token's denomination
+	BondDenom = "umars"
+
 	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
 	ProposalsEnabled = "true"
