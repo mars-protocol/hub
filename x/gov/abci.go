@@ -112,6 +112,7 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 				sdk.NewAttribute(govtypes.AttributeKeyProposalResult, tagValue),
 			),
 		)
+
 		return false
 	})
 }
