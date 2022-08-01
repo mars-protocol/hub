@@ -1,6 +1,6 @@
 # Mars Hub
 
-Mars Hub application-specific blockchain, built on top of [Tendermint](https://github.com/tendermint/tendermint) and [Cosmos SDK](https://github.com/cosmos/cosmos-sdk)
+Mars Hub application-specific blockchain, built on top of [Tendermint](https://github.com/tendermint/tendermint), [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), [IBC](https://github.com/cosmos/ibc-go), and [CosmWasm](https://github.com/CosmWasm/wasmd).
 
 ## Installation
 
