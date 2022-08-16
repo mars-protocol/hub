@@ -10,7 +10,7 @@ option go_package = "github.com/mars-protocol/hub/x/relay/types";
 // Query defines the gRPC querier service for the relay module
 service Query {
   // Account queries the interchain account registered at the specified connection
-  rpc Account(QueryAccountRequest) returns (QueryAccountRequest) {
+  rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
     option (google.api.http).get = "/mars/relay/v1beta1/account/{connection_id}";
   }
 

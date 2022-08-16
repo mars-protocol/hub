@@ -113,6 +113,7 @@ import (
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
 	"github.com/mars-protocol/hub/x/relay"
+	relayclient "github.com/mars-protocol/hub/x/relay/client"
 	relaykeeper "github.com/mars-protocol/hub/x/relay/keeper"
 	relaytypes "github.com/mars-protocol/hub/x/relay/types"
 	"github.com/mars-protocol/hub/x/safetyfund"
@@ -182,7 +183,8 @@ var (
 		ibcclientclient.UpgradeProposalHandler,
 		incentivesclient.CreateIncentivesProposalHandler,
 		incentivesclient.TerminateIncentivesProposalHandler,
-		// TODO: add the two relay proposal types
+		relayclient.ExecuteRemoteContractProposalHandler,
+		relayclient.MigrateRemoteContractProposalHandler,
 		safetyfundclient.SafetyFundSpendProposalHandler,
 	)
 
@@ -516,13 +518,18 @@ func NewMarsApp(
 
 	// mars module keepers
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
-		codec, keys[incentivestypes.StoreKey],
+		codec,
+		keys[incentivestypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.StakingKeeper,
 	)
-	app.RelayKeeper = relaykeeper.NewKeeper()
+	app.RelayKeeper = relaykeeper.NewKeeper(
+		app.AccountKeeper,
+		app.ICAControllerKeeper,
+		app.ScopedRelayKeeper,
+	)
 	app.SafetyFundKeeper = safetyfundkeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
 
 	// finally, create gov keeper
@@ -870,7 +877,7 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
 	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
-	// TODO: add relay module proposal handler
+	govRouter.AddRoute(relaytypes.RouterKey, relay.NewProposalHandler(app.RelayKeeper))
 	govRouter.AddRoute(safetyfundtypes.RouterKey, safetyfund.NewProposalHandler(app.SafetyFundKeeper))
 
 	return govRouter

@@ -64,15 +64,15 @@ func (p *ExecuteRemoteContractProposal) String() string {
 
 	return fmt.Sprintf(
 		`Execute Remote Contract Proposal:
-  Title:       %s
-  Description: %s
-  Chain ID:    %s
-  Contract:    %s
-  Message:     %s
+  Title:         %s
+  Description:   %s
+  Connection ID: %s
+  Contract:      %s
+  Message:       %s
 `,
 		p.Title,
 		p.Description,
-		p.ChainID,
+		p.ConnectionId,
 		p.Contract,
 		string(msg),
 	)
@@ -118,16 +118,18 @@ func (p *MigrateRemoteContractProposal) String() string {
 
 	return fmt.Sprintf(
 		`Migrate Remote Contract Proposal:
-  Title:       %s
-  Description: %s
-  Chain ID:    %s
-  Contract:    %s
-  Message:     %s
+  Title:         %s
+  Description:   %s
+  Connection ID: %s
+  Contract:      %s
+  Code ID:       %d
+  Message:       %s
 `,
 		p.Title,
 		p.Description,
-		p.ChainID,
+		p.ConnectionId,
 		p.Contract,
+		p.CodeId,
 		string(msg),
 	)
 }

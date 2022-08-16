@@ -20,8 +20,8 @@ message ExecuteRemoteContractProposal {
   // Description is the description of the proposal
   string description = 2;
 
-  // ChainID is the identifier of the remote chain, in the format {chain-name}-{revision-number}
-  string chain_id = 3 [(gogoproto.customname) = "ChainID"];
+  // ConnectionId is the identifier of the IBC connection through which the wasm message is to be dispatched
+  string connection_id = 3 [(gogoproto.moretags) = "yaml:\"connection_id\""];
 
   // Contract is the address of the wasm contract which is to be executed
   string contract = 4;
@@ -45,14 +45,14 @@ message MigrateRemoteContractProposal {
   // Description is the description of the proposal
   string description = 2;
 
-  // ChainID is the identifier of the remote chain, in the format {chain-name}-{revision-number}
-  string chain_id = 3 [(gogoproto.customname) = "ChainID"];
+  // ConnectionId is the identifier of the IBC connection through which the wasm message is to be dispatched
+  string connection_id = 3 [(gogoproto.moretags) = "yaml:\"connection_id\""];
 
   // Contract is the address of the wasm contract which is to be migrated
   string contract = 4;
 
-  // CodeID is the code ID to which the contract is to be migrated
-  uint64 code_id = 5 [(gogoproto.customname) = "CodeID"];
+  // CodeId is the identifier of the wasm code to which the contract is to be migrated
+  uint64 code_id = 5 [(gogoproto.moretags) = "yaml:\"code_id\""];
 
   // MigrateMsg is the migration message which is to be executed during the migration process
   bytes migrate_msg = 6 [
