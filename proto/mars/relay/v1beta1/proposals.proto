@@ -1,0 +1,61 @@
+syntax = "proto3";
+package mars.relay.v1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/mars-protocol/hub/x/relay/types";
+
+// ExecuteRemoteContractProposal defines a governance proposal for sending an execute message to a
+// wasm contract on another chain via interchain account
+message ExecuteRemoteContractProposal {
+  option (gogoproto.equal)            = false;
+  option (gogoproto.goproto_getters)  = false;
+  option (gogoproto.goproto_stringer) = false;
+
+  // Title is the title of the proposal
+  string title = 1;
+
+  // Description is the description of the proposal
+  string description = 2;
+
+  // ChainID is the identifier of the remote chain, in the format {chain-name}-{revision-number}
+  string chain_id = 3 [(gogoproto.customname) = "ChainID"];
+
+  // Contract is the address of the wasm contract which is to be executed
+  string contract = 4;
+
+  // ExecuteMsg is the execute message which is to be dispatched to the contract
+  bytes execute_msg = 5 [
+    (gogoproto.casttype) = "github.com/CosmWasm/wasmd/x/wasm/types.RawContractMessage"
+  ];
+}
+
+// MigrateRemoteContractProposal defines a governance proposal for sending a migrate message to a
+// wasm contract on another chain via interchain account
+message MigrateRemoteContractProposal {
+  option (gogoproto.equal)            = false;
+  option (gogoproto.goproto_getters)  = false;
+  option (gogoproto.goproto_stringer) = false;
+
+  // Title is the title of the proposal
+  string title = 1;
+
+  // Description is the description of the proposal
+  string description = 2;
+
+  // ChainID is the identifier of the remote chain, in the format {chain-name}-{revision-number}
+  string chain_id = 3 [(gogoproto.customname) = "ChainID"];
+
+  // Contract is the address of the wasm contract which is to be migrated
+  string contract = 4;
+
+  // CodeID is the code ID to which the contract is to be migrated
+  uint64 code_id = 5 [(gogoproto.customname) = "CodeID"];
+
+  // MigrateMsg is the migration message which is to be executed during the migration process
+  bytes migrate_msg = 6 [
+    (gogoproto.casttype) = "github.com/CosmWasm/wasmd/x/wasm/types.RawContractMessage"
+  ];
+}

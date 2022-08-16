@@ -1,0 +1,64 @@
+syntax = "proto3";
+package mars.relay.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/mars-protocol/hub/x/relay/types";
+
+// Query defines the gRPC querier service for the relay module
+service Query {
+  // Account queries the interchain account registered at the specified connection
+  rpc Account(QueryAccountRequest) returns (QueryAccountRequest) {
+    option (google.api.http).get = "/mars/relay/v1beta1/account/{connection_id}";
+  }
+
+  // Accounts queries interchain accounts registered at all connections
+  rpc Accounts(QueryAccountsRequest) returns (QueryAccountsResponse) {
+    option (google.api.http).get = "/mars/relay/v1beta1/accounts";
+  }
+}
+
+// QueryAccountRequest is the request type for the Query/Account RPC method
+message QueryAccountRequest {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // ConnectionId is the identifier of an IBC connection
+  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+}
+
+// QueryAccountResponse is the response type for the Query/Account RPC method
+message QueryAccountResponse {
+  // Address is the address of the interchain account registered at the specified connection
+  string address = 1;
+}
+
+// QueryAccountsRequest is the request type for the Query/Accounts RPC method
+message QueryAccountsRequest {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // Pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryAccountsResponse is the response type for the Query/Accounts RPC method
+message QueryAccountsResponse {
+  // Accounts are the connections IDs and their respective interchain account address
+  repeated QueryAccountsResponseItem accounts = 1 [(gogoproto.nullable) = false];
+
+  // Pagination defines the pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryAccountsResponseItem represents one interchain account registered at a connection ID.
+// Used as a repeating item in QueryAccountsResponse
+message QueryAccountsResponseItem {
+  // ConnectionId is the identifier of the connection at which the interchain account is registered
+  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+
+  // Address is the address of the interchain account
+  string address = 2;
+}

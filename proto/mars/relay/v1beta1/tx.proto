@@ -1,0 +1,24 @@
+syntax = "proto3";
+package mars.relay.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/mars-protocol/hub/x/relay/types";
+
+// Msg defines the gRPC message service for the relay module
+service Msg {
+  // RegisterAccount registers an interchain account at the specified connection
+  rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
+}
+
+// MsgRegisterAccount defines the payload for Msg/RegisterAccount
+message MsgRegisterAccount {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // ConnectionId is the identifier of the connection at which the account is to be registered
+  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+}
+
+// MsgRegisterAccountResponse defines the response for Msg/RegisterAccount
+message MsgRegisterAccountResponse {}
