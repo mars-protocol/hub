@@ -7,14 +7,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 
-	"github.com/mars-protocol/hub/x/relay/types"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 // GetTxCmd returns the parent command for all relay module tx commands
 func GetTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Relay transaction subcommands",
+		Short:                      "Shuttle transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,

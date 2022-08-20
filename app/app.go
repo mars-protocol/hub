@@ -112,14 +112,14 @@ import (
 	incentivesclient "github.com/mars-protocol/hub/x/incentives/client"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
-	"github.com/mars-protocol/hub/x/relay"
-	relayclient "github.com/mars-protocol/hub/x/relay/client"
-	relaykeeper "github.com/mars-protocol/hub/x/relay/keeper"
-	relaytypes "github.com/mars-protocol/hub/x/relay/types"
 	"github.com/mars-protocol/hub/x/safetyfund"
 	safetyfundclient "github.com/mars-protocol/hub/x/safetyfund/client"
 	safetyfundkeeper "github.com/mars-protocol/hub/x/safetyfund/keeper"
 	safetyfundtypes "github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/shuttle"
+	shuttleclient "github.com/mars-protocol/hub/x/shuttle/client"
+	shuttlekeeper "github.com/mars-protocol/hub/x/shuttle/keeper"
+	shuttletypes "github.com/mars-protocol/hub/x/shuttle/types"
 
 	marswasm "github.com/mars-protocol/hub/app/wasm"
 	marsdocs "github.com/mars-protocol/hub/docs"
@@ -168,8 +168,8 @@ var (
 		ica.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		incentives.AppModuleBasic{},
-		relay.AppModuleBasic{},
 		safetyfund.AppModuleBasic{},
+		shuttle.AppModuleBasic{},
 	)
 
 	// governance proposal handlers
@@ -183,9 +183,9 @@ var (
 		ibcclientclient.UpgradeProposalHandler,
 		incentivesclient.CreateIncentivesProposalHandler,
 		incentivesclient.TerminateIncentivesProposalHandler,
-		relayclient.ExecuteRemoteContractProposalHandler,
-		relayclient.MigrateRemoteContractProposalHandler,
 		safetyfundclient.SafetyFundSpendProposalHandler,
+		shuttleclient.ExecuteRemoteContractProposalHandler,
+		shuttleclient.MigrateRemoteContractProposalHandler,
 	)
 
 	// module account permissions
@@ -199,7 +199,7 @@ var (
 		icatypes.ModuleName:               nil,
 		wasm.ModuleName:                   {authtypes.Burner},
 		incentivestypes.ModuleName:        nil,
-		relaytypes.ModuleName:             nil,
+		shuttletypes.ModuleName:           nil,
 		safetyfundtypes.ModuleAccountName: nil,
 	}
 )
@@ -263,15 +263,15 @@ type MarsApp struct {
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	WasmKeeper          wasm.Keeper
 	IncentivesKeeper    incentiveskeeper.Keeper
-	RelayKeeper         relaykeeper.Keeper
 	SafetyFundKeeper    safetyfundkeeper.Keeper
+	ShuttleKeeper       shuttlekeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
 	ScopedIBCTransferKeeper   capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
-	ScopedRelayKeeper         capabilitykeeper.ScopedKeeper
+	ScopedShuttleKeeper       capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
 
 	// the module manager
@@ -318,7 +318,7 @@ func NewMarsApp(
 		icacontrollertypes.StoreKey,
 		wasm.StoreKey,
 		incentivestypes.StoreKey,
-		relaytypes.StoreKey,
+		shuttletypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -525,10 +525,10 @@ func NewMarsApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 	)
-	app.RelayKeeper = relaykeeper.NewKeeper(
+	app.ShuttleKeeper = shuttlekeeper.NewKeeper(
 		app.AccountKeeper,
 		app.ICAControllerKeeper,
-		app.ScopedRelayKeeper,
+		app.ScopedShuttleKeeper,
 	)
 	app.SafetyFundKeeper = safetyfundkeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
 
@@ -575,7 +575,7 @@ func NewMarsApp(
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
-		relay.NewAppModule(app.RelayKeeper),
+		shuttle.NewAppModule(app.ShuttleKeeper),
 		safetyfund.NewAppModule(app.SafetyFundKeeper),
 	)
 
@@ -602,7 +602,7 @@ func NewMarsApp(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
-		relaytypes.ModuleName,
+		shuttletypes.ModuleName,
 		safetyfundtypes.ModuleName,
 	)
 
@@ -626,7 +626,7 @@ func NewMarsApp(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
-		relaytypes.ModuleName,
+		shuttletypes.ModuleName,
 		safetyfundtypes.ModuleName,
 	)
 
@@ -654,7 +654,7 @@ func NewMarsApp(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
-		relaytypes.ModuleName,
+		shuttletypes.ModuleName,
 		safetyfundtypes.ModuleName,
 	)
 
@@ -877,7 +877,7 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
 	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
-	govRouter.AddRoute(relaytypes.RouterKey, relay.NewProposalHandler(app.RelayKeeper))
+	govRouter.AddRoute(shuttletypes.RouterKey, shuttle.NewProposalHandler(app.ShuttleKeeper))
 	govRouter.AddRoute(safetyfundtypes.RouterKey, safetyfund.NewProposalHandler(app.SafetyFundKeeper))
 
 	return govRouter
@@ -889,7 +889,7 @@ func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
 
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, ibctransfer.NewIBCModule(app.IBCTransferKeeper))
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icahost.NewIBCModule(app.ICAHostKeeper))
-	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icacontroller.NewIBCModule(app.ICAControllerKeeper, relay.NewIBCModule(app.RelayKeeper)))
+	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icacontroller.NewIBCModule(app.ICAControllerKeeper, shuttle.NewIBCModule(app.ShuttleKeeper)))
 
 	return ibcRouter
 }

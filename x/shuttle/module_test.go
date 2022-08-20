@@ -1,4 +1,4 @@
-package relay_test
+package shuttle_test
 
 import (
 	"testing"
@@ -11,10 +11,10 @@ import (
 
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
-	"github.com/mars-protocol/hub/x/relay/types"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
-// TestCreatesModuleAccountAtGenesis asserts that the relay module account is properly registered
+// TestCreatesModuleAccountAtGenesis asserts that the shuttle module account is properly registered
 // with the auth module at genesis
 func TestCreatesModuleAccountAtGenesis(t *testing.T) {
 	app := marsapptesting.MakeMockApp()

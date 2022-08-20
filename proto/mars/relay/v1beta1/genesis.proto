@@ -1,7 +1,0 @@
-syntax = "proto3";
-package mars.relay.v1;
-
-option go_package = "github.com/mars-protocol/hub/x/relay/types";
-
-// GenesisState defines the relay module's genesis state
-message GenesisState {}

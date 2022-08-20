@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mars-protocol/hub/x/relay/types"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 // InitGenesis initializes the safetyfund module's storage according to the provided genesis state

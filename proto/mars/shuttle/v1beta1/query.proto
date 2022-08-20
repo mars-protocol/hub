@@ -1,22 +1,22 @@
 syntax = "proto3";
-package mars.relay.v1;
+package mars.shuttle.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/mars-protocol/hub/x/relay/types";
+option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
 
-// Query defines the gRPC querier service for the relay module
+// Query defines the gRPC querier service for the shuttle module
 service Query {
   // Account queries the interchain account registered at the specified connection
   rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
-    option (google.api.http).get = "/mars/relay/v1beta1/account/{connection_id}";
+    option (google.api.http).get = "/mars/shuttle/v1beta1/account/{connection_id}";
   }
 
   // Accounts queries interchain accounts registered at all connections
   rpc Accounts(QueryAccountsRequest) returns (QueryAccountsResponse) {
-    option (google.api.http).get = "/mars/relay/v1beta1/accounts";
+    option (google.api.http).get = "/mars/shuttle/v1beta1/accounts";
   }
 }
 

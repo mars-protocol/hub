@@ -1,11 +1,11 @@
 syntax = "proto3";
-package mars.relay.v1;
+package mars.shuttle.v1;
 
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/mars-protocol/hub/x/relay/types";
+option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
 
 // ExecuteRemoteContractProposal defines a governance proposal for sending an execute message to a
 // wasm contract on another chain via interchain account

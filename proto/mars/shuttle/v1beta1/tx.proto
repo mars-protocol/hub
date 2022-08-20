@@ -1,11 +1,11 @@
 syntax = "proto3";
-package mars.relay.v1;
+package mars.shuttle.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/mars-protocol/hub/x/relay/types";
+option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
 
-// Msg defines the gRPC message service for the relay module
+// Msg defines the gRPC message service for the shuttle module
 service Msg {
   // RegisterAccount registers an interchain account at the specified connection
   rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);

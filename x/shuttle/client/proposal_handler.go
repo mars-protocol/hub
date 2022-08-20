@@ -14,7 +14,7 @@ import (
 
 	marsutils "github.com/mars-protocol/hub/utils"
 
-	"github.com/mars-protocol/hub/x/relay/types"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 var (

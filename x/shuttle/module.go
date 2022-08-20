@@ -1,4 +1,4 @@
-package relay
+package shuttle
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/mars-protocol/hub/x/relay/client/cli"
-	"github.com/mars-protocol/hub/x/relay/keeper"
-	"github.com/mars-protocol/hub/x/relay/types"
+	"github.com/mars-protocol/hub/x/shuttle/client/cli"
+	"github.com/mars-protocol/hub/x/shuttle/keeper"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 var (

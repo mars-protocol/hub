@@ -1,4 +1,4 @@
-package relay
+package shuttle
 
 import (
 	"errors"
@@ -8,14 +8,14 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/mars-protocol/hub/x/relay/keeper"
-	"github.com/mars-protocol/hub/x/relay/types"
+	"github.com/mars-protocol/hub/x/shuttle/keeper"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 // NewMsgHandler creates a new handler for messages
 func NewMsgHandler() sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized relay message type: %T", msg)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized shuttle message type: %T", msg)
 	}
 }
 
@@ -28,7 +28,7 @@ func NewProposalHandler(k keeper.Keeper) govtypes.Handler {
 		case *types.MigrateRemoteContractProposal:
 			return handleMigrateRemoteContractProposal(ctx, k, c)
 		default:
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized relay proposal content type: %T", c)
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized shuttle proposal content type: %T", c)
 		}
 	}
 }

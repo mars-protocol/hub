@@ -1,4 +1,4 @@
-package relay
+package shuttle
 
 import (
 	"encoding/hex"
@@ -15,7 +15,7 @@ import (
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 
-	"github.com/mars-protocol/hub/x/relay/keeper"
+	"github.com/mars-protocol/hub/x/shuttle/keeper"
 )
 
 var _ ibcporttypes.IBCModule = IBCModule{}

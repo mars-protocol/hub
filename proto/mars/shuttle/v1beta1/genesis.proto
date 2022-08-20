@@ -1,0 +1,7 @@
+syntax = "proto3";
+package mars.shuttle.v1;
+
+option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
+
+// GenesisState defines the shuttle module's genesis state
+message GenesisState {}
