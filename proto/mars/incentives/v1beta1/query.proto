@@ -1,10 +1,10 @@
 syntax = "proto3";
-package mars.incentives.v1;
+package mars.incentives.v1beta1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "mars/incentives/v1/store.proto";
+import "mars/incentives/v1beta1/store.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
@@ -12,12 +12,12 @@ option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 service Query {
   // Schedule queries an incentives schedule by identifier
   rpc Schedule(QueryScheduleRequest) returns (QueryScheduleResponse) {
-    option (google.api.http).get = "/mars/incentives/v1/schedule/{id}";
+    option (google.api.http).get = "/mars/incentives/v1beta1/schedule/{id}";
   }
 
   // Schedules queries all incentives schedules
   rpc Schedules(QuerySchedulesRequest) returns (QuerySchedulesResponse) {
-    option (google.api.http).get = "/mars/incentives/v1/schedules";
+    option (google.api.http).get = "/mars/incentives/v1beta1/schedules";
   }
 }
 

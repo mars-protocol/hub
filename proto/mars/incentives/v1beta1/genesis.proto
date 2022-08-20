@@ -1,8 +1,8 @@
 syntax = "proto3";
-package mars.incentives.v1;
+package mars.incentives.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "mars/incentives/v1/store.proto";
+import "mars/incentives/v1beta1/store.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 

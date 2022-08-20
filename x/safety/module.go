@@ -1,4 +1,4 @@
-package safetyfund
+package safety
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/mars-protocol/hub/x/safetyfund/client/cli"
-	"github.com/mars-protocol/hub/x/safetyfund/keeper"
-	"github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety/client/cli"
+	"github.com/mars-protocol/hub/x/safety/keeper"
+	"github.com/mars-protocol/hub/x/safety/types"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 // AppModuleBasic
 //--------------------------------------------------------------------------------------------------
 
-// AppModuleBasic defines the basic application module used by the safetyfund module
+// AppModuleBasic defines the basic application module used by the module
 type AppModuleBasic struct{}
 
 func (AppModuleBasic) Name() string {

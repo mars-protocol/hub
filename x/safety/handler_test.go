@@ -1,4 +1,4 @@
-package safetyfund_test
+package safety_test
 
 import (
 	"testing"
@@ -13,8 +13,8 @@ import (
 	marsapp "github.com/mars-protocol/hub/app"
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
-	"github.com/mars-protocol/hub/x/safetyfund"
-	"github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety"
+	"github.com/mars-protocol/hub/x/safety/types"
 )
 
 var (
@@ -27,7 +27,7 @@ func setupTest(t *testing.T, maccBalances sdk.Coins) (ctx sdk.Context, app *mars
 	app = marsapptesting.MakeMockApp()
 	ctx = app.BaseApp.NewContext(false, tmproto.Header{})
 
-	maccAddr = app.SafetyFundKeeper.GetModuleAddress()
+	maccAddr = app.SafetyKeeper.GetModuleAddress()
 
 	// mint the specified amount of coins to safety fund module account
 	app.BankKeeper.InitGenesis(
@@ -50,14 +50,14 @@ func setupTest(t *testing.T, maccBalances sdk.Coins) (ctx sdk.Context, app *mars
 	return ctx, app, maccAddr
 }
 
-// TestProposalHandlerPassed tests a case where the safety fund module account has a sufficient token
+// TestProposalHandlerPassed tests a case where the safety module account has a sufficient token
 // balance, which should be successfully transferred to the recipient
 func TestProposalHandlerPassed(t *testing.T) {
 	// set up test by minting a sufficient amount of coins to the module account
 	ctx, app, maccAddr := setupTest(t, amount)
 
 	// the proposal should be executed with no error
-	hdlr := safetyfund.NewProposalHandler(app.SafetyFundKeeper)
+	hdlr := safety.NewProposalHandler(app.SafetyKeeper)
 	require.NoError(t, hdlr(ctx, proposal))
 
 	// the module account's balance should have been reduced to zero
@@ -69,7 +69,7 @@ func TestProposalHandlerPassed(t *testing.T) {
 	require.Equal(t, amount, balances)
 }
 
-// TestProposalHandlerFailed tests a case where the safetyfund module account does NOT have a sufficient
+// TestProposalHandlerFailed tests a case where the safety module account does NOT have a sufficient
 // token balance, which should result in an error when executing the proposal
 func TestProposalHandlerFailed(t *testing.T) {
 	maccBalances := sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(42069)))
@@ -77,8 +77,8 @@ func TestProposalHandlerFailed(t *testing.T) {
 	// set up test by minting an insufficient amount of coins to the module account
 	ctx, app, maccAddr := setupTest(t, maccBalances)
 
-	// attempt to execute the proposal without first giving safety fund module account any coin; should fail
-	hdlr := safetyfund.NewProposalHandler(app.SafetyFundKeeper)
+	// attempt to execute the proposal without first giving safety module account any coin; should fail
+	hdlr := safety.NewProposalHandler(app.SafetyKeeper)
 	require.Error(t, hdlr(ctx, proposal))
 
 	// the module account's balance should NOT have changed

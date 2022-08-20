@@ -112,10 +112,10 @@ import (
 	incentivesclient "github.com/mars-protocol/hub/x/incentives/client"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
-	"github.com/mars-protocol/hub/x/safetyfund"
-	safetyfundclient "github.com/mars-protocol/hub/x/safetyfund/client"
-	safetyfundkeeper "github.com/mars-protocol/hub/x/safetyfund/keeper"
-	safetyfundtypes "github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety"
+	safetyclient "github.com/mars-protocol/hub/x/safety/client"
+	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
+	safetytypes "github.com/mars-protocol/hub/x/safety/types"
 	"github.com/mars-protocol/hub/x/shuttle"
 	shuttleclient "github.com/mars-protocol/hub/x/shuttle/client"
 	shuttlekeeper "github.com/mars-protocol/hub/x/shuttle/keeper"
@@ -168,7 +168,7 @@ var (
 		ica.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		incentives.AppModuleBasic{},
-		safetyfund.AppModuleBasic{},
+		safety.AppModuleBasic{},
 		shuttle.AppModuleBasic{},
 	)
 
@@ -183,24 +183,23 @@ var (
 		ibcclientclient.UpgradeProposalHandler,
 		incentivesclient.CreateIncentivesProposalHandler,
 		incentivesclient.TerminateIncentivesProposalHandler,
-		safetyfundclient.SafetyFundSpendProposalHandler,
+		safetyclient.SafetyFundSpendProposalHandler,
 		shuttleclient.ExecuteRemoteContractProposalHandler,
 		shuttleclient.MigrateRemoteContractProposalHandler,
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:        nil,
-		distrtypes.ModuleName:             nil,
-		govtypes.ModuleName:               {authtypes.Burner},
-		stakingtypes.BondedPoolName:       {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		ibctransfertypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		icatypes.ModuleName:               nil,
-		wasm.ModuleName:                   {authtypes.Burner},
-		incentivestypes.ModuleName:        nil,
-		shuttletypes.ModuleName:           nil,
-		safetyfundtypes.ModuleAccountName: nil,
+		authtypes.FeeCollectorName:     nil,
+		distrtypes.ModuleName:          nil,
+		govtypes.ModuleName:            {authtypes.Burner},
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		wasm.ModuleName:                {authtypes.Burner},
+		incentivestypes.ModuleName:     nil,
+		safetytypes.ModuleName:         nil,
+		shuttletypes.ModuleName:        nil,
 	}
 )
 
@@ -263,7 +262,7 @@ type MarsApp struct {
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	WasmKeeper          wasm.Keeper
 	IncentivesKeeper    incentiveskeeper.Keeper
-	SafetyFundKeeper    safetyfundkeeper.Keeper
+	SafetyKeeper        safetykeeper.Keeper
 	ShuttleKeeper       shuttlekeeper.Keeper
 
 	// make scoped keepers public for testing purposes
@@ -530,7 +529,7 @@ func NewMarsApp(
 		app.ICAControllerKeeper,
 		app.ScopedShuttleKeeper,
 	)
-	app.SafetyFundKeeper = safetyfundkeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
+	app.SafetyKeeper = safetykeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
 
 	// finally, create gov keeper
 	//
@@ -575,8 +574,8 @@ func NewMarsApp(
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
+		safety.NewAppModule(app.SafetyKeeper),
 		shuttle.NewAppModule(app.ShuttleKeeper),
-		safetyfund.NewAppModule(app.SafetyFundKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that there is nothing left
@@ -602,8 +601,8 @@ func NewMarsApp(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
+		safetytypes.ModuleName,
 		shuttletypes.ModuleName,
-		safetyfundtypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -626,8 +625,8 @@ func NewMarsApp(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
+		safetytypes.ModuleName,
 		shuttletypes.ModuleName,
-		safetyfundtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are properly initialized with
@@ -654,8 +653,8 @@ func NewMarsApp(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
+		safetytypes.ModuleName,
 		shuttletypes.ModuleName,
-		safetyfundtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -841,7 +840,7 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 
 	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(incentivestypes.ModuleName).String())
-	delete(modAccAddrs, authtypes.NewModuleAddress(safetyfundtypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(safetytypes.ModuleName).String())
 
 	return modAccAddrs
 }
@@ -877,8 +876,8 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
 	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
+	govRouter.AddRoute(safetytypes.RouterKey, safety.NewProposalHandler(app.SafetyKeeper))
 	govRouter.AddRoute(shuttletypes.RouterKey, shuttle.NewProposalHandler(app.ShuttleKeeper))
-	govRouter.AddRoute(safetyfundtypes.RouterKey, safetyfund.NewProposalHandler(app.SafetyFundKeeper))
 
 	return govRouter
 }
