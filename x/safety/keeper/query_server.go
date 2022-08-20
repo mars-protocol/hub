@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety/types"
 )
 
 type queryServer struct{ k Keeper }

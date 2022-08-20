@@ -6,10 +6,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety/types"
 )
 
-// GetQueryCmd returns the parent command for all safetyfund module query commands
+// GetQueryCmd returns the parent command for all safety module query commands
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "safety-fund",
