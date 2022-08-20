@@ -1,7 +1,0 @@
-syntax = "proto3";
-package mars.safetyfund.v1;
-
-option go_package = "github.com/mars-protocol/hub/x/safetyfund/types";
-
-// GenesisState defines the safetyfund module's genesis state
-message GenesisState {}

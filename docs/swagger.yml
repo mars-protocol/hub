@@ -31888,7 +31888,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /mars/incentives/v1/schedule/{id}:
+  /mars/incentives/v1beta1/schedule/{id}:
     get:
       summary: Schedule queries an incentives schedule by identifier
       operationId: Schedule
@@ -31994,7 +31994,7 @@ paths:
           format: uint64
       tags:
         - Query
-  /mars/incentives/v1/schedules:
+  /mars/incentives/v1beta1/schedules:
     get:
       summary: Schedules queries all incentives schedules
       operationId: Schedules
@@ -32186,7 +32186,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /mars/safetyfund/v1/balances:
+  /mars/safety/v1beta1/balances:
     get:
       summary: Balances queries coins available in the safety fund
       operationId: Balances
@@ -53572,7 +53572,7 @@ definitions:
     title: |-
       QuerySmartContractStateResponse is the response type for the
       Query/SmartContractState RPC method
-  mars.incentives.v1.QueryScheduleResponse:
+  mars.incentives.v1beta1.QueryScheduleResponse:
     type: object
     properties:
       schedule:
@@ -53638,7 +53638,7 @@ definitions:
     title: >-
       QueryScheduleResponse is the response type for the Query/Schedule RPC
       method
-  mars.incentives.v1.QuerySchedulesResponse:
+  mars.incentives.v1beta1.QuerySchedulesResponse:
     type: object
     properties:
       schedules:
@@ -53734,7 +53734,7 @@ definitions:
     title: >-
       QueryScheduleResponse is the response type for the Query/Schedules RPC
       method
-  mars.incentives.v1.Schedule:
+  mars.incentives.v1beta1.Schedule:
     type: object
     properties:
       id:
@@ -53788,7 +53788,7 @@ definitions:
           ReleasedAmount is the amount of coins that have already been released
           to the stakers as part of this incentives schedule
     title: Schedule defines the parameters of an incentives releasing schedule
-  mars.safetyfund.v1.QueryBalancesResponse:
+  mars.safety.v1beta1.QueryBalancesResponse:
     type: object
     properties:
       balances:

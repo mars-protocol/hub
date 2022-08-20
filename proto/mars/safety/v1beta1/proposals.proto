@@ -1,10 +1,10 @@
 syntax = "proto3";
-package mars.safetyfund.v1;
+package mars.safety.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/mars-protocol/hub/x/safetyfund/types";
+option go_package = "github.com/mars-protocol/hub/x/safety/types";
 
 // SafetyFundSpendProposal details a proposal for the use of safety funds, together with how many coins
 // are proposed to be spent, and to which recipient account

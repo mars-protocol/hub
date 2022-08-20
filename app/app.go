@@ -104,10 +104,10 @@ import (
 	incentivesclient "github.com/mars-protocol/hub/x/incentives/client"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
-	"github.com/mars-protocol/hub/x/safetyfund"
-	safetyfundclient "github.com/mars-protocol/hub/x/safetyfund/client"
-	safetyfundkeeper "github.com/mars-protocol/hub/x/safetyfund/keeper"
-	safetyfundtypes "github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety"
+	safetyclient "github.com/mars-protocol/hub/x/safety/client"
+	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
+	safetytypes "github.com/mars-protocol/hub/x/safety/types"
 
 	marswasm "github.com/mars-protocol/hub/app/wasm"
 	marsdocs "github.com/mars-protocol/hub/docs"
@@ -155,7 +155,7 @@ var (
 		ibctransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		incentives.AppModuleBasic{},
-		safetyfund.AppModuleBasic{},
+		safety.AppModuleBasic{},
 	)
 
 	// governance proposal handlers
@@ -169,20 +169,20 @@ var (
 		ibcclientclient.UpgradeProposalHandler,
 		incentivesclient.CreateIncentivesProposalHandler,
 		incentivesclient.TerminateIncentivesProposalHandler,
-		safetyfundclient.SafetyFundSpendProposalHandler,
+		safetyclient.SafetyFundSpendProposalHandler,
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:        nil,
-		distrtypes.ModuleName:             nil,
-		govtypes.ModuleName:               {authtypes.Burner},
-		stakingtypes.BondedPoolName:       {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		ibctransfertypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		wasm.ModuleName:                   {authtypes.Burner},
-		incentivestypes.ModuleName:        nil,
-		safetyfundtypes.ModuleAccountName: nil,
+		authtypes.FeeCollectorName:     nil,
+		distrtypes.ModuleName:          nil,
+		govtypes.ModuleName:            {authtypes.Burner},
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		wasm.ModuleName:                {authtypes.Burner},
+		incentivestypes.ModuleName:     nil,
+		safetytypes.ModuleName:         nil,
 	}
 )
 
@@ -243,7 +243,7 @@ type MarsApp struct {
 	IBCTransferKeeper ibctransferkeeper.Keeper
 	WasmKeeper        wasm.Keeper
 	IncentivesKeeper  incentiveskeeper.Keeper
-	SafetyFundKeeper  safetyfundkeeper.Keeper
+	SafetyKeeper      safetykeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
@@ -475,7 +475,7 @@ func NewMarsApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 	)
-	app.SafetyFundKeeper = safetyfundkeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
+	app.SafetyKeeper = safetykeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
 
 	// finally, create gov keeper
 	//
@@ -519,7 +519,7 @@ func NewMarsApp(
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
-		safetyfund.NewAppModule(app.SafetyFundKeeper),
+		safety.NewAppModule(app.SafetyKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that there is nothing left
@@ -544,7 +544,7 @@ func NewMarsApp(
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
-		safetyfundtypes.ModuleName,
+		safetytypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -566,7 +566,7 @@ func NewMarsApp(
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
-		safetyfundtypes.ModuleName,
+		safetytypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are properly initialized with
@@ -592,7 +592,7 @@ func NewMarsApp(
 		ibctransfertypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
-		safetyfundtypes.ModuleName,
+		safetytypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -778,7 +778,7 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 
 	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(incentivestypes.ModuleName).String())
-	delete(modAccAddrs, authtypes.NewModuleAddress(safetyfundtypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(safetytypes.ModuleName).String())
 
 	return modAccAddrs
 }
@@ -812,7 +812,7 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
 	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
-	govRouter.AddRoute(safetyfundtypes.RouterKey, safetyfund.NewProposalHandler(app.SafetyFundKeeper))
+	govRouter.AddRoute(safetytypes.RouterKey, safety.NewProposalHandler(app.SafetyKeeper))
 
 	return govRouter
 }

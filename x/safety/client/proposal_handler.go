@@ -14,7 +14,7 @@ import (
 
 	marsutils "github.com/mars-protocol/hub/utils"
 
-	"github.com/mars-protocol/hub/x/safetyfund/types"
+	"github.com/mars-protocol/hub/x/safety/types"
 )
 
 // SafetyFundSpendProposalHandler is the safety fund spend proposal handler
