@@ -29224,6 +29224,103 @@ paths:
                       format: byte
       tags:
         - Query
+  /ibc/apps/interchain_accounts/host/v1/params:
+    get:
+      summary: Params queries all parameters of the ICA host submodule.
+      operationId: ICAHostParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  host_enabled:
+                    type: boolean
+                    description: host_enabled enables or disables the host submodule.
+                  allow_messages:
+                    type: array
+                    items:
+                      type: string
+                    description: >-
+                      allow_messages defines a list of sdk message typeURLs
+                      allowed to be executed on a host chain.
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /ibc/apps/interchain_accounts/controller/v1/params:
+    get:
+      summary: Params queries all parameters of the ICA controller submodule.
+      operationId: ICAControllerParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  controller_enabled:
+                    type: boolean
+                    description: >-
+                      controller_enabled enables or disables the controller
+                      submodule.
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /cosmwasm/wasm/v1/code:
     get:
       summary: Codes gets the metadata for all stored wasm codes
@@ -32239,6 +32336,200 @@ paths:
                     value:
                       type: string
                       format: byte
+      tags:
+        - Query
+  /mars/shuttle/v1beta1/account/{connection_id}:
+    get:
+      summary: >-
+        Account queries the interchain account registered at the specified
+        connection
+      operationId: InterchainAccount
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              address:
+                type: string
+                title: >-
+                  Address is the address of the interchain account registered at
+                  the specified connection
+            title: >-
+              QueryAccountResponse is the response type for the Query/Account
+              RPC method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: connection_id
+          description: ConnectionId is the identifier of an IBC connection
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /mars/shuttle/v1beta1/accounts:
+    get:
+      summary: Accounts queries interchain accounts registered at all connections
+      operationId: InterchainAccounts
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              accounts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    connection_id:
+                      type: string
+                      title: >-
+                        ConnectionId is the identifier of the connection at
+                        which the interchain account is registered
+                    address:
+                      type: string
+                      title: Address is the address of the interchain account
+                  title: >-
+                    QueryAccountsResponseItem represents one interchain account
+                    registered at a connection ID.
+
+                    Used as a repeating item in QueryAccountsResponse
+                title: >-
+                  Accounts are the connections IDs and their respective
+                  interchain account address
+              pagination:
+                title: Pagination defines the pagination in the response
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+            title: >-
+              QueryAccountsResponse is the response type for the Query/Accounts
+              RPC method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
       tags:
         - Query
 definitions:
@@ -52695,6 +52986,60 @@ definitions:
 
               chain.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  ibc.applications.interchain_accounts.host.v1.Params:
+    type: object
+    properties:
+      host_enabled:
+        type: boolean
+        description: host_enabled enables or disables the host submodule.
+      allow_messages:
+        type: array
+        items:
+          type: string
+        description: >-
+          allow_messages defines a list of sdk message typeURLs allowed to be
+          executed on a host chain.
+    description: |-
+      Params defines the set of on-chain interchain accounts parameters.
+      The following parameters may be used to disable the host submodule.
+  ibc.applications.interchain_accounts.host.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          host_enabled:
+            type: boolean
+            description: host_enabled enables or disables the host submodule.
+          allow_messages:
+            type: array
+            items:
+              type: string
+            description: >-
+              allow_messages defines a list of sdk message typeURLs allowed to
+              be executed on a host chain.
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  ibc.applications.interchain_accounts.controller.v1.Params:
+    type: object
+    properties:
+      controller_enabled:
+        type: boolean
+        description: controller_enabled enables or disables the controller submodule.
+    description: |-
+      Params defines the set of on-chain interchain accounts parameters.
+      The following parameters may be used to disable the controller submodule.
+  ibc.applications.interchain_accounts.controller.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          controller_enabled:
+            type: boolean
+            description: controller_enabled enables or disables the controller submodule.
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
   cosmwasm.wasm.v1.AbsoluteTxPosition:
     type: object
     properties:
@@ -53807,3 +54152,82 @@ definitions:
             signatures required by gogoproto.
         title: Balances is the coins available in the safety fund
     title: QueBalancesResponse is the response type of the QuerBalancesRPC method
+  mars.shuttle.v1.QueryAccountResponse:
+    type: object
+    properties:
+      address:
+        type: string
+        title: >-
+          Address is the address of the interchain account registered at the
+          specified connection
+    title: QueryAccountResponse is the response type for the Query/Account RPC method
+  mars.shuttle.v1.QueryAccountsResponse:
+    type: object
+    properties:
+      accounts:
+        type: array
+        items:
+          type: object
+          properties:
+            connection_id:
+              type: string
+              title: >-
+                ConnectionId is the identifier of the connection at which the
+                interchain account is registered
+            address:
+              type: string
+              title: Address is the address of the interchain account
+          title: >-
+            QueryAccountsResponseItem represents one interchain account
+            registered at a connection ID.
+
+            Used as a repeating item in QueryAccountsResponse
+        title: >-
+          Accounts are the connections IDs and their respective interchain
+          account address
+      pagination:
+        title: Pagination defines the pagination in the response
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+    title: >-
+      QueryAccountsResponse is the response type for the Query/Accounts RPC
+      method
+  mars.shuttle.v1.QueryAccountsResponseItem:
+    type: object
+    properties:
+      connection_id:
+        type: string
+        title: >-
+          ConnectionId is the identifier of the connection at which the
+          interchain account is registered
+      address:
+        type: string
+        title: Address is the address of the interchain account
+    title: >-
+      QueryAccountsResponseItem represents one interchain account registered at
+      a connection ID.
+
+      Used as a repeating item in QueryAccountsResponse

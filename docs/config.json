@@ -127,6 +127,22 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/ibc/applications/interchain_accounts/host/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ICAHostParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ibc/applications/interchain_accounts/controller/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ICAControllerParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/cosmwasm/wasm/v1/query.swagger.json",
       "operationIds": {
         "rename": {
@@ -147,6 +163,16 @@
       "operationIds": {
         "rename": {
           "Params": "SafetyParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/mars/shuttle/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ShuttleParams",
+          "Account": "InterchainAccount",
+          "Accounts": "InterchainAccounts"
         }
       }
     }
