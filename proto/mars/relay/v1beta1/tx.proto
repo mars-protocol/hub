@@ -16,8 +16,11 @@ message MsgRegisterAccount {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
+  // Sender is the account who sent this message
+  string sender = 1;
+
   // ConnectionId is the identifier of the connection at which the account is to be registered
-  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+  string connection_id = 2 [(gogoproto.moretags) = "yaml:\"connection_id\""];
 }
 
 // MsgRegisterAccountResponse defines the response for Msg/RegisterAccount

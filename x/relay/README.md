@@ -7,3 +7,7 @@
 - The relay module comes with two governance proposal types: `ExecuteRemoteContractProposal` and `MigrateRemoteContractProposal`. If one such proposal (e.g. adding new asset to an Outpost, adjusting risk parameters, or migrating contracts) is passed in governance, the relay module will dispatch the appropriate wasm message(s) to the Outpost chain to be executed via ICA.
 
 The name "relay" is inspired by [mass relays](https://masseffect.fandom.com/wiki/Mass_Relay) from the _Mass Effect_ series, which are devices that can transport matter or data at FTL speed across the galaxy.
+
+## Acknowledgements
+
+- The [interchain-account-demo](https://github.com/cosmos/interchain-accounts-demo) repository has been a great learning resource during the development of this module.

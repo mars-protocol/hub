@@ -38,7 +38,10 @@ func getRegisterAccountCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgRegisterAccount{ConnectionId: args[0]}
+			sender := clientCtx.GetFromAddress().String()
+			connectionID := args[0]
+
+			msg := &types.MsgRegisterAccount{Sender: sender, ConnectionId: connectionID}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
