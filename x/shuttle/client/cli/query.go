@@ -11,7 +11,7 @@ import (
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
-// GetQueryCmd returns the parent command for all relay module query commands
+// GetQueryCmd returns the parent command for all the module's query commands
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -59,7 +59,7 @@ func getAccountCmd() *cobra.Command {
 func getAccountsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "accounts",
-		Short: "Query all registered interchain accounts owned by the relay module",
+		Short: "Query all registered interchain accounts owned by the shuttle module",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

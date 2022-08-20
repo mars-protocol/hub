@@ -31,7 +31,7 @@ var (
 // AppModuleBasic
 //--------------------------------------------------------------------------------------------------
 
-// AppModuleBasic defines the basic application module used by the relay module
+// AppModuleBasic defines the basic application module used by the module
 type AppModuleBasic struct{}
 
 func (AppModuleBasic) Name() string {

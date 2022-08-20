@@ -10,7 +10,7 @@ import (
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
-// GetTxCmd returns the parent command for all relay module tx commands
+// GetTxCmd returns the parent command for all the module's tx commands
 func GetTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
