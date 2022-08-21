@@ -196,6 +196,7 @@ var (
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:            nil,
 		wasm.ModuleName:                {authtypes.Burner},
 		incentivestypes.ModuleName:     nil,
 		safetytypes.ModuleName:         nil,
@@ -359,6 +360,7 @@ func NewMarsApp(
 	app.ScopedIBCTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
+	app.ScopedShuttleKeeper = app.CapabilityKeeper.ScopeToModule(shuttletypes.ModuleName)
 	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
 	// add keepers
@@ -478,9 +480,6 @@ func NewMarsApp(
 		app.MsgServiceRouter(),
 	)
 
-	// create static IBC router, add transfer route, then set and seal it
-	app.IBCKeeper.SetRouter(initIBCRouter(app))
-
 	// load configs for wasm module
 	wasmDir := filepath.Join(homePath, "data")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -531,7 +530,7 @@ func NewMarsApp(
 	)
 	app.SafetyKeeper = safetykeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
 
-	// finally, create gov keeper
+	// create gov keeper
 	//
 	// here we use the customized gov keeper, which requires an additional `wasmKeeper` parameter
 	// compared to the vanilla govkeeper
@@ -545,6 +544,13 @@ func NewMarsApp(
 		app.WasmKeeper,
 		initGovRouter(app),
 	)
+
+	// set IBC router
+	//
+	// the `SetRouter` function seals the router, so no need to do it in `initIBCRouter` helper
+	//
+	// NOTE: only do this after **all** IBC-related keepers have been initialized (e.g. shuttle)
+	app.IBCKeeper.SetRouter(initIBCRouter(app))
 
 	// **** module options ****
 
@@ -882,13 +888,16 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 	return govRouter
 }
 
-// initialzies IBC router
+// initialzies IBC router, add modules
 func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
 	ibcRouter := ibcporttypes.NewRouter()
 
+	icacontrollerIBCModule := icacontroller.NewIBCModule(app.ICAControllerKeeper, shuttle.NewIBCModule(app.ShuttleKeeper))
+
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, ibctransfer.NewIBCModule(app.IBCTransferKeeper))
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icahost.NewIBCModule(app.ICAHostKeeper))
-	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icacontroller.NewIBCModule(app.ICAControllerKeeper, shuttle.NewIBCModule(app.ShuttleKeeper)))
+	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icacontrollerIBCModule)
+	ibcRouter.AddRoute(shuttletypes.ModuleName, icacontrollerIBCModule)
 
 	return ibcRouter
 }

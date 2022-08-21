@@ -21,9 +21,7 @@ import (
 var _ ibcporttypes.IBCModule = IBCModule{}
 
 // IBCModule implements the ICS26 interface for interchain accounts controller chains
-type IBCModule struct {
-	keeper keeper.Keeper
-}
+type IBCModule struct{ keeper.Keeper }
 
 // NewIBCModule creates a new IBCModule given the keeper
 func NewIBCModule(k keeper.Keeper) IBCModule {
@@ -41,11 +39,7 @@ func (im IBCModule) OnChanOpenInit(
 	version string,
 ) error {
 	// claim channel capability passed back by IBC module
-	if err := im.keeper.ClaimCapability(ctx, channelCap, ibchost.ChannelCapabilityPath(portID, channelID)); err != nil {
-		return err
-	}
-
-	return nil
+	return im.ClaimCapability(ctx, channelCap, ibchost.ChannelCapabilityPath(portID, channelID))
 }
 
 func (im IBCModule) OnChanOpenTry(
@@ -130,7 +124,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 				return err
 			}
 
-			im.keeper.Logger(ctx).Info("message response in ICS-27 packet response", "response", response)
+			im.Logger(ctx).Info("message response in ICS-27 packet response", "response", response)
 		}
 		return nil
 	}

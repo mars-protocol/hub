@@ -22,7 +22,6 @@ func (k msgServer) RegisterAccount(goCtx context.Context, msg *types.MsgRegister
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	maccAddr := k.GetModuleAddress()
-
 	portID, err := icatypes.NewControllerPortID(maccAddr.String())
 	if err != nil {
 		return nil, err
