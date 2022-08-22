@@ -41,7 +41,7 @@ func handleExecuteRemoteContractProposal(ctx sdk.Context, k keeper.Keeper, p *ty
 
 	logger := k.Logger(ctx)
 	logger.Info(
-		"submitted remote contract execute message via interchain account",
+		"submitted execute message to remote contract",
 		"connection_id", p.ConnectionId,
 		"sequence", sequence,
 		"contract", p.Contract,
@@ -62,7 +62,7 @@ func handleMigrateRemoteContractProposal(ctx sdk.Context, k keeper.Keeper, p *ty
 
 	logger := k.Logger(ctx)
 	logger.Info(
-		"submitted remote contract migrate message via interchain account",
+		"submitted migrate message to remote contract",
 		"connection_id", p.ConnectionId,
 		"sequence", sequence,
 		"contract", p.Contract,
