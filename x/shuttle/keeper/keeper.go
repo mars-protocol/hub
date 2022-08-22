@@ -5,28 +5,37 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
 
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 // Keeper is the module's keeper
 type Keeper struct {
-	accountKeeper       types.AccountKeeper
-	icaControllerKeeper types.ICAControllerKeeper
+	cdc codec.Codec
+
+	accountKeeper       authkeeper.AccountKeeper
+	icaControllerKeeper icacontrollerkeeper.Keeper
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 }
 
 // NewKeeper creates a new Keeper instance
-func NewKeeper(accountKeeper types.AccountKeeper, icaControllerKeeper types.ICAControllerKeeper, scopedKeeper capabilitykeeper.ScopedKeeper) Keeper {
+func NewKeeper(
+	cdc codec.Codec, accountKeeper authkeeper.AccountKeeper,
+	icaControllerKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper,
+) Keeper {
 	// ensure incentives module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	return Keeper{accountKeeper, icaControllerKeeper, scopedKeeper}
+	return Keeper{cdc, accountKeeper, icaControllerKeeper, scopedKeeper}
 }
 
 // Logger returns a module-specific logger

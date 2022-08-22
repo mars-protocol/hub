@@ -1,8 +1,6 @@
 package shuttle
 
 import (
-	"errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -34,9 +32,45 @@ func NewProposalHandler(k keeper.Keeper) govtypes.Handler {
 }
 
 func handleExecuteRemoteContractProposal(ctx sdk.Context, k keeper.Keeper, p *types.ExecuteRemoteContractProposal) error {
-	return errors.New("unimplemented")
+	sequence, err := k.ExecuteRemoteContract(ctx, p.ConnectionId, p.Contract, p.Msg, p.Funds)
+	if err != nil {
+		return nil
+	}
+
+	msgBytes, _ := p.Msg.MarshalJSON()
+
+	// TODO: how should we format the keys in the logging info? i'm using snake_case here for now
+	logger := k.Logger(ctx)
+	logger.Info(
+		"submitted execute remote contract message via interchain account",
+		"connection_id", p.ConnectionId,
+		"sequence", sequence,
+		"contract", p.Contract,
+		"msg", string(msgBytes),
+		"funds", p.Funds.String(),
+	)
+
+	return nil
 }
 
 func handleMigrateRemoteContractProposal(ctx sdk.Context, k keeper.Keeper, p *types.MigrateRemoteContractProposal) error {
-	return errors.New("unimplemented")
+	sequence, err := k.MigrateRemoteContract(ctx, p.ConnectionId, p.Contract, p.CodeId, p.Msg)
+	if err != nil {
+		return nil
+	}
+
+	msgBytes, _ := p.Msg.MarshalJSON()
+
+	// TODO: how should we format the keys in the logging info? i'm using snake_case here for now
+	logger := k.Logger(ctx)
+	logger.Info(
+		"submitted execute remote contract message via interchain account",
+		"connection_id", p.ConnectionId,
+		"sequence", sequence,
+		"contract", p.Contract,
+		"code_id", p.CodeId,
+		"execute_msg", string(msgBytes),
+	)
+
+	return nil
 }

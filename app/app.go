@@ -524,6 +524,7 @@ func NewMarsApp(
 		app.StakingKeeper,
 	)
 	app.ShuttleKeeper = shuttlekeeper.NewKeeper(
+		codec,
 		app.AccountKeeper,
 		app.ICAControllerKeeper,
 		app.ScopedShuttleKeeper,

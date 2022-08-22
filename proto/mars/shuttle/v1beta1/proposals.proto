@@ -26,9 +26,15 @@ message ExecuteRemoteContractProposal {
   // Contract is the address of the wasm contract which is to be executed
   string contract = 4;
 
-  // ExecuteMsg is the execute message which is to be dispatched to the contract
-  bytes execute_msg = 5 [
+  // Msg is the execute message which is to be dispatched to the contract
+  bytes msg = 5 [
     (gogoproto.casttype) = "github.com/CosmWasm/wasmd/x/wasm/types.RawContractMessage"
+  ];
+
+  // Funds are the coins that will be sent to the contract during the execution
+  repeated cosmos.base.v1beta1.Coin funds = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
 
@@ -54,8 +60,8 @@ message MigrateRemoteContractProposal {
   // CodeId is the identifier of the wasm code to which the contract is to be migrated
   uint64 code_id = 5 [(gogoproto.moretags) = "yaml:\"code_id\""];
 
-  // MigrateMsg is the migration message which is to be executed during the migration process
-  bytes migrate_msg = 6 [
+  // Msg is the migration message which is to be executed during the migration process
+  bytes msg = 6 [
     (gogoproto.casttype) = "github.com/CosmWasm/wasmd/x/wasm/types.RawContractMessage"
   ];
 }

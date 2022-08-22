@@ -49,7 +49,7 @@ func (p *ExecuteRemoteContractProposal) ValidateBasic() error {
 		return err
 	}
 
-	if err := p.ExecuteMsg.ValidateBasic(); err != nil {
+	if err := p.Msg.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -57,7 +57,7 @@ func (p *ExecuteRemoteContractProposal) ValidateBasic() error {
 }
 
 func (p *ExecuteRemoteContractProposal) String() string {
-	msg, err := p.ExecuteMsg.MarshalJSON()
+	msg, err := p.Msg.MarshalJSON()
 	if err != nil {
 		panic(err)
 	}
@@ -69,12 +69,14 @@ func (p *ExecuteRemoteContractProposal) String() string {
   Connection ID: %s
   Contract:      %s
   Message:       %s
+  Funds:         %s
 `,
 		p.Title,
 		p.Description,
 		p.ConnectionId,
 		p.Contract,
 		string(msg),
+		p.Funds.String(),
 	)
 }
 
@@ -103,7 +105,7 @@ func (p *MigrateRemoteContractProposal) ValidateBasic() error {
 		return err
 	}
 
-	if err := p.MigrateMsg.ValidateBasic(); err != nil {
+	if err := p.Msg.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -111,7 +113,7 @@ func (p *MigrateRemoteContractProposal) ValidateBasic() error {
 }
 
 func (p *MigrateRemoteContractProposal) String() string {
-	msg, err := p.MigrateMsg.MarshalJSON()
+	msg, err := p.Msg.MarshalJSON()
 	if err != nil {
 		panic(err)
 	}

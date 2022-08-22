@@ -130,14 +130,6 @@ func (im IBCModule) OnAcknowledgementPacket(
 	}
 }
 
-func (im IBCModule) OnTimeoutPacket(
-	ctx sdk.Context,
-	packet ibcchanneltypes.Packet,
-	relayer sdk.AccAddress,
-) error {
-	return nil
-}
-
 func handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
 	switch msgData.MsgType {
 	case sdk.MsgTypeURL(&wasm.MsgExecuteContract{}):
@@ -159,4 +151,14 @@ func handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
 	default:
 		return hex.EncodeToString(msgData.Data), nil
 	}
+}
+
+func (im IBCModule) OnTimeoutPacket(
+	ctx sdk.Context,
+	packet ibcchanneltypes.Packet,
+	relayer sdk.AccAddress,
+) error {
+	// TODO: if the packet times out, we should save the msg somewhere and let anyone execute it
+	// later once the congestion clears up, instead of having to do the same gov poll again
+	return nil
 }

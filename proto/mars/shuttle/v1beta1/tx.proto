@@ -24,4 +24,6 @@ message MsgRegisterAccount {
 }
 
 // MsgRegisterAccountResponse defines the response for Msg/RegisterAccount
-message MsgRegisterAccountResponse {}
+message MsgRegisterAccountResponse {
+  // TODO: maybe return the address of the newly created account here
+}

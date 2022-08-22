@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -17,6 +17,8 @@ import (
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
+const FlagFunds = "funds"
+
 var (
 	ExecuteRemoteContractProposalHandler = govclient.NewProposalHandler(getExecuteRemoteContractProposalCmd, marsutils.GetProposalRESTHandler("execute_remote_contract"))
 	MigrateRemoteContractProposalHandler = govclient.NewProposalHandler(getMigrateRemoteContractProposalCmd, marsutils.GetProposalRESTHandler("migrate_remote_contract"))
@@ -24,13 +26,23 @@ var (
 
 func getExecuteRemoteContractProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "execute-remote-contract [connection-id] [contract-addr] [json-encoded-msg] --title [text] --description [text] --deposit [amount]",
+		Use:   "execute-remote-contract [connection-id] [contract-addr] [json-encoded-msg] --funds [coins,optional] --title [text] --description [text] --deposit [amount]",
 		Args:  cobra.ExactArgs(3),
 		Short: "Submit an execute remote wasm contract proposal",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
+			}
+
+			fundsStr, err := cmd.Flags().GetString(FlagFunds)
+			if err != nil {
+				return fmt.Errorf("invalid funds: %s", err)
+			}
+
+			funds, err := sdk.ParseCoinsNormalized(fundsStr)
+			if err != nil {
+				return fmt.Errorf("invalid funds: %s", err)
 			}
 
 			title, description, deposit, err := marsutils.ParseGovProposalFlags(cmd)
@@ -43,7 +55,8 @@ func getExecuteRemoteContractProposalCmd() *cobra.Command {
 				Description:  description,
 				ConnectionId: args[0],
 				Contract:     args[1],
-				ExecuteMsg:   []byte(args[2]),
+				Msg:          []byte(args[2]),
+				Funds:        funds,
 			}
 
 			if err := proposal.ValidateBasic(); err != nil {
@@ -59,6 +72,7 @@ func getExecuteRemoteContractProposalCmd() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().String(FlagFunds, "", "Coins to be sent to the contract during execution")
 	marsutils.AddGovProposalFlags(cmd)
 
 	return cmd
@@ -91,7 +105,7 @@ func getMigrateRemoteContractProposalCmd() *cobra.Command {
 				ConnectionId: args[0],
 				Contract:     args[1],
 				CodeId:       codeId,
-				MigrateMsg:   []byte(args[3]),
+				Msg:          []byte(args[3]),
 			}
 
 			if err := proposal.ValidateBasic(); err != nil {
