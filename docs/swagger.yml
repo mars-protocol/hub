@@ -32350,6 +32350,9 @@ paths:
           schema:
             type: object
             properties:
+              channel_id:
+                type: string
+                title: ChannelId is the identifier of the channel
               address:
                 type: string
                 title: >-
@@ -32408,6 +32411,9 @@ paths:
                       title: >-
                         ConnectionId is the identifier of the connection at
                         which the interchain account is registered
+                    channel_id:
+                      type: string
+                      title: ChannelId is the identifier of the channel
                     address:
                       type: string
                       title: Address is the address of the interchain account
@@ -54155,6 +54161,9 @@ definitions:
   mars.shuttle.v1.QueryAccountResponse:
     type: object
     properties:
+      channel_id:
+        type: string
+        title: ChannelId is the identifier of the channel
       address:
         type: string
         title: >-
@@ -54174,6 +54183,9 @@ definitions:
               title: >-
                 ConnectionId is the identifier of the connection at which the
                 interchain account is registered
+            channel_id:
+              type: string
+              title: ChannelId is the identifier of the channel
             address:
               type: string
               title: Address is the address of the interchain account
@@ -54223,6 +54235,9 @@ definitions:
         title: >-
           ConnectionId is the identifier of the connection at which the
           interchain account is registered
+      channel_id:
+        type: string
+        title: ChannelId is the identifier of the channel
       address:
         type: string
         title: Address is the address of the interchain account

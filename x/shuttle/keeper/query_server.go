@@ -31,15 +31,20 @@ func (k queryServer) Account(goCtx context.Context, req *types.QueryAccountReque
 
 	portID, err := icatypes.NewControllerPortID(maccAddr.String())
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "could not create port for account: %s", err)
+		return nil, status.Errorf(codes.Internal, "failed to create port for account: %s", err)
+	}
+
+	channelID, found := k.icaControllerKeeper.GetActiveChannelID(ctx, req.ConnectionId, portID)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "no ICA channel found for connection %s and port %s", req.ConnectionId)
 	}
 
 	addr, found := k.icaControllerKeeper.GetInterchainAccountAddress(ctx, req.ConnectionId, portID)
 	if !found {
-		return nil, status.Errorf(codes.NotFound, "no interchain account found for connection %s and port %s", req.ConnectionId, portID)
+		return nil, status.Errorf(codes.NotFound, "no interchain account found for connection %s", req.ConnectionId)
 	}
 
-	return &types.QueryAccountResponse{Address: addr}, nil
+	return &types.QueryAccountResponse{ChannelId: channelID, Address: addr}, nil
 }
 
 func (k queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {

@@ -39,10 +39,9 @@ func handleExecuteRemoteContractProposal(ctx sdk.Context, k keeper.Keeper, p *ty
 
 	msgBytes, _ := p.Msg.MarshalJSON()
 
-	// TODO: how should we format the keys in the logging info? i'm using snake_case here for now
 	logger := k.Logger(ctx)
 	logger.Info(
-		"submitted execute remote contract message via interchain account",
+		"submitted remote contract execute message via interchain account",
 		"connection_id", p.ConnectionId,
 		"sequence", sequence,
 		"contract", p.Contract,
@@ -61,10 +60,9 @@ func handleMigrateRemoteContractProposal(ctx sdk.Context, k keeper.Keeper, p *ty
 
 	msgBytes, _ := p.Msg.MarshalJSON()
 
-	// TODO: how should we format the keys in the logging info? i'm using snake_case here for now
 	logger := k.Logger(ctx)
 	logger.Info(
-		"submitted execute remote contract message via interchain account",
+		"submitted remote contract migrate message via interchain account",
 		"connection_id", p.ConnectionId,
 		"sequence", sequence,
 		"contract", p.Contract,

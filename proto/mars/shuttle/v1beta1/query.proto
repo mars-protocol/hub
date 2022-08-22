@@ -31,8 +31,11 @@ message QueryAccountRequest {
 
 // QueryAccountResponse is the response type for the Query/Account RPC method
 message QueryAccountResponse {
+  // ChannelId is the identifier of the channel
+  string channel_id = 1 [(gogoproto.moretags) = "yaml:\"channel_id\""];
+
   // Address is the address of the interchain account registered at the specified connection
-  string address = 1;
+  string address = 2;
 }
 
 // QueryAccountsRequest is the request type for the Query/Accounts RPC method
@@ -59,6 +62,9 @@ message QueryAccountsResponseItem {
   // ConnectionId is the identifier of the connection at which the interchain account is registered
   string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
 
+  // ChannelId is the identifier of the channel
+  string channel_id = 2 [(gogoproto.moretags) = "yaml:\"channel_id\""];
+
   // Address is the address of the interchain account
-  string address = 2;
+  string address = 3;
 }
