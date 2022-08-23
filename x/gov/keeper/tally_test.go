@@ -168,8 +168,14 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 	}
 
 	// create a governance proposal
-	proposal, err = app.GovKeeper.SubmitProposal(ctx, govtypes.NewTextProposal("mock title", "mock description"))
+	//
+	// typically it requires a minimum deposit to make the proposal enter voting period, but here
+	// we forcibly set the status as StatusVotingPeriod.
+	proposal, err = govtypes.NewProposal(govtypes.NewTextProposal("mock title", "mock description"), 1, time.Now(), time.Now())
+	proposal.Status = govtypes.StatusVotingPeriod
 	require.NoError(t, err)
+
+	app.GovKeeper.SetProposal(ctx, proposal)
 
 	return ctx, app, proposal, valoper, voters
 }

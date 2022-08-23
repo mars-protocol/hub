@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/mars-protocol/hub/x/gov/keeper"
@@ -40,4 +41,14 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak govtypes.AccountKeep
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	EndBlocker(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}
+}
+
+// RegisterServices registers module services.
+//
+// NOTE: this overwrites the vanilla gov module RegisterServices function
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	// msg server - use the vanilla implementation
+	govtypes.RegisterMsgServer(cfg.MsgServer(), govkeeper.NewMsgServerImpl(am.keeper.Keeper))
+	// query server - use our custom implementation
+	govtypes.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
 }
