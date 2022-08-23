@@ -247,5 +247,8 @@ require (
 	nhooyr.io/websocket v1.8.6 // indirect
 )
 
+// Dependabot suggests this security update
+require github.com/opencontainers/runc v1.1.2 // indirect
+
 // use cosmos flavored gogo/protobuf: https://github.com/cosmos/cosmos-sdk/issues/8469
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
