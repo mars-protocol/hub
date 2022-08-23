@@ -15,13 +15,15 @@ import (
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
-func (k Keeper) registerAccount(ctx sdk.Context, connectionID string) error {
+func (k Keeper) RegisterAccount(ctx sdk.Context, connectionID string) error {
 	macc := k.GetModuleAddress().String()
 	portID, err := icatypes.NewControllerPortID(macc)
 	if err != nil {
 		return err
 	}
 
+	// TODO: if a channel is being created (doing handshakes, not yet completed) then this check
+	// will pass, but we don't want it to pass in this situation
 	_, found := k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if found {
 		return sdkerrors.Wrapf(types.ErrAccountExists, "interchain account already exists for %s", connectionID)
@@ -77,7 +79,7 @@ func (k Keeper) sendInterchainTx(ctx sdk.Context, connectionID string, buildMsgs
 
 	icacc, found := k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return 0, sdkerrors.Wrapf(types.ErrAccountNotFound, "interchain account does not exists for %s", connectionID)
+		return 0, sdkerrors.Wrapf(types.ErrAccountNotFound, "interchain account does not exist for %s", connectionID)
 	}
 
 	channelID, found := k.icaControllerKeeper.GetActiveChannelID(ctx, connectionID, portID)
