@@ -4,11 +4,17 @@ package mars.shuttle.v1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "mars/shuttle/v1beta1/params.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
 
 // Query defines the gRPC querier service for the shuttle module
 service Query {
+  // Params queries the module's parameters
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/mars/shuttle/v1beta1/params";
+  }
+
   // Account queries the interchain account registered at the specified connection
   rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
     option (google.api.http).get = "/mars/shuttle/v1beta1/account/{connection_id}";
@@ -18,6 +24,18 @@ service Query {
   rpc Accounts(QueryAccountsRequest) returns (QueryAccountsResponse) {
     option (google.api.http).get = "/mars/shuttle/v1beta1/accounts";
   }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method
+message QueryParamsResponse {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // Params is the module's parameters
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method

@@ -525,6 +525,7 @@ func NewMarsApp(
 	)
 	app.ShuttleKeeper = shuttlekeeper.NewKeeper(
 		codec,
+		getSubspace(app, shuttletypes.ModuleName),
 		app.AccountKeeper,
 		app.ICAControllerKeeper,
 		app.ScopedShuttleKeeper,
@@ -868,6 +869,7 @@ func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, k
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(shuttletypes.ModuleName)
 
 	return paramsKeeper
 }

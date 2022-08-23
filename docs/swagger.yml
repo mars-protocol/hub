@@ -32538,6 +32538,53 @@ paths:
           type: boolean
       tags:
         - Query
+  /mars/shuttle/v1beta1/params:
+    get:
+      summary: Params queries the module's parameters
+      operationId: ShuttleParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                title: Params is the module's parameters
+                type: object
+                properties:
+                  timeout_duration:
+                    type: string
+                    title: >-
+                      TimeoutDuration is the amount of time that the packet
+                      should be considered timed out if not acknowledged
+                description: Params defines the parameters for the module.
+            title: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
 definitions:
   cosmos.auth.v1beta1.AddressBytesToStringResponse:
     type: object
@@ -54158,6 +54205,15 @@ definitions:
             signatures required by gogoproto.
         title: Balances is the coins available in the safety fund
     title: QueBalancesResponse is the response type of the QuerBalancesRPC method
+  mars.shuttle.v1.Params:
+    type: object
+    properties:
+      timeout_duration:
+        type: string
+        title: >-
+          TimeoutDuration is the amount of time that the packet should be
+          considered timed out if not acknowledged
+    description: Params defines the parameters for the module.
   mars.shuttle.v1.QueryAccountResponse:
     type: object
     properties:
@@ -54246,3 +54302,17 @@ definitions:
       a connection ID.
 
       Used as a repeating item in QueryAccountsResponse
+  mars.shuttle.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        title: Params is the module's parameters
+        type: object
+        properties:
+          timeout_duration:
+            type: string
+            title: >-
+              TimeoutDuration is the amount of time that the packet should be
+              considered timed out if not acknowledged
+        description: Params defines the parameters for the module.
+    title: QueryParamsResponse is the response type for the Query/Params RPC method

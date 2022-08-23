@@ -1,7 +1,13 @@
 syntax = "proto3";
 package mars.shuttle.v1;
 
+import "gogoproto/gogo.proto";
+import "mars/shuttle/v1beta1/params.proto";
+
 option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
 
 // GenesisState defines the shuttle module's genesis state
-message GenesisState {}
+message GenesisState {
+  // Params is the module's parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+}

@@ -15,12 +15,6 @@ import (
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
-// TODO: make this a configurable parameter in the params module.
-//
-// but i heard params module is being killed in the upcoming sdk versions? should use whatever is
-// the recommended approach in that case.
-const timeoutDuration = 5 * time.Minute
-
 func (k Keeper) registerAccount(ctx sdk.Context, connectionID string) error {
 	macc := k.GetModuleAddress().String()
 	portID, err := icatypes.NewControllerPortID(macc)
@@ -106,7 +100,8 @@ func (k Keeper) sendInterchainTx(ctx sdk.Context, connectionID string, buildMsgs
 		Data: data,
 	}
 
-	timeoutTimestamp := time.Now().Add(timeoutDuration).UnixNano()
+	params := k.GetParams(ctx)
+	timeoutTimestamp := time.Now().Add(params.TimeoutDuration).UnixNano()
 
 	return k.icaControllerKeeper.SendTx(ctx, chanCap, connectionID, portID, packetData, uint64(timeoutTimestamp))
 }

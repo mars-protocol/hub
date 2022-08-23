@@ -1,0 +1,20 @@
+syntax = "proto3";
+package mars.shuttle.v1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.equal)            = true;
+  option (gogoproto.goproto_stringer) = false;
+
+  // TimeoutDuration is the amount of time that the packet should be considered timed out if not acknowledged
+  google.protobuf.Duration timeout_duration = 1 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.moretags)    = "yaml:\"timeout_duration\""
+  ];
+}
