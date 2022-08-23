@@ -95,14 +95,9 @@ func getAccountsCmd() *cobra.Command {
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Accounts(cmd.Context(), &types.QueryAccountsRequest{Pagination: pageReq})
+			res, err := queryClient.Accounts(cmd.Context(), &types.QueryAccountsRequest{})
 			if err != nil {
 				return err
 			}
@@ -112,7 +107,6 @@ func getAccountsCmd() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddPaginationFlagsToCmd(cmd, "accounts")
 
 	return cmd
 }

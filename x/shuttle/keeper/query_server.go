@@ -40,7 +40,6 @@ func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequ
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	maccAddr := qs.k.GetModuleAddress()
-
 	portID, err := icatypes.NewControllerPortID(maccAddr.String())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create port for account: %s", err)
@@ -60,5 +59,31 @@ func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequ
 }
 
 func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "TODO")
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	maccAddr := qs.k.GetModuleAddress()
+	portID, err := icatypes.NewControllerPortID(maccAddr.String())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create port for account: %s", err)
+	}
+
+	channels := qs.k.icaControllerKeeper.GetAllActiveChannels(ctx)
+	items := []types.QueryAccountsResponseItem{}
+	for _, channel := range channels {
+		if channel.PortId == portID {
+			addr, _ := qs.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, channel.ConnectionId, portID)
+
+			items = append(items, types.QueryAccountsResponseItem{
+				ConnectionId: channel.ConnectionId,
+				ChannelId:    channel.ChannelId,
+				Address:      addr,
+			})
+		}
+	}
+
+	return &types.QueryAccountsResponse{Accounts: items}, nil
 }

@@ -57,21 +57,12 @@ message QueryAccountResponse {
 }
 
 // QueryAccountsRequest is the request type for the Query/Accounts RPC method
-message QueryAccountsRequest {
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
-
-  // Pagination defines an optional pagination for the request
-  cosmos.base.query.v1beta1.PageRequest pagination = 1;
-}
+message QueryAccountsRequest {}
 
 // QueryAccountsResponse is the response type for the Query/Accounts RPC method
 message QueryAccountsResponse {
   // Accounts are the connections IDs and their respective interchain account address
   repeated QueryAccountsResponseItem accounts = 1 [(gogoproto.nullable) = false];
-
-  // Pagination defines the pagination in the response
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryAccountsResponseItem represents one interchain account registered at a connection ID.
