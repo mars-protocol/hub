@@ -7,8 +7,8 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
 
-// ExecuteRemoteContractProposal defines a governance proposal for sending an execute message to a
-// wasm contract on another chain via interchain account
+// ExecuteRemoteContractProposal defines a governance proposal for instructing the interchain
+// account to execute a wasm smart contract on the host chain
 message ExecuteRemoteContractProposal {
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_getters)  = false;
@@ -38,8 +38,8 @@ message ExecuteRemoteContractProposal {
   ];
 }
 
-// MigrateRemoteContractProposal defines a governance proposal for sending a migrate message to a
-// wasm contract on another chain via interchain account
+// MigrateRemoteContractProposal defines a governance proposal for instructing the interchain
+// account to migrate a wasm smart contract on the host chain
 message MigrateRemoteContractProposal {
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_getters)  = false;

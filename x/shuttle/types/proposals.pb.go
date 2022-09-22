@@ -27,8 +27,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// ExecuteRemoteContractProposal defines a governance proposal for sending an execute message to a
-// wasm contract on another chain via interchain account
+// ExecuteRemoteContractProposal defines a governance proposal for instructing the interchain
+// account to execute a wasm smart contract on the host chain
 type ExecuteRemoteContractProposal struct {
 	// Title is the title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -76,8 +76,8 @@ func (m *ExecuteRemoteContractProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ExecuteRemoteContractProposal proto.InternalMessageInfo
 
-// MigrateRemoteContractProposal defines a governance proposal for sending a migrate message to a
-// wasm contract on another chain via interchain account
+// MigrateRemoteContractProposal defines a governance proposal for instructing the interchain
+// account to migrate a wasm smart contract on the host chain
 type MigrateRemoteContractProposal struct {
 	// Title is the title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
