@@ -16,6 +16,7 @@ func initAppConfig() (string, interface{}) {
 	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their own app.toml to override,
 	// or use this default value.
 	cfg.MinGasPrices = "0umars"
+	cfg.IAVLDisableFastNode = false
 
 	return template, cfg
 }
