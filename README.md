@@ -16,7 +16,3 @@ make install
 ```
 
 A `marsd` executable will be created in the `$GOBIN` directory
-
-## License
-
-TBD
