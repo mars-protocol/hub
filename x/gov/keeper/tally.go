@@ -118,7 +118,10 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 
 	// if there is not enough quorum of votes, the proposal fails, and deposit burned
 	//
-	// NOTE: should the deposit really be burned here?
+	// NOTE: This piece of code is copied from cosmos-sdk's gov module without change.
+	// Here, the deposited tokens are burned if the poll fails to reach quorum. I personally do not
+	// agree with this design (why should the proposer be penalized if the voters don't vote?) but
+	// we keep this unchanged for now anyways.
 	if totalTokensVoted.Quo(totalTokens).LT(tallyParams.Quorum) {
 		return false, true, tallyResults
 	}
