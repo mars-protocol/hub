@@ -17,7 +17,7 @@ func newDecFromInt64(i int64) sdk.Dec {
 // ReleaseBlockReward handles the release of incentives. Returns the total amount of block reward released
 // and the list of relevant schedule ids.
 //
-// `bondedBotes` is a list of {validator address, validator voted on last block flag} for all validators
+// `bondedVotes` is a list of {validator address, validator voted on last block flag} for all validators
 // in the bonded set.
 func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo) (ids []uint64, totalBlockReward sdk.Coins) {
 	currentTime := ctx.BlockTime()

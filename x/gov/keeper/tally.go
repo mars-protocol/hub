@@ -24,7 +24,7 @@ func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool,
 	results[govtypes.OptionNo] = sdk.ZeroDec()
 	results[govtypes.OptionNoWithVeto] = sdk.ZeroDec()
 
-	// fetch all currently bounded validators
+	// fetch all currently bonded validators
 	currValidators := make(map[string]govtypes.ValidatorGovInfo)
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx, func(index int64, validator stakingtypes.ValidatorI) (stop bool) {
 		currValidators[validator.GetOperator().String()] = govtypes.NewValidatorGovInfo(
