@@ -241,7 +241,7 @@ func TestTallyNoQuorum(t *testing.T) {
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
-	require.True(t, burnDeposits)
+	require.False(t, burnDeposits) // different from native sdk, we don't burn deposit here
 	require.Equal(
 		t,
 		govtypes.NewTallyResult(sdk.NewInt(2), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
