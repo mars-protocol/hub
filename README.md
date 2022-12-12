@@ -2,6 +2,10 @@
 
 Mars Hub application-specific blockchain, built on top of [Tendermint](https://github.com/tendermint/tendermint), [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), [IBC](https://github.com/cosmos/ibc-go), and [CosmWasm](https://github.com/CosmWasm/wasmd).
 
+## Audits
+
+See reports [here](https://github.com/mars-protocol/mars-audits/tree/main/hub)
+
 ## Installation
 
 Install the lastest version of [Go programming language](https://go.dev/dl/) and configure related environment variables. See [here](https://github.com/st4k3h0us3/workshops/tree/main/how-to-run-a-validator) for a tutorial.
