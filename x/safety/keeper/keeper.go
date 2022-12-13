@@ -12,18 +12,18 @@ import (
 
 // Keeper is the module's keeper
 type Keeper struct {
-	authKeeper types.AccountKeeper
-	bankKeeper types.BankKeeper
+	accountKeeper types.AccountKeeper
+	bankKeeper    types.BankKeeper
 }
 
 // NewKeeper creates a new Keeper instance
-func NewKeeper(authKeeper types.AccountKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper) Keeper {
 	// ensure the module account is set
-	if authKeeper.GetModuleAddress(types.ModuleName) == nil {
+	if accountKeeper.GetModuleAddress(types.ModuleName) == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	return Keeper{authKeeper, bankKeeper}
+	return Keeper{accountKeeper, bankKeeper}
 }
 
 // Logger returns a module-specific logger
@@ -33,7 +33,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // GetModuleAddress returns the safety fund module account's address
 func (k Keeper) GetModuleAddress() sdk.AccAddress {
-	return k.authKeeper.GetModuleAddress(types.ModuleName)
+	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
 
 // GetBalances returns the amount of coins available in the safety fund

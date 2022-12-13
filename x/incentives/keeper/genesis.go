@@ -12,7 +12,7 @@ import (
 // sets the module account if it doesn't exist
 func (k Keeper) InitGenesis(ctx sdk.Context, gs *types.GenesisState) {
 	// set module account
-	k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 
 	// set incentives schedules
 	for _, schedule := range gs.Schedules {

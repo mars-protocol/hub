@@ -20,10 +20,10 @@ var (
 
 func init() {
 	govtypes.RegisterProposalType(ProposalCreateIncentivesSchedule)
-	govtypes.RegisterProposalTypeCodec(&CreateIncentivesScheduleProposal{}, "mars/CreateIncentivesScheduleProposal")
+	govtypes.RegisterProposalTypeCodec(&CreateIncentivesScheduleProposal{}, "mars/incentives/CreateIncentivesScheduleProposal")
 
 	govtypes.RegisterProposalType(ProposalTerminalIncentivesSchedule)
-	govtypes.RegisterProposalTypeCodec(&TerminateIncentivesSchedulesProposal{}, "mars/TerminateIncentivesSchedulesProposal")
+	govtypes.RegisterProposalTypeCodec(&TerminateIncentivesSchedulesProposal{}, "mars/incentives/TerminateIncentivesSchedulesProposal")
 }
 
 //--------------------------------------------------------------------------------------------------

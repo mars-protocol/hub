@@ -32,7 +32,7 @@ func GetQueryCmd() *cobra.Command {
 func getScheduleCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedule",
-		Short: "query an incentives schedule by identifier",
+		Short: "Query an incentives schedule by identifier",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -64,7 +64,7 @@ func getScheduleCmd() *cobra.Command {
 func getSchedulesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedules",
-		Short: "query all incentives schedules",
+		Short: "Query all incentives schedules",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

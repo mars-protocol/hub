@@ -11,7 +11,7 @@ import (
 // NOTE: we call `GetModuleAccount` instead of `SetModuleAccount` because the "get" function automatically
 // sets the module account if it doesn't exist
 func (k Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) {
-	k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // ExportGenesis returns a genesis state for a given context and keeper
