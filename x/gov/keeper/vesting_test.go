@@ -46,7 +46,7 @@ func TestQueryVotingPowers(t *testing.T) {
 	)
 
 	// store vesting contract code
-	codeID, err := contractKeeper.Create(ctx, deployer, testdata.VestingWasm, nil)
+	codeID, _, err := contractKeeper.Create(ctx, deployer, testdata.VestingWasm, nil)
 	require.NoError(t, err)
 
 	// instantiate vesting contract

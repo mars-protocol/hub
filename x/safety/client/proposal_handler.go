@@ -43,7 +43,7 @@ func getSafetyFundCommandProposalCmd() *cobra.Command {
 
 			title, description, deposit, err := marsutils.ParseGovProposalFlags(cmd)
 			if err != nil {
-				return nil
+				return err
 			}
 
 			proposal := &types.SafetyFundSpendProposal{
