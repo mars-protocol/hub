@@ -137,7 +137,6 @@ func queryCommand() *cobra.Command {
 	cmd.AddCommand(
 		rpc.BlockCommand(),
 		rpc.ValidatorCommand(),
-		authcli.GetAccountCmd(),
 		authcli.QueryTxCmd(),
 		authcli.QueryTxsByEventsCmd(),
 	)
