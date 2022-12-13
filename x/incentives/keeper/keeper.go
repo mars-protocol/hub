@@ -17,7 +17,7 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey sdk.StoreKey
 
-	authKeeper    types.AccountKeeper
+	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	distrKeeper   types.DistrKeeper
 	stakingKeeper types.StakingKeeper
@@ -25,18 +25,18 @@ type Keeper struct {
 
 // NewKeeper creates a new incentives module keeper
 func NewKeeper(
-	cdc codec.BinaryCodec, storeKey sdk.StoreKey, authKeeper types.AccountKeeper,
+	cdc codec.BinaryCodec, storeKey sdk.StoreKey, accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper, distrKeeper types.DistrKeeper, stakingKeeper types.StakingKeeper,
 ) Keeper {
 	// ensure incentives module account is set
-	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
+	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	return Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
-		authKeeper:    authKeeper,
+		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		distrKeeper:   distrKeeper,
 		stakingKeeper: stakingKeeper,
@@ -50,7 +50,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // GetModuleAddress returns the incentives module account's address
 func (k Keeper) GetModuleAddress() sdk.AccAddress {
-	return k.authKeeper.GetModuleAddress(types.ModuleName)
+	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
 
 //--------------------------------------------------------------------------------------------------

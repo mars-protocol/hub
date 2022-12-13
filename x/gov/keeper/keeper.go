@@ -29,11 +29,11 @@ type Keeper struct {
 // wasm keeper, which is needed for our custom vote tallying logic
 func NewKeeper(
 	cdc codec.BinaryCodec, key sdk.StoreKey, paramSpace govtypes.ParamSubspace,
-	authKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, stakingKeeper govtypes.StakingKeeper,
+	accountKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, stakingKeeper govtypes.StakingKeeper,
 	wasmKeeper wasmtypes.ViewKeeper, rtr govtypes.Router,
 ) Keeper {
 	return Keeper{
-		Keeper:        govkeeper.NewKeeper(cdc, key, paramSpace, authKeeper, bankKeeper, stakingKeeper, rtr),
+		Keeper:        govkeeper.NewKeeper(cdc, key, paramSpace, accountKeeper, bankKeeper, stakingKeeper, rtr),
 		storeKey:      key,
 		stakingKeeper: stakingKeeper,
 		wasmKeeper:    wasmKeeper,
