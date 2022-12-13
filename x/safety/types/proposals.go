@@ -14,7 +14,7 @@ var _ govtypes.Content = &SafetyFundSpendProposal{}
 
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeSafetyFundSpend)
-	govtypes.RegisterProposalTypeCodec(&SafetyFundSpendProposal{}, "mars/SafetyFundSpendProposal")
+	govtypes.RegisterProposalTypeCodec(&SafetyFundSpendProposal{}, "mars/safety/SafetyFundSpendProposal")
 }
 
 // NewSafetyFundSpendProposal creates a new instance of SafetyFundSpendProposal
