@@ -260,5 +260,19 @@ require (
 	nhooyr.io/websocket v1.8.6 // indirect
 )
 
-// use cosmos flavored gogo/protobuf: https://github.com/cosmos/cosmos-sdk/issues/8469
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+replace (
+	// dragonberry security patch
+	// https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.9
+	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
+
+	// use cosmos flavored gogo/protobuf
+	// https://github.com/cosmos/cosmos-sdk/issues/8469
+	//
+	// The original protobuf protocol has the drawback that it is not bijective:
+	// the same data can have multiple valid binary representations, and there is
+	// no guarantee of determinism.
+	//
+	// Cosmos implements its own protobuf protocol in ADR-027:
+	// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-027-deterministic-protobuf-serialization.md
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+)
