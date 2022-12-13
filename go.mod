@@ -273,8 +273,8 @@ replace (
 	// no guarantee of determinism.
 	// Cosmos implements its own protobuf protocol in ADR-027:
 	// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-027-deterministic-protobuf-serialization.md
-  //
-  // Another discussion why not to use protobuf for storage:
-  // https://github.com/near/borsh/discussions/110
+	//
+	// Another discussion why not to use protobuf for storage:
+	// https://github.com/near/borsh/discussions/110
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
