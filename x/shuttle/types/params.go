@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
