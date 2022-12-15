@@ -12,7 +12,8 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
@@ -23,6 +24,7 @@ type Keeper struct {
 	paramSpace paramtypes.Subspace
 
 	accountKeeper       authkeeper.AccountKeeper
+	ibcKeeper           ibckeeper.Keeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 }
@@ -30,7 +32,8 @@ type Keeper struct {
 // NewKeeper creates a new Keeper instance
 func NewKeeper(
 	cdc codec.Codec, paramSpace paramtypes.Subspace, accountKeeper authkeeper.AccountKeeper,
-	icaControllerKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper,
+	ibcKeeper ibckeeper.Keeper, icaControllerKeeper icacontrollerkeeper.Keeper,
+	scopedKeeper capabilitykeeper.ScopedKeeper,
 ) Keeper {
 	// ensure incentives module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -42,7 +45,7 @@ func NewKeeper(
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
 	}
 
-	return Keeper{cdc, paramSpace, accountKeeper, icaControllerKeeper, scopedKeeper}
+	return Keeper{cdc, paramSpace, accountKeeper, ibcKeeper, icaControllerKeeper, scopedKeeper}
 }
 
 // Logger returns a module-specific logger

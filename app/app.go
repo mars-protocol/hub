@@ -84,6 +84,14 @@ import (
 	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
 
 	// ibc modules
+	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
+	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
+	icahost "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
+	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 	ibctransfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
@@ -519,6 +527,7 @@ func NewMarsApp(
 		codec,
 		getSubspace(app, shuttletypes.ModuleName),
 		app.AccountKeeper,
+		*app.IBCKeeper,
 		app.ICAControllerKeeper,
 		app.ScopedShuttleKeeper,
 	)
@@ -887,12 +896,12 @@ func initGovRouter(app *MarsApp) govtypes.Router {
 func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
 	ibcRouter := ibcporttypes.NewRouter()
 
-	icacontrollerIBCModule := icacontroller.NewIBCModule(app.ICAControllerKeeper, shuttle.NewIBCModule(app.ShuttleKeeper))
+	icaControllerIBCModule := icacontroller.NewIBCMiddleware(shuttle.NewIBCModule(app.ShuttleKeeper), app.ICAControllerKeeper)
 
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, ibctransfer.NewIBCModule(app.IBCTransferKeeper))
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icahost.NewIBCModule(app.ICAHostKeeper))
-	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icacontrollerIBCModule)
-	ibcRouter.AddRoute(shuttletypes.ModuleName, icacontrollerIBCModule)
+	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule)
+	ibcRouter.AddRoute(shuttletypes.ModuleName, icaControllerIBCModule)
 
 	return ibcRouter
 }

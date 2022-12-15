@@ -6,9 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -22,18 +22,39 @@ func (k Keeper) RegisterAccount(ctx sdk.Context, connectionID string) error {
 		return err
 	}
 
+	// query the counterparty connection id, which is used in the ICA metadata
+	// (see below)
+	connectionEnd, found := k.ibcKeeper.ConnectionKeeper.GetConnection(ctx, connectionID)
+	if !found {
+		return sdkerrors.Wrapf(types.ErrConnectionNotFound, "connection not found for id %s", connectionID)
+	}
+
 	// TODO: if a channel is being created (doing handshakes, not yet completed) then this check
 	// will pass, but we don't want it to pass in this situation
-	_, found := k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
+	_, found = k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if found {
 		return sdkerrors.Wrapf(types.ErrAccountExists, "interchain account already exists for %s", connectionID)
 	}
 
-	if err := k.icaControllerKeeper.RegisterInterchainAccount(ctx, connectionID, macc); err != nil {
+	// Since ibc-go v4, it is required that when registering an interchain
+	// account, a JSON string which includes necessary metadata is included.
+	//
+	// See migration guide:
+	// https://github.com/cosmos/ibc-go/blob/v4.2.0/docs/migrations/v3-to-v4.md
+	icaMetadata := icatypes.Metadata{
+		Version:                icatypes.Version,
+		ControllerConnectionId: connectionID,
+		HostConnectionId:       connectionEnd.Counterparty.ConnectionId,
+		Encoding:               icatypes.EncodingProtobuf,
+		TxType:                 icatypes.TxTypeSDKMultiMsg,
+	}
+
+	appVersion, err := icatypes.ModuleCdc.MarshalJSON(&icaMetadata)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	return k.icaControllerKeeper.RegisterInterchainAccount(ctx, connectionID, macc, string(appVersion))
 }
 
 // ExecuteRemoteContract sends a message to execute a remote contract on the chain specified by the

@@ -8,10 +8,11 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/gogo/protobuf/proto"
 
-	ibcchanneltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	ibcporttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	ibcexported "github.com/cosmos/ibc-go/v3/modules/core/exported"
+	// icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
+	ibcporttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v4/modules/core/exported"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 
@@ -37,9 +38,36 @@ func (im IBCModule) OnChanOpenInit(
 	channelCap *capabilitytypes.Capability,
 	counterparty ibcchanneltypes.Counterparty,
 	version string,
-) error {
+) (string, error) {
 	// claim channel capability passed back by IBC module
-	return im.ClaimCapability(ctx, channelCap, ibchost.ChannelCapabilityPath(portID, channelID))
+	if err := im.ClaimCapability(ctx, channelCap, ibchost.ChannelCapabilityPath(portID, channelID)); err != nil {
+		return "", err
+	}
+
+	// Since ibc-go v4, the `OnChanOpenInit` function needs to validate the
+	// version string, and if it's valid, include it in the return values.
+	//
+	// From the comments of the `IBCModule` interface:
+	//
+	// - If the provided version string is non-empty, OnChanOpenInit should
+	//   return the version string if valid or an error if the provided version
+	//   is invalid.
+	// - If the version string is empty, OnChanOpenInit is expected to
+	//   return a default version string representing the version(s) it supports.
+	// - If there is no default version string for the application,
+	//   it should return an error if provided version is empty string.
+	//
+	// Here we attempt to parse the version string into `icatypes.Metadata` and
+	// do some basic validations.
+
+	// var appVersion icatypes.Metadata
+	// if err := icatypes.ModuleCdc.UnmarshalJSON([]byte(version), &appVersion); err != nil {
+	// 	return "", err
+	// }
+
+	// TODO: validate version
+
+	return version, nil
 }
 
 func (im IBCModule) OnChanOpenTry(
@@ -52,6 +80,9 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty ibcchanneltypes.Counterparty,
 	counterpartyVersion string,
 ) (version string, err error) {
+	// TODO: validate counterparty version
+	// if the counterparty version is valid, select the final version string and
+	// return it to core IBC
 	return "", nil
 }
 
@@ -62,6 +93,7 @@ func (im IBCModule) OnChanOpenAck(
 	counterpartyChannelID string,
 	counterpartyVersion string,
 ) error {
+	// TODO: validate counterparty version
 	return nil
 }
 
@@ -94,7 +126,7 @@ func (im IBCModule) OnRecvPacket(
 	packet ibcchanneltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-	return ibcchanneltypes.NewErrorAcknowledgement("cannot receive packet via interchain accounts authentication module")
+	return ibcchanneltypes.NewErrorAcknowledgement(sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot receive packet via interchain accounts authentication module"))
 }
 
 func (im IBCModule) OnAcknowledgementPacket(
