@@ -78,15 +78,33 @@ all: proto-gen lint test install
 ###                                  Build                                  ###
 ###############################################################################
 
-install:
+install: enforce-go-version
 	@echo "🤖 Installing marsd..."
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/marsd
 	@echo "✅ Completed installation!"
 
-build:
+build: enforce-go-version
 	@echo "🤖 Building marsd..."
 	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
+
+# Make sure that Go version is 1.19
+#
+# From Osmosis discord:
+# https://discord.com/channels/798583171548840026/837144686387920936/1049449765240315925
+#
+# > Valardragon - 12/05/2022 10:18 PM
+# > It was just pointed out from `@jhernandez | stargaze.zone`, that the choice
+#   of golang version between go 1.18 and go 1.19 is consensus critical.
+#   With insufficient info, this preliminarily seems due to go 1.19 changing the
+#   memory model format, and something state-affecting in cosmwasm getting altered.
+#   https://github.com/persistenceOne/incident-reports/blob/main/06-nov-2022_V4_upgrade_halt.md
+enforce-go-version:
+	@echo "Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
+ifneq ($(GO_MINOR_VERSION),19)
+	@echo "ERROR: Go version 1.19 is required for this version of Stargaze"
+	exit 1
+endif
 
 ###############################################################################
 ###                           Tests & Simulation                            ###
