@@ -273,7 +273,7 @@ replace (
 	// The original protobuf protocol has the drawback that it is not bijective:
 	// the same data can have multiple valid binary representations, and there is
 	// no guarantee on determinism.
-  //
+	//
 	// Cosmos implements its own protobuf protocol in ADR-027:
 	// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-027-deterministic-protobuf-serialization.md
 	//
