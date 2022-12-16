@@ -2,6 +2,7 @@
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
+DOCKER := $(shell which docker)
 BUILDDIR ?= $(CURDIR)/build
 LEDGER_ENABLED ?= true
 
@@ -126,26 +127,20 @@ test:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-# We use osmolabs' docker image instead of tendermintdev/sdk-proto-gen.
-# The only difference is that the Osmosis version uses Go 1.19 while the
-# tendermintdev one uses 1.18.
-protoVer=v0.8
-protoImageName=osmolabs/osmo-proto-gen:$(protoVer)
-containerProtoGenGo=mars-proto-gen-go-$(protoVer)
-containerProtoGenSwagger=mars-proto-gen-swagger-$(protoVer)
+protoVer=0.11.3
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
 proto-gen: proto-go-gen proto-swagger-gen
 
 proto-go-gen:
 	@echo "🤖 Generating Go code from protobuf..."
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGenGo}$$"; then docker start -a $(containerProtoGenGo); else docker run --name $(containerProtoGenGo) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-		sh ./scripts/protocgen.sh; fi
+	@$(protoImage) sh ./scripts/protocgen.sh
 	@echo "✅ Completed Go code generation!"
 
 proto-swagger-gen:
 	@echo "🤖 Generating Swagger code from protobuf..."
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGenSwagger}$$"; then docker start -a $(containerProtoGenSwagger); else docker run --name $(containerProtoGenSwagger) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-		sh ./scripts/protoc-swagger-gen.sh; fi
+	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
 	@echo "✅ Completed Swagger code generation!"
 
 ###############################################################################

@@ -8,7 +8,6 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/ibc-go/v6 v6.0.0
-	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/golangci/golangci-lint v1.50.1
 	github.com/gorilla/mux v1.8.0
@@ -114,6 +113,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gogo/gateway v1.1.0 // indirect
+	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -300,7 +300,7 @@ replace (
 	// https://github.com/cosmos/cosmos-sdk/issues/8469
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-  // NOTE: The replacement of ics23 related to the dragonberry patch is no longer
-  // required since sdk 0.46.7. Use `github.com/confio/ics23/go v0.9.0` instead.
-  // https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7
+// NOTE: The replacement of ics23 related to the dragonberry patch is no longer
+// required since sdk 0.46.7. Use `github.com/confio/ics23/go v0.9.0` instead.
+// https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7
 )
