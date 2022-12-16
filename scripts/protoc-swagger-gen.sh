@@ -1,17 +1,7 @@
-#!/usr/bin/env bash
-
-#== Requirements ==
+#!/bin/sh
 #
-## make sure your `go env GOPATH` is in the `$PATH`
-## Install:
-## + latest buf (v1.0.0-rc11 or later)
-## + protobuf v3
-#
-## All protoc dependencies must be installed not in the module scope
-## currently we must use grpc-gateway v1
-# cd ~
-# go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@v1.16.0
-# go get github.com/regen-network/cosmos-proto@latest # doesn't work in install mode
+# This script is intended to be run inside the osmolabs/osmo-proto-gen:v0.8
+# docker container: https://hub.docker.com/r/osmolabs/osmo-proto-gen
 
 set -eo pipefail
 
@@ -26,12 +16,30 @@ if [ -d $tmp_dir ]; then
 fi
 mkdir -p $tmp_dir
 
+# Third-party proto dependencies
+# sh doesn't support arrays like bash does, but it does support comma-separated
+# strings: https://unix.stackexchange.com/a/323535
+deps="github.com/cosmos/cosmos-sdk"
+deps="$deps github.com/cosmos/ibc-go/v4"
+deps="$deps github.com/CosmWasm/wasmd"
+
+# Download dependencies in go.mod
+# Necessary for the `go list` commands in the next step to work
+echo "🤖 Downloading Go dependencies..."
+for dep in $deps; do
+  echo $dep
+  go mod download $dep
+done
+echo "✅ Done!"
+
 # Directories that contain protobuf files that are to be transpiled into swagger
 # These include Mars modules and third party modules and services
-cosmos_sdk_dir=$(go list -f '{{ .Dir }}' -m github.com/cosmos/cosmos-sdk)
-ibc_go_dir=$(go list -f '{{ .Dir }}' -m github.com/cosmos/ibc-go/v4)
-wasmd_dir=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmd)
-proto_dirs=$(find ./proto ${cosmos_sdk_dir}/proto ${ibc_go_dir}/proto ${wasmd_dir}/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+dirs="./proto"
+for dep in $deps; do
+  dep_dir=$(go list -f '{{ .Dir }}' -m $dep)
+  dirs="$dirs ${dep_dir}/proto"
+done
+proto_dirs=$(find $dirs -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 
 # Generate swagger files for `query.proto` and `service.proto`
 for dir in $proto_dirs; do

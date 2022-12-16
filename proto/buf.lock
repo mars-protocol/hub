@@ -8,12 +8,12 @@ deps:
   - remote: buf.build
     owner: cosmos
     repository: cosmos-sdk
-    commit: 9bbb283608eb483cb7aea014d0ed7724
+    commit: e32a5c313be34bb28b1d3274d72d6286
   - remote: buf.build
     owner: cosmos
     repository: gogo-proto
-    commit: bee5511075b7499da6178d9e4aaa628b
+    commit: 34d970b699f84aa382f3c29773a60836
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: 94540655691a4090aa6f462378c10071
+    commit: 75b4300737fb4efca0831636be94e517
