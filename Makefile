@@ -5,6 +5,13 @@ COMMIT := $(shell git log -1 --format='%H')
 BUILDDIR ?= $(CURDIR)/build
 LEDGER_ENABLED ?= true
 
+# ********** Golang configs **********
+
+export GO111MODULE = on
+
+GO_MAJOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1)
+GO_MINOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
+
 # ********** process build tags **********
 
 build_tags = netgo
@@ -100,9 +107,9 @@ build: enforce-go-version
 #   memory model format, and something state-affecting in cosmwasm getting altered.
 #   https://github.com/persistenceOne/incident-reports/blob/main/06-nov-2022_V4_upgrade_halt.md
 enforce-go-version:
-	@echo "Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
+	@echo "🤖 Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
 ifneq ($(GO_MINOR_VERSION),19)
-	@echo "ERROR: Go version 1.19 is required for this version of Stargaze"
+	@echo "❌ ERROR: Go version 1.19 is required"
 	exit 1
 endif
 
