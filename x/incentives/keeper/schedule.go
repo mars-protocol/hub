@@ -45,7 +45,7 @@ func (k Keeper) TerminateSchedules(ctx sdk.Context, ids []uint64) (amount sdk.Co
 			return sdk.NewCoins(), sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, "incentives schedule with id %d does not exist", id)
 		}
 
-		amount = amount.Add(schedule.TotalAmount.Sub(schedule.ReleasedAmount)...)
+		amount = amount.Add(schedule.TotalAmount.Sub(schedule.ReleasedAmount...)...)
 
 		k.DeleteSchedule(ctx, id)
 	}

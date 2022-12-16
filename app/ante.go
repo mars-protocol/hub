@@ -1,12 +1,13 @@
 package app
 
 import (
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	ibcante "github.com/cosmos/ibc-go/v4/modules/core/ante"
-	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
+	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -18,7 +19,7 @@ type HandlerOptions struct {
 
 	IBCKeeper         *ibckeeper.Keeper
 	WasmConfig        wasmtypes.WasmConfig
-	TxCounterStoreKey sdk.StoreKey
+	TxCounterStoreKey storetypes.StoreKey
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence numbers, checks signatures
@@ -42,13 +43,11 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	anteDecorators := []sdk.AnteDecorator{
 		// core
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		ante.NewRejectExtensionOptionsDecorator(),
-		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -57,7 +56,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 
 		// ibc
-		ibcante.NewAnteDecorator(options.IBCKeeper),
+		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 
 		// wasm
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),

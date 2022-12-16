@@ -88,7 +88,7 @@ func TestTerminateSchedule(t *testing.T) {
 	maccAddr := app.IncentivesKeeper.GetModuleAddress()
 	amount := sdk.NewCoins()
 	for _, mockSchedule := range mockSchedulesReleased {
-		amount = amount.Add(mockSchedule.TotalAmount...).Sub(mockSchedule.ReleasedAmount)
+		amount = amount.Add(mockSchedule.TotalAmount...).Sub(mockSchedule.ReleasedAmount...)
 	}
 
 	app.BankKeeper.InitGenesis(

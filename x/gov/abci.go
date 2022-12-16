@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	"github.com/mars-protocol/hub/x/gov/keeper"
 )
@@ -21,94 +22,115 @@ func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 
 	logger := keeper.Logger(ctx)
 
-	// delete inactive proposal from store and its deposits
-	keeper.IterateInactiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govtypes.Proposal) bool {
-		keeper.DeleteProposal(ctx, proposal.ProposalId)
-		keeper.DeleteDeposits(ctx, proposal.ProposalId)
+	// Delete dead proposals from store and returns theirs deposits.
+	// A proposal is dead when it's inactive and didn't get enough deposit on
+	// time to get into voting phase.
+	keeper.IterateInactiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govv1.Proposal) bool {
+		keeper.DeleteProposal(ctx, proposal.Id)
+		keeper.RefundAndDeleteDeposits(ctx, proposal.Id)
 
 		// called when proposal become inactive
-		keeper.AfterProposalFailedMinDeposit(ctx, proposal.ProposalId)
+		keeper.AfterProposalFailedMinDeposit(ctx, proposal.Id)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				govtypes.EventTypeInactiveProposal,
-				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.ProposalId)),
+				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.Id)),
 				sdk.NewAttribute(govtypes.AttributeKeyProposalResult, govtypes.AttributeValueProposalDropped),
 			),
 		)
 
 		logger.Info(
 			"proposal did not meet minimum deposit; deleted",
-			"proposal", proposal.ProposalId,
-			"title", proposal.GetTitle(),
-			"min_deposit", keeper.GetDepositParams(ctx).MinDeposit.String(),
-			"total_deposit", proposal.TotalDeposit.String(),
+			"proposal", proposal.Id,
+			"min_deposit", sdk.NewCoins(keeper.GetDepositParams(ctx).MinDeposit...).String(),
+			"total_deposit", sdk.NewCoins(proposal.TotalDeposit...).String(),
 		)
 
 		return false
 	})
 
 	// fetch active proposals whose voting periods have ended (are passed the block time)
-	keeper.IterateActiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govtypes.Proposal) bool {
+	keeper.IterateActiveProposalsQueue(ctx, ctx.BlockHeader().Time, func(proposal govv1.Proposal) bool {
 		var tagValue, logMsg string
 
-		passes, burnDeposits, tallyResults := keeper.Tally(ctx, proposal) // our custom implementation of tally logics
+		// IMPORTANT: use our custom implementation of tally logics
+		passes, burnDeposits, tallyResults := keeper.Tally(ctx, proposal)
 
 		if burnDeposits {
-			keeper.DeleteDeposits(ctx, proposal.ProposalId)
+			keeper.DeleteAndBurnDeposits(ctx, proposal.Id)
 		} else {
-			keeper.RefundDeposits(ctx, proposal.ProposalId)
+			keeper.RefundAndDeleteDeposits(ctx, proposal.Id)
 		}
 
 		if passes {
-			handler := keeper.Router().GetRoute(proposal.ProposalRoute())
-			cacheCtx, writeCache := ctx.CacheContext()
+			var (
+				idx    int
+				events sdk.Events
+				msg    sdk.Msg
+			)
 
-			// The proposal handler may execute state mutating logic depending on the proposal content.
-			// If the handler fails, no state mutation is written and the error message is logged.
-			err := handler(cacheCtx, proposal.GetContent())
+			// attempt to execute all messages within the passed proposal
+			// Messages may mutate state thus we use a cached context. If one of
+			// the handlers fails, no state mutation is written and the error
+			// message is logged.
+			cacheCtx, writeCache := ctx.CacheContext()
+			messages, err := proposal.GetMsgs()
 			if err == nil {
-				proposal.Status = govtypes.StatusPassed
+				for idx, msg = range messages {
+					handler := keeper.Router().Handler(msg)
+
+					var res *sdk.Result
+					res, err = handler(cacheCtx, msg)
+					if err != nil {
+						break
+					}
+
+					events = append(events, res.GetEvents()...)
+				}
+			}
+
+			// `err == nil` when all handlers passed.
+			// Or else, `idx` and `err` are populated with the msg index and error.
+			if err == nil {
+				proposal.Status = govv1.StatusPassed
 				tagValue = govtypes.AttributeValueProposalPassed
 				logMsg = "passed"
 
-				// The cached context is created with a new EventManager. However, since the proposal
-				// handler execution was successful, we want to track/keep any events emitted, so we
-				// re-emit to "merge" the events into the original Context's EventManager.
-				ctx.EventManager().EmitEvents(cacheCtx.EventManager().Events())
-
 				// write state to the underlying multi-store
 				writeCache()
+
+				// propagate the msg events to the current context
+				ctx.EventManager().EmitEvents(events)
 			} else {
-				proposal.Status = govtypes.StatusFailed
+				proposal.Status = govv1.StatusFailed
 				tagValue = govtypes.AttributeValueProposalFailed
-				logMsg = fmt.Sprintf("passed, but failed on execution: %s", err)
+				logMsg = fmt.Sprintf("passed, but msg %d (%s) failed on execution: %s", idx, sdk.MsgTypeURL(msg), err)
 			}
 		} else {
-			proposal.Status = govtypes.StatusRejected
+			proposal.Status = govv1.StatusRejected
 			tagValue = govtypes.AttributeValueProposalRejected
 			logMsg = "rejected"
 		}
 
-		proposal.FinalTallyResult = tallyResults
+		proposal.FinalTallyResult = &tallyResults
 
 		keeper.SetProposal(ctx, proposal)
-		keeper.RemoveFromActiveProposalQueue(ctx, proposal.ProposalId, proposal.VotingEndTime)
+		keeper.RemoveFromActiveProposalQueue(ctx, proposal.Id, *proposal.VotingEndTime)
 
 		// when proposal become active
-		keeper.AfterProposalVotingPeriodEnded(ctx, proposal.ProposalId)
+		keeper.AfterProposalVotingPeriodEnded(ctx, proposal.Id)
 
 		logger.Info(
 			"proposal tallied",
-			"proposal", proposal.ProposalId,
-			"title", proposal.GetTitle(),
-			"result", logMsg,
+			"proposal", proposal.Id,
+			"results", logMsg,
 		)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				govtypes.EventTypeActiveProposal,
-				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.ProposalId)),
+				sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", proposal.Id)),
 				sdk.NewAttribute(govtypes.AttributeKeyProposalResult, tagValue),
 			),
 		)

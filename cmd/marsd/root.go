@@ -64,7 +64,8 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
+
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, nil)
 		},
 		SilenceUsage: true,
 	}

@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -38,7 +38,7 @@ type VotingPower struct {
 	Vesting int64
 }
 
-func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *marsapp.MarsApp, proposal govtypes.Proposal, valoper sdk.AccAddress, voters []sdk.AccAddress) {
+func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *marsapp.MarsApp, proposal govv1.Proposal, valoper sdk.AccAddress, voters []sdk.AccAddress) {
 	app = marsapptesting.MakeMockApp()
 	ctx = app.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
@@ -171,8 +171,8 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 	//
 	// typically it requires a minimum deposit to make the proposal enter voting period, but here
 	// we forcibly set the status as StatusVotingPeriod.
-	proposal, err = govtypes.NewProposal(govtypes.NewTextProposal("mock title", "mock description"), 1, time.Now(), time.Now())
-	proposal.Status = govtypes.StatusVotingPeriod
+	proposal, err = govv1.NewProposal([]sdk.Msg{}, 1, "", time.Now(), time.Now())
+	proposal.Status = govv1.StatusVotingPeriod
 	require.NoError(t, err)
 
 	app.GovKeeper.SetProposal(ctx, proposal)
@@ -225,7 +225,7 @@ func TestTallyProperSetup(t *testing.T) {
 	}
 
 	// the proposal should have been created
-	_, found = app.GovKeeper.GetProposal(ctx, proposal.ProposalId)
+	_, found = app.GovKeeper.GetProposal(ctx, proposal.Id)
 	require.True(t, found)
 }
 
@@ -237,14 +237,14 @@ func TestTallyNoQuorum(t *testing.T) {
 	})
 
 	// voters[0] votes yes
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[0], govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.False(t, burnDeposits) // different from native sdk, we don't burn deposit here
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.NewInt(2), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(2), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
@@ -252,14 +252,14 @@ func TestTallyNoQuorum(t *testing.T) {
 func TestTallyOnlyAbstain(t *testing.T) {
 	ctx, app, proposal, _, voters := setupTest(t, []VotingPower{{Staked: 50, Vesting: 50}})
 
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[0], govtypes.NewNonSplitVoteOption(govtypes.OptionAbstain)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionAbstain), ""))
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(100), sdk.ZeroInt(), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(100), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
@@ -271,17 +271,17 @@ func TestTallyVeto(t *testing.T) {
 	})
 
 	// validator abstains
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, valoper, govtypes.NewNonSplitVoteOption(govtypes.OptionAbstain)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, valoper, govv1.NewNonSplitVoteOption(govv1.OptionAbstain), ""))
 
 	// voters[0] votes veto
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[0], govtypes.NewNonSplitVoteOption(govtypes.OptionNoWithVeto)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionNoWithVeto), ""))
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.True(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(50), sdk.ZeroInt(), sdk.NewInt(34)),
+		govv1.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(50), sdk.ZeroInt(), sdk.NewInt(34)),
 		tallyResults,
 	)
 }
@@ -293,17 +293,17 @@ func TestTallyNo(t *testing.T) {
 	})
 
 	// voters[0] votes no
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[0], govtypes.NewNonSplitVoteOption(govtypes.OptionNo)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionNo), ""))
 
 	// voters[1] votes yes
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[1], govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[1], govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
@@ -315,17 +315,17 @@ func TestTallyYes(t *testing.T) {
 	})
 
 	// voters[0] votes yes
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[0], govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
 
 	// voters[1] votes no
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[1], govtypes.NewNonSplitVoteOption(govtypes.OptionNo)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[1], govv1.NewNonSplitVoteOption(govv1.OptionNo), ""))
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.True(t, passes)
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.NewInt(51), sdk.ZeroInt(), sdk.NewInt(49), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(51), sdk.ZeroInt(), sdk.NewInt(49), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
@@ -340,7 +340,7 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 	})
 
 	// validator votes yes
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, valoper, govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, valoper, govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
 
 	// NOTE: we now delete the votes after tallying, so in order for the 2nd part of this test to work,
 	// we have to use a cached context for the 1st part
@@ -352,19 +352,19 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.NewInt(79), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(79), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 
 	// if voters[0] does override validator's vote, proposal should fail with 49 yes vs 51 no
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voters[0], govtypes.NewNonSplitVoteOption(govtypes.OptionNo)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionNo), ""))
 
 	passes, burnDeposits, tallyResults = app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govtypes.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
@@ -375,15 +375,15 @@ func TestDeleteVoteAfterTally(t *testing.T) {
 	voter := voters[0]
 
 	// the user votes
-	app.GovKeeper.SetVote(ctx, govtypes.NewVote(proposal.ProposalId, voter, govtypes.NewNonSplitVoteOption(govtypes.OptionYes)))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voter, govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
 
 	// the vote should have been registered
-	votes := app.GovKeeper.GetVotes(ctx, proposal.ProposalId)
+	votes := app.GovKeeper.GetVotes(ctx, proposal.Id)
 	require.Equal(t, 1, len(votes))
 
 	_, _, _ = app.GovKeeper.Tally(ctx, proposal)
 
 	// the vote should have been deleted
-	votes = app.GovKeeper.GetVotes(ctx, proposal.ProposalId)
+	votes = app.GovKeeper.GetVotes(ctx, proposal.Id)
 	require.Empty(t, votes)
 }

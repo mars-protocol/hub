@@ -23,7 +23,7 @@ func (s Schedule) GetBlockReward(currentTime time.Time) sdk.Coins {
 	}
 
 	if currentTime.After(s.EndTime) {
-		return s.TotalAmount.Sub(s.ReleasedAmount)
+		return s.TotalAmount.Sub(s.ReleasedAmount...)
 	}
 
 	timeTotal := durationToSecondsDec(s.EndTime.Sub(s.StartTime))
@@ -32,5 +32,5 @@ func (s Schedule) GetBlockReward(currentTime time.Time) sdk.Coins {
 	blockRewardDec := sdk.NewDecCoinsFromCoins(s.TotalAmount...).MulDec(timeElapsed).QuoDec(timeTotal)
 	blockReward, _ := blockRewardDec.TruncateDecimal()
 
-	return blockReward.Sub(s.ReleasedAmount)
+	return blockReward.Sub(s.ReleasedAmount...)
 }

@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	marsutils "github.com/mars-protocol/hub/utils"
 )
@@ -14,16 +14,13 @@ const (
 )
 
 var (
-	_ govtypes.Content = &CreateIncentivesScheduleProposal{}
-	_ govtypes.Content = &TerminateIncentivesSchedulesProposal{}
+	_ govv1beta1.Content = &CreateIncentivesScheduleProposal{}
+	_ govv1beta1.Content = &TerminateIncentivesSchedulesProposal{}
 )
 
 func init() {
-	govtypes.RegisterProposalType(ProposalCreateIncentivesSchedule)
-	govtypes.RegisterProposalTypeCodec(&CreateIncentivesScheduleProposal{}, "mars/incentives/CreateIncentivesScheduleProposal")
-
-	govtypes.RegisterProposalType(ProposalTerminalIncentivesSchedule)
-	govtypes.RegisterProposalTypeCodec(&TerminateIncentivesSchedulesProposal{}, "mars/incentives/TerminateIncentivesSchedulesProposal")
+	govv1beta1.RegisterProposalType(ProposalCreateIncentivesSchedule)
+	govv1beta1.RegisterProposalType(ProposalTerminalIncentivesSchedule)
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +44,7 @@ func (p *CreateIncentivesScheduleProposal) ProposalType() string {
 }
 
 func (p *CreateIncentivesScheduleProposal) ValidateBasic() error {
-	if err := govtypes.ValidateAbstract(p); err != nil {
+	if err := govv1beta1.ValidateAbstract(p); err != nil {
 		return err
 	}
 
@@ -100,7 +97,7 @@ func (p *TerminateIncentivesSchedulesProposal) ProposalType() string {
 }
 
 func (p *TerminateIncentivesSchedulesProposal) ValidateBasic() error {
-	if err := govtypes.ValidateAbstract(p); err != nil {
+	if err := govv1beta1.ValidateAbstract(p); err != nil {
 		return err
 	}
 
