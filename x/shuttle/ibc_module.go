@@ -8,7 +8,6 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/gogo/protobuf/proto"
 
-	// icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
 	ibcporttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
