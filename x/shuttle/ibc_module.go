@@ -17,6 +17,7 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/mars-protocol/hub/x/shuttle/keeper"
+	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
 var _ ibcporttypes.IBCModule = IBCModule{}
@@ -39,10 +40,25 @@ func (im IBCModule) OnChanOpenInit(
 	counterparty ibcchanneltypes.Counterparty,
 	version string,
 ) (string, error) {
+	im.Keeper.Logger(ctx).Info(
+		"OnChanOpenInit",
+		"portID", portID,
+		"channelID", channelID,
+		"counterpartyPortID", counterparty.PortId,
+		"counterpartyChannelID", counterparty.ChannelId,
+		"version", version,
+	)
+
 	// claim channel capability passed back by IBC module
 	if err := im.ClaimCapability(ctx, channelCap, ibchost.ChannelCapabilityPath(portID, channelID)); err != nil {
 		return "", err
 	}
+
+	im.Keeper.Logger(ctx).Info(
+		"Claimed channel capability",
+		"module", types.ModuleName,
+		"capability", channelCap.String(),
+	)
 
 	// Since ibc-go v4, the `OnChanOpenInit` function needs to validate the
 	// version string, and if it's valid, include it in the return values.
@@ -59,12 +75,7 @@ func (im IBCModule) OnChanOpenInit(
 	//
 	// Here we attempt to parse the version string into `icatypes.Metadata` and
 	// do some basic validations.
-
-	// var appVersion icatypes.Metadata
-	// if err := icatypes.ModuleCdc.UnmarshalJSON([]byte(version), &appVersion); err != nil {
-	// 	return "", err
-	// }
-
+	//
 	// TODO: validate version
 
 	return version, nil
@@ -80,10 +91,8 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty ibcchanneltypes.Counterparty,
 	counterpartyVersion string,
 ) (version string, err error) {
-	// TODO: validate counterparty version
-	// if the counterparty version is valid, select the final version string and
-	// return it to core IBC
-	return "", nil
+	// we don't expect the host chain to open a channel with the shuttle module
+	return "", types.ErrUnexpectedChannelOpen
 }
 
 func (im IBCModule) OnChanOpenAck(
@@ -93,7 +102,16 @@ func (im IBCModule) OnChanOpenAck(
 	counterpartyChannelID string,
 	counterpartyVersion string,
 ) error {
+	im.Keeper.Logger(ctx).Info(
+		"OnChanOpenInit",
+		"portID", portID,
+		"channelID", channelID,
+		"counterpartyChannelID", counterpartyChannelID,
+		"counterpartyVersion", counterpartyVersion,
+	)
+
 	// TODO: validate counterparty version
+
 	return nil
 }
 
@@ -102,7 +120,8 @@ func (im IBCModule) OnChanOpenConfirm(
 	portID,
 	channelID string,
 ) error {
-	return nil
+	// we don't expect the host chain to open a channel with the shuttle module
+	return types.ErrUnexpectedChannelOpen
 }
 
 func (im IBCModule) OnChanCloseInit(
@@ -110,7 +129,8 @@ func (im IBCModule) OnChanCloseInit(
 	portID,
 	channelID string,
 ) error {
-	return nil
+	// we don't want to close the channel under any circumstance
+	return types.ErrUnexpectedChannelClose
 }
 
 func (im IBCModule) OnChanCloseConfirm(
@@ -118,7 +138,8 @@ func (im IBCModule) OnChanCloseConfirm(
 	portID,
 	channelID string,
 ) error {
-	return nil
+	// we don't want to close the channel under any circumstance
+	return types.ErrUnexpectedChannelClose
 }
 
 func (im IBCModule) OnRecvPacket(
@@ -126,7 +147,7 @@ func (im IBCModule) OnRecvPacket(
 	packet ibcchanneltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-	return ibcchanneltypes.NewErrorAcknowledgement(sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot receive packet via interchain accounts authentication module"))
+	return ibcchanneltypes.NewErrorAcknowledgement(sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "interchain account auth module does not expect to receive any packet"))
 }
 
 func (im IBCModule) OnAcknowledgementPacket(
@@ -135,53 +156,53 @@ func (im IBCModule) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
+	im.Keeper.Logger(ctx).Info("OnAcknowledgementPacket", "packet", packet.String(), "relayer", relayer)
+
 	var ack ibcchanneltypes.Acknowledgement
 	if err := ibcchanneltypes.SubModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "failed to unmarshal ICS-27 packet acknowledgement: %v", err)
 	}
+
+	im.Keeper.Logger(ctx).Info("Successfully unmarshalled acknowledgement", "ack", ack.String())
 
 	txMsgData := &sdk.TxMsgData{}
 	if err := proto.Unmarshal(ack.GetResult(), txMsgData); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "failed to unmarshal ICS-27 tx message data: %v", err)
 	}
 
-	switch len(txMsgData.Data) {
-	case 0:
-		// TODO: handle for sdk 0.46.x
-		return nil
-	default:
-		for _, msgData := range txMsgData.Data {
-			response, err := handleMsgData(ctx, msgData)
-			if err != nil {
-				return err
-			}
-
-			im.Logger(ctx).Info("message response in ICS-27 packet response", "response", response)
+	for _, msgData := range txMsgData.Data {
+		msgType, msgResponse, err := handleMsgData(ctx, msgData)
+		if err != nil {
+			return err
 		}
-		return nil
+
+		im.Logger(ctx).Info("Message response in ICS-27 packet response", "msgType", msgType, "msgResponse", msgResponse)
 	}
+	return nil
+
 }
 
-func handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
+// handleMsgData parses the msg response data for logging purpose.
+func handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (msgType, msgResponse string, err error) {
 	switch msgData.MsgType {
 	case sdk.MsgTypeURL(&wasm.MsgExecuteContract{}):
 		msgResponse := &wasm.MsgExecuteContractResponse{}
 		if err := proto.Unmarshal(msgData.Data, msgResponse); err != nil {
-			return "", sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unmarshal response for MsgExecuteContract: %s", err.Error())
+			return "", "", sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unmarshal response for MsgExecuteContract: %s", err.Error())
 		}
 
-		return msgResponse.String(), nil
+		return "MsgExecuteContract", msgResponse.String(), nil
 
 	case sdk.MsgTypeURL(&wasm.MsgMigrateContract{}):
 		msgResponse := &wasm.MsgMigrateContractResponse{}
 		if err := proto.Unmarshal(msgData.Data, msgResponse); err != nil {
-			return "", sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unmarshal response for MsgMigrateContract: %s", err.Error())
+			return "", "", sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unmarshal response for MsgMigrateContract: %s", err.Error())
 		}
 
-		return msgResponse.String(), nil
+		return "MsgMigrateContract", msgResponse.String(), nil
 
 	default:
-		return hex.EncodeToString(msgData.Data), nil
+		return "unknown", hex.EncodeToString(msgData.Data), nil
 	}
 }
 
@@ -190,7 +211,7 @@ func (im IBCModule) OnTimeoutPacket(
 	packet ibcchanneltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
-	// TODO: if the packet times out, we should save the msg somewhere and let anyone execute it
-	// later once the congestion clears up, instead of having to do the same gov poll again
+	im.Keeper.Logger(ctx).Info("OnTimeoutPacket", "packet", packet.String(), "relayer", relayer)
+
 	return nil
 }
