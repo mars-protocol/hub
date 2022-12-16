@@ -87,12 +87,12 @@ all: proto-gen lint test install
 
 install: enforce-go-version
 	@echo "🤖 Installing marsd..."
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/marsd
+	@go install -mod=readonly $(BUILD_FLAGS) ./cmd/marsd
 	@echo "✅ Completed installation!"
 
 build: enforce-go-version
 	@echo "🤖 Building marsd..."
-	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
+	@go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
 
 # Make sure that Go version is 1.19
@@ -110,7 +110,7 @@ enforce-go-version:
 	@echo "🤖 Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
 ifneq ($(GO_MINOR_VERSION),19)
 	@echo "❌ ERROR: Go version 1.19 is required"
-	exit 1
+	@exit 1
 endif
 
 ###############################################################################
@@ -119,7 +119,7 @@ endif
 
 test:
 	@echo "🤖 Running tests..."
-	go test -mod=readonly ./x/...
+	@go test -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
 
 ###############################################################################
@@ -156,5 +156,5 @@ golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
 
 lint:
 	@echo "🤖 Running linter..."
-	go run $(golangci_lint_cmd) run --timeout=10m
+	@go run $(golangci_lint_cmd) run --timeout=10m
 	@echo "✅ Completed tests!"

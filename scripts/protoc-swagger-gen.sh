@@ -25,12 +25,11 @@ deps="$deps github.com/CosmWasm/wasmd"
 
 # Download dependencies in go.mod
 # Necessary for the `go list` commands in the next step to work
-echo "🤖 Downloading Go dependencies..."
+echo "Downloading dependencies..."
 for dep in $deps; do
   echo $dep
   go mod download $dep
 done
-echo "✅ Done!"
 
 # Directories that contain protobuf files that are to be transpiled into swagger
 # These include Mars modules and third party modules and services
