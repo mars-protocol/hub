@@ -1,6 +1,6 @@
 module github.com/mars-protocol/hub
 
-go 1.18
+go 1.19
 
 require (
 	cosmossdk.io/math v1.0.0-beta.4
@@ -296,21 +296,8 @@ replace (
 	// use Notional's fork of wasmd with sdk 0.46
 	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.30.0-sdk46
 
-	// use cosmos flavored gogo/protobuf
-	// https://github.com/cosmos/cosmos-sdk/issues/8469
-	//
-	// The original protobuf protocol has the drawback that it is not bijective:
-	// the same data can have multiple valid binary representations, and there is
-	// no guarantee on determinism.
-	//
-	// Cosmos implements its own protobuf protocol in ADR-027:
-	// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-027-deterministic-protobuf-serialization.md
-	//
 	// Another discussion why not to use protobuf for blockchain storage:
 	// https://github.com/near/borsh/discussions/110
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-// NOTE: The replacement of ics23 related to the dragonberry patch is no longer
-// required since sdk 0.46.7. Use `github.com/confio/ics23/go v0.9.0` instead.
-// https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7
 )
