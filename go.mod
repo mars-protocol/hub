@@ -296,6 +296,16 @@ replace (
 	// use Notional's fork of wasmd with sdk 0.46
 	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.30.0-sdk46
 
+	// use cosmos flavored gogo/protobuf
+	// https://github.com/cosmos/cosmos-sdk/issues/8469
+	//
+	// The original protobuf protocol has the drawback that it is not bijective:
+	// the same data can have multiple valid binary representations, and there is
+	// no guarantee on determinism.
+	//
+	// Cosmos implements its own protobuf protocol in ADR-027:
+	// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-027-deterministic-protobuf-serialization.md
+	//
 	// Another discussion why not to use protobuf for blockchain storage:
 	// https://github.com/near/borsh/discussions/110
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
