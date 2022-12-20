@@ -10,7 +10,7 @@ var _ sdk.Msg = &MsgSafetyFundSpend{}
 func (m *MsgSafetyFundSpend) ValidateBasic() error {
 	// the authority address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return ErrInvalidProposalRecipient.Wrap(err.Error())
+		return ErrInvalidProposalAuthority.Wrap(err.Error())
 	}
 
 	// the recipeint address must be valid
