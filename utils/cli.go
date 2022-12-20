@@ -12,12 +12,12 @@ import (
 
 // ParseGovProposalFlags parses flags related to creating governance proposals added to the given command
 func ParseGovProposalFlags(cmd *cobra.Command) (title, description string, deposit sdk.Coins, err error) {
-	title, err = cmd.Flags().GetString(govclientcli.FlagTitle)
+	title, err = cmd.Flags().GetString(govclientcli.FlagTitle) //nolint:staticcheck // SA1019: govclientcli.FlagTitle is deprecated: only used for v1beta1 legacy proposals
 	if err != nil {
 		return "", "", sdk.NewCoins(), fmt.Errorf("invalid title: %s", err)
 	}
 
-	description, err = cmd.Flags().GetString(govclientcli.FlagDescription)
+	description, err = cmd.Flags().GetString(govclientcli.FlagDescription) //nolint:staticcheck // SA1019: govclientcli.FlagDescription is deprecated: only used for v1beta1 legacy proposals
 	if err != nil {
 		return "", "", sdk.NewCoins(), fmt.Errorf("invalid description: %s", err)
 	}
@@ -37,7 +37,7 @@ func ParseGovProposalFlags(cmd *cobra.Command) (title, description string, depos
 
 // AddGovProposalFlags adds flags related to creating governance proposal to the given command
 func AddGovProposalFlags(cmd *cobra.Command) {
-	cmd.Flags().String(govclientcli.FlagTitle, "", "Title of proposal")
-	cmd.Flags().String(govclientcli.FlagDescription, "", "Description of proposal")
+	cmd.Flags().String(govclientcli.FlagTitle, "", "Title of proposal")             //nolint:staticcheck // SA1019: govclientcli.FlagTitle is deprecated: only used for v1beta1 legacy proposals
+	cmd.Flags().String(govclientcli.FlagDescription, "", "Description of proposal") //nolint:staticcheck // SA1019: govclientcli.FlagDescription is deprecated: only used for v1beta1 legacy proposals
 	cmd.Flags().String(govclientcli.FlagDeposit, "", "Deposit of proposal")
 }
