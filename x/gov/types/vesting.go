@@ -17,7 +17,8 @@ type InstantiateMsg struct {
 
 // ExecuteMsg corresponding to the Rust enum `mars_vesting::msg::ExecuteMsg`
 //
-// NOTE: For covenience, we don't include other enum variants, as they are not needed here
+// NOTE: For covenience, we don't include other enum variants, as they are not
+// needed here.
 type ExecuteMsg struct {
 	CreatePosition *CreatePosition `json:"create_position,omitempty"`
 	Withdraw       *Withdraw       `json:"withdraw,omitempty"`
@@ -34,7 +35,8 @@ type Withdraw struct{}
 
 // QueryMsg corresponding to the Rust enum `mars_vesting::msg::QueryMsg`
 //
-// NOTE: For covenience, we don't include other enum variants, as they are not needed here
+// NOTE: For covenience, we don't include other enum variants, as they are not
+// needed here.
 type QueryMsg struct {
 	VotingPower  *VotingPowerQuery  `json:"voting_power,omitempty"`
 	VotingPowers *VotingPowersQuery `json:"voting_powers,omitempty"`
@@ -51,11 +53,13 @@ type VotingPowersQuery struct {
 	Limit      uint32 `json:"limit,omitempty"`
 }
 
-// VotingPowerResponseItem corresponding to the `voting_powers` query's respons type's repeating element
+// VotingPowerResponseItem corresponding to the `voting_powers` query's respons
+// type's repeating element
 type VotingPowerResponse struct {
 	User        string   `json:"user"`
 	VotingPower sdk.Uint `json:"voting_power"`
 }
 
-// VotingPowerResponse corresponding to the response type of the `voting_powers` query
+// VotingPowerResponse corresponding to the response type of the `voting_powers`
+// query
 type VotingPowersResponse []VotingPowerResponse

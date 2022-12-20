@@ -120,12 +120,15 @@ const (
 	// BondDenom is the staking token's denomination
 	BondDenom = "umars"
 
-	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
-	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
+	// If EnabledSpecificProposals is "", and this is "true", then enable all
+	// x/wasm proposals.
+	// If EnabledSpecificProposals is "", and this is not "true", then disable
+	// all x/wasm proposals.
 	ProposalsEnabled = "true"
 
-	// If set to non-empty string it must be comma-separated list of values that are all a subset
-	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
+	// If set to non-empty string it must be comma-separated list of values that
+	// are all a subset of "EnableAllProposals" (takes precedence over
+	// ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 )
@@ -134,8 +137,9 @@ var (
 	// DefaultNodeHome the default home directory for the app daemon
 	DefaultNodeHome string
 
-	// ModuleBasics defines the module `BasicManager`, which is in charge of setting up basic, non-
-	// dependent module elements, such as codec registration and genesis verification
+	// ModuleBasics defines the module `BasicManager`, which is in charge of
+	// setting up basic, non- dependent module elements, such as codec
+	// registration and genesis verification
 	ModuleBasics = module.NewBasicManager(
 		auth.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
@@ -192,9 +196,9 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, ".mars")
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Mars app
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // `MarsApp` must implement `simapp.App` and `servertypes.Application` interfaces
 var (
@@ -203,8 +207,8 @@ var (
 )
 
 // MarsApp extends an ABCI application, but with most of its parameters exported.
-// They are exported for convenience in creating helper functions, as object capabilities aren't
-// needed for testing.
+// They are exported for convenience in creating helper functions, as object
+// capabilities aren't needed for testing.
 type MarsApp struct {
 	// baseapp
 	*baseapp.BaseApp
@@ -376,7 +380,8 @@ func NewMarsApp(
 	)
 
 	// staking keeper and its dependencies
-	// NOTE: the order here (e.g. evidence keeper depends on slashing keeper, so must be defined after it)
+	// NOTE: the order here (e.g. evidence keeper depends on slashing keeper, so
+	// must be defined after it)
 	stakingKeeper := stakingkeeper.NewKeeper(
 		codec,
 		keys[stakingtypes.StoreKey],
@@ -407,7 +412,8 @@ func NewMarsApp(
 	)
 
 	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
+	// NOTE: stakingKeeper above is passed by reference, so that it will contain
+	// these hooks.
 	app.StakingKeeper = *stakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
@@ -442,8 +448,7 @@ func NewMarsApp(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// the `mars` feature is necessary for contracts using the `mars-cosmwams` library
-	supportedFeatures := "iterator,staking,stargate,mars"
+	supportedFeatures := "iterator,staking,stargate"
 
 	// register wasm bindings of Mars modules here
 	wasmOpts = append(marswasm.RegisterCustomPlugins(&app.DistrKeeper), wasmOpts...)
@@ -486,8 +491,8 @@ func NewMarsApp(
 
 	// finally, create gov keeper
 	//
-	// here we use the customized gov keeper, which requires an additional `wasmKeeper` parameter
-	// compared to the vanilla govkeeper
+	// here we use the customized gov keeper, which requires an additional
+	// `wasmKeeper` parameter compared to the vanilla govkeeper
 	app.GovKeeper = customgovkeeper.NewKeeper(
 		codec,
 		keys[govtypes.StoreKey],
@@ -503,12 +508,13 @@ func NewMarsApp(
 
 	// **** module options ****
 
-	// NOTE: We may consider parsing `appOpts` inside module constructors. For the moment we prefer
-	// to be more strict in what arguments the modules expect
+	// NOTE: We may consider parsing `appOpts` inside module constructors. For
+	// the moment we prefer to be more strict in what arguments the modules
+	// expect.
 	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
-	// NOTE: Any module instantiated in the module manager that is later modified must be passed by
-	// reference here
+	// NOTE: Any module instantiated in the module manager that is later
+	// modified must be passed by reference here.
 	app.mm = module.NewManager(
 		auth.NewAppModule(codec, app.AccountKeeper, nil),
 		authzmodule.NewAppModule(codec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
@@ -531,8 +537,9 @@ func NewMarsApp(
 		safety.NewAppModule(app.SafetyKeeper),
 	)
 
-	// During begin block, slashing happens after `distr.BeginBlocker` so that there is nothing left
-	// over in the validator fee pool, so as to keep the `CanWithdrawInvariant` invariant.
+	// During begin block, slashing happens after `distr.BeginBlocker` so that
+	// there is nothing left over in the validator fee pool, so as to keep the
+	// `CanWithdrawInvariant` invariant.
 	// NOTE: staking module is required if `HistoricalEntries` param > 0
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName,
@@ -578,10 +585,11 @@ func NewMarsApp(
 		safetytypes.ModuleName,
 	)
 
-	// NOTE: The genutils module must occur after staking so that pools are properly initialized with
-	// tokens from genesis accounts.
-	// NOTE: Capability module must occur first so that it can initialize any capabilities so that
-	// other modules that want to create or claim capabilities afterwards in `InitChain`` can do so safely.
+	// NOTE: The genutils module must occur after staking so that pools are
+	// properly initialized with tokens from genesis accounts.
+	// NOTE: Capability module must occur first so that it can initialize any
+	// capabilities so that other modules that want to create or claim
+	// capabilities afterwards in `InitChain` can do so safely.
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
@@ -646,11 +654,12 @@ func NewMarsApp(
 	return app
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement `marsapptypes.App` interface for MarsApp
 //
-// `ExportAppStateAndValidators` is implemented in ./export.go so no need to reimplement here
-//--------------------------------------------------------------------------------------------------
+// `ExportAppStateAndValidators` is implemented in ./export.go so no need to
+// reimplement here.
+//------------------------------------------------------------------------------
 
 // Name returns the app's name
 func (app *MarsApp) Name() string {
@@ -699,18 +708,20 @@ func (app *MarsApp) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// NOTE: we don't actually use simulation manager anywhere in this project, so we simply return nil
+// NOTE: we don't actually use simulation manager anywhere in this project, so
+// we simply return nil.
 func (app *MarsApp) SimulationManager() *module.SimulationManager {
 	return nil
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement `servertypes.Application` interface for `MarsApp`
 //
 // `RegisterGRPCServer` is already implemented by `BaseApp` and inherited by MarsApp
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// RegisterAPIRoutes registers all application module routes with the provided API server
+// RegisterAPIRoutes registers all application module routes with the provided
+// API server.
 func (app *MarsApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 
@@ -750,9 +761,9 @@ func (app *MarsApp) RegisterTendermintService(clientCtx client.Context) {
 	)
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helpers
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // returns a param subspace for a given module name
 func getSubspace(app *MarsApp, moduleName string) paramstypes.Subspace {
@@ -780,21 +791,24 @@ func getEnabledProposals() []wasm.ProposalType {
 	return proposals
 }
 
-// getBlockedModuleAccountAddrs returns all the app's blocked module account addresses
+// getBlockedModuleAccountAddrs returns all the app's blocked module account
+// addresses.
 //
 // Specifically, we allow the following module accounts to receive funds:
 //
-// - `fee_collector` and `safety_fund`, so that protocol revenue can be sent from outposts to the hub
-// via IBC fungible token transfers
+//   - `fee_collector` and `safety_fund`, so that protocol revenue can be sent
+//     from outposts to the hub via IBC fungible token transfers
 //
-// - `incentives`, so that the incentives module can draw funds from the community pool in order to
-// create new incentives schedules upon successful governance proposals
+//   - `incentives`, so that the incentives module can draw funds from the
+//     community pool in order to
+//     create new incentives schedules upon successful governance proposals
 //
-// Further note on the 2nd point: the distrkeeper's `DistributeFromFeePool` function uses bankkeeper's
-// `SendCoinsFromModuleToAccount` instead of `SendCoinsFromModuleToModule`. If it had used `FromModuleToModule`
+// Further note on the 2nd point: the distrkeeper's `DistributeFromFeePool`
+// function uses bankkeeper's `SendCoinsFromModuleToAccount` instead of
+// `SendCoinsFromModuleToModule`. If it had used `FromModuleToModule`
 // then we won't need to allow incentives module account to receive funds here.
 //
-// forked from: https://github.com/cosmos/gaia/pull/1493
+// Forked from: https://github.com/cosmos/gaia/pull/1493
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 

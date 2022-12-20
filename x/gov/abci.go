@@ -15,8 +15,8 @@ import (
 
 // EndBlocker called at the end of every block, processing proposals
 //
-// This is pretty much the same as the vanilla gov EndBlocker, except for we replace the `Tally`
-// function with our own implementation
+// This is pretty much the same as the vanilla gov EndBlocker, except for we
+// replace the `Tally` function with our own implementation.
 func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(govtypes.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 

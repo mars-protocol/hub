@@ -9,9 +9,9 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
-// CreateSchedule upon a successful CreateIncentivesScheduleProposal, withdraws appropriate amount of
-// funds from the community pool, and initializes a new schedule in module store. Returns the new schedule
-// that was created.
+// CreateSchedule upon a successful CreateIncentivesScheduleProposal, withdraws
+// appropriate amount of funds from the community pool, and initializes a new
+// schedule in module store. Returns the new schedule that was created.
 func (k Keeper) CreateSchedule(ctx sdk.Context, startTime, endTime time.Time, amount sdk.Coins) (schedule types.Schedule, err error) {
 	id := k.IncrementNextScheduleID(ctx)
 
@@ -33,9 +33,10 @@ func (k Keeper) CreateSchedule(ctx sdk.Context, startTime, endTime time.Time, am
 	return schedule, nil
 }
 
-// TerminateSchedules upon a successful TerminateIncentivesScheduleProposal, deletes the schedules specified
-// by the proposal from module store, and returns the unreleased funds to the community pool. Returns
-// the funds that was returned.
+// TerminateSchedules upon a successful TerminateIncentivesScheduleProposal,
+// deletes the schedules specified by the proposal from module store, and
+// returns the unreleased funds to the community pool. Returns the funds that
+// ware returned.
 func (k Keeper) TerminateSchedules(ctx sdk.Context, ids []uint64) (amount sdk.Coins, err error) {
 	amount = sdk.NewCoins()
 

@@ -26,8 +26,8 @@ import (
 	marsapp "github.com/mars-protocol/hub/app"
 )
 
-// appCreator is a wrapper for EncodingConfig. This allows us to reuse encodingConfig received by
-// NewRootCmd in both createApp and exportApp
+// appCreator is a wrapper for EncodingConfig. This allows us to reuse
+// encodingConfig received by NewRootCmd in both createApp and exportApp.
 type appCreator struct{ encodingConfig marsapp.EncodingConfig }
 
 func (ac appCreator) createApp(

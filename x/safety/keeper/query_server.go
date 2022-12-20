@@ -13,7 +13,8 @@ import (
 
 type queryServer struct{ k Keeper }
 
-// NewQueryServerImpl creates an implementation of the `QueryServer` interface for the given keeper
+// NewQueryServerImpl creates an implementation of the `QueryServer` interface
+// for the given keeper.
 func NewQueryServerImpl(k Keeper) types.QueryServer {
 	return &queryServer{k}
 }

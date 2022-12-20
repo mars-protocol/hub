@@ -11,12 +11,10 @@ func durationToSecondsDec(d time.Duration) sdk.Dec {
 }
 
 // GetBlockReward calculates the reward to be releaed given a time:
-//
-// - if the current time is before the start time, no coin is to be released
-//
-// - if the current time is after the end time, all coins are to be released
-//
-// - if the current time is betweeen the start and end times, coins are to be released linearly
+//   - if the current time is before the start time, no coin is to be released
+//   - if the current time is after the end time, all coins are to be released
+//   - if the current time is betweeen the start and end times, coins are to be
+//     released linearly
 func (s Schedule) GetBlockReward(currentTime time.Time) sdk.Coins {
 	if s.StartTime.After(currentTime) {
 		return sdk.NewCoins()

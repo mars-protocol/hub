@@ -14,7 +14,8 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
-// BeginBlocker distributes block rewards to validators who have signed the previous block
+// BeginBlocker distributes block rewards to validators who have signed the
+// previous block.
 func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 

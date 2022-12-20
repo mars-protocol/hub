@@ -20,7 +20,8 @@ var _ govv1.QueryServer = queryServer{}
 
 type queryServer struct{ k Keeper }
 
-// NewQueryServerImpl creates an implementation of the QueryServer interface for the given keeper
+// NewQueryServerImpl creates an implementation of the QueryServer interface for
+// the given keeper.
 func NewQueryServerImpl(k Keeper) govv1.QueryServer {
 	return &queryServer{k}
 }

@@ -15,8 +15,9 @@ import (
 
 // Keeper defines the custom governance module Keeper
 //
-// NOTE: Keeper wraps the vanilla gov keeper to inherit most of its functions. However, we include an
-// additional dependency, the wasm keeper, which is needed for our custom vote tallying logic
+// NOTE: Keeper wraps the vanilla gov keeper to inherit most of its functions.
+// However, we include an additional dependency, the wasm keeper, which is
+// needed for our custom vote tallying logic.
 type Keeper struct {
 	govkeeper.Keeper
 
@@ -28,8 +29,9 @@ type Keeper struct {
 
 // NewKeeper returns a custom gov keeper
 //
-// NOTE: compared to the vanilla gov keeper's constructor function, here we require an additional
-// wasm keeper, which is needed for our custom vote tallying logic
+// NOTE: compared to the vanilla gov keeper's constructor function, here we
+// require an additional wasm keeper, which is needed for our custom vote
+// tallying logic.
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace govtypes.ParamSubspace,
 	accountKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, stakingKeeper govtypes.StakingKeeper,
@@ -46,8 +48,8 @@ func NewKeeper(
 
 // deleteVote deletes a vote from a given proposalID and voter from the store
 //
-// NOTE: the vanilla gov module does not make the `deleteVote` function public, so in order to delete
-// votes, we need to redefine the function here
+// NOTE: the vanilla gov module does not make the `deleteVote` function public,
+// so in order to delete votes, we need to redefine the function here.
 //
 // TODO: As of sdk 0.46.7 this is still not made public... I should make a PR
 func (k Keeper) deleteVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {

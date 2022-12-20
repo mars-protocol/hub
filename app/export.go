@@ -13,14 +13,16 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// ExportAppStateAndValidators exports the state of the application for a genesis file
+// ExportAppStateAndValidators exports the state of the application for a
+// genesis file.
 func (app *MarsApp) ExportAppStateAndValidators(
 	forZeroHeight bool, jailAllowedAddrs []string,
 ) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
-	// we export at last height + 1, because that's the height at which Tendermint will start InitChain
+	// we export at last height + 1, because that's the height at which
+	// Tendermint will start InitChain
 	height := app.LastBlockHeight() + 1
 	if forZeroHeight {
 		height = 0
@@ -50,8 +52,8 @@ func (app *MarsApp) ExportAppStateAndValidators(
 
 // prepare for a fresh start at zero height
 //
-// NOTE: zero height genesis is a temporary feature which will be deprecated in favor of exporting
-// at a block height
+// NOTE: zero height genesis is a temporary feature which will be deprecated in
+// favor of exporting at a block height.
 func (app *MarsApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	// check if there is an allowed address list
 	applyAllowedAddrs := false
@@ -107,8 +109,8 @@ func (app *MarsApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 	height := ctx.BlockHeight()
 	ctx = ctx.WithBlockHeight(0)
 
-	// reinitialize all validators, donate any unwithdrawn outstanding reward fraction tokens to the
-	// community pool
+	// reinitialize all validators, donate any unwithdrawn outstanding reward
+	// fraction tokens to the community pool
 	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		scraps := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, val.GetOperator())
 		feePool := app.DistrKeeper.GetFeePool(ctx)
@@ -158,7 +160,8 @@ func (app *MarsApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		return false
 	})
 
-	// iterate through validators by power descending, reset bond heights, and update bond intra-tx counters
+	// iterate through validators by power descending, reset bond heights, and
+	// update bond intra-tx counters
 	store := ctx.KVStore(app.keys[stakingtypes.StoreKey])
 	iter := sdk.KVStoreReversePrefixIterator(store, stakingtypes.ValidatorsKey)
 	counter := int16(0)

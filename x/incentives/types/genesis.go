@@ -10,7 +10,8 @@ func DefaultGenesisState() *GenesisState {
 	}
 }
 
-// ValidateGenesis validates the given instance of the incentives module's genesis state
+// ValidateGenesis validates the given instance of the incentives module's
+// genesis state.
 //
 // for each schedule,
 //

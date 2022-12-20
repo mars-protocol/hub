@@ -6,10 +6,11 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
-// InitGenesis initializes the incentives module's storage according to the provided genesis state
+// InitGenesis initializes the incentives module's storage according to the
+// provided genesis state.
 //
-// NOTE: we call `GetModuleAccount` instead of `SetModuleAccount` because the "get" function automatically
-// sets the module account if it doesn't exist
+// NOTE: we call `GetModuleAccount` instead of `SetModuleAccount` because the
+// "get" function automatically sets the module account if it doesn't exist.
 func (k Keeper) InitGenesis(ctx sdk.Context, gs *types.GenesisState) {
 	// set module account
 	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)

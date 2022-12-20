@@ -58,14 +58,16 @@ func (k Keeper) GetModuleAddress() sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ScheduleId
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// GetNextScheduleId loads the next schedule id if a new schedule is to be created
+// GetNextScheduleId loads the next schedule id if a new schedule is to be
+// created.
 //
-// NOTE: the id should have been initialized in genesis, so it being undefined is a fatal error. we
-// have the module panic in this case, instead of returning an error
+// NOTE: the id should have been initialized in genesis, so it being undefined
+// is a fatal error. we have the module panic in this case, instead of returning
+// an error.
 func (k Keeper) GetNextScheduleID(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 
@@ -83,7 +85,8 @@ func (k Keeper) SetNextScheduleID(ctx sdk.Context, id uint64) {
 	store.Set(types.KeyNextScheduleID, sdk.Uint64ToBigEndian(id))
 }
 
-// IncrementNextScheduleId increases the next id by one, and returns the previous value
+// IncrementNextScheduleId increases the next id by one, and returns the
+// previous value.
 func (k Keeper) IncrementNextScheduleID(ctx sdk.Context) uint64 {
 	id := k.GetNextScheduleID(ctx)
 
@@ -92,9 +95,9 @@ func (k Keeper) IncrementNextScheduleID(ctx sdk.Context) uint64 {
 	return id
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Schedule
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // GetSchedule loads the incentives schedule of the specified id
 func (k Keeper) GetSchedule(ctx sdk.Context, id uint64) (schedule types.Schedule, found bool) {
@@ -116,8 +119,9 @@ func (k Keeper) SetSchedule(ctx sdk.Context, schedule types.Schedule) {
 	store.Set(types.GetScheduleKey(schedule.Id), k.cdc.MustMarshal(&schedule))
 }
 
-// IterateSchedules iterates over all active schedules, calling the callback function with the schedule
-// info. The iteration stops if the callback returns false.
+// IterateSchedules iterates over all active schedules, calling the callback
+// function with the schedule info.
+// The iteration stops if the callback returns false.
 func (k Keeper) IterateSchedules(ctx sdk.Context, cb func(types.Schedule) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeySchedule)
@@ -133,7 +137,8 @@ func (k Keeper) IterateSchedules(ctx sdk.Context, cb func(types.Schedule) bool) 
 	}
 }
 
-// DeleteSchedule removes the incentives schedule of the given id from module store
+// DeleteSchedule removes the incentives schedule of the given id from module
+// store.
 func (k Keeper) DeleteSchedule(ctx sdk.Context, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetScheduleKey(id))

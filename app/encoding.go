@@ -36,8 +36,8 @@ func NewEncodingConfig() EncodingConfig {
 	return encodingConfig
 }
 
-// MakeEncodingConfig creates an EncodingConfig instance; registers types with codec and interface
-// registry
+// MakeEncodingConfig creates an EncodingConfig instance; registers types with
+// codec and interface registry.
 func MakeEncodingConfig() EncodingConfig {
 	encodingConfig := NewEncodingConfig()
 

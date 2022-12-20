@@ -27,9 +27,9 @@ import (
 	marsapp "github.com/mars-protocol/hub/app"
 )
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor for marsd root command
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // NewRootCmd creates root command for the Mars app-chain daemon
 func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {

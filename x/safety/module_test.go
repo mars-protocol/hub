@@ -13,8 +13,8 @@ import (
 	"github.com/mars-protocol/hub/x/safety/types"
 )
 
-// TestCreatesModuleAccountAtGenesis asserts that the safety module account is properly registered
-// with the auth module at genesis
+// TestCreatesModuleAccountAtGenesis asserts that the safety module account is
+// properly registered with the auth module at genesis.
 func TestCreatesModuleAccountAtGenesis(t *testing.T) {
 	app := marsapptesting.MakeSimpleMockApp()
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})

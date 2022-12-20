@@ -13,7 +13,8 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
-// HandlerOptions extends the SDK's `AnteHandler` options by requiring additional keepers
+// HandlerOptions extends the SDK's `AnteHandler` options by requiring
+// additional keepers.
 type HandlerOptions struct {
 	ante.HandlerOptions
 
@@ -22,8 +23,9 @@ type HandlerOptions struct {
 	TxCounterStoreKey storetypes.StoreKey
 }
 
-// NewAnteHandler returns an AnteHandler that checks and increments sequence numbers, checks signatures
-// & account numbers, and deducts fees from the first signer.
+// NewAnteHandler returns an AnteHandler that checks and increments sequence
+// numbers, checks signatures & account numbers, and deducts fees from the first
+// signer.
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
