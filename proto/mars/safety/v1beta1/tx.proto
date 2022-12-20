@@ -43,7 +43,7 @@ message MsgSafetyFundSpend {
   string recipient = 2;
 
   // Amount is the coins that are to be released from the safety funds
-  repeated cosmos.base.v1beta1.Coin amount = 4 [
+  repeated cosmos.base.v1beta1.Coin amount = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
