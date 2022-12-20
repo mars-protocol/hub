@@ -309,8 +309,4 @@ replace (
 	// Another discussion why not to use protobuf for blockchain storage:
 	// https://github.com/near/borsh/discussions/110
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-
-// NOTE: The replacement of ics23 related to the dragonberry patch is no longer
-// required since sdk 0.46.7. Use `github.com/confio/ics23/go v0.9.0` instead.
-// https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7
 )
