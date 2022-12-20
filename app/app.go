@@ -107,7 +107,6 @@ import (
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
 	"github.com/mars-protocol/hub/x/safety"
-	safetyclient "github.com/mars-protocol/hub/x/safety/client"
 	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
 	safetytypes "github.com/mars-protocol/hub/x/safety/types"
 
@@ -171,7 +170,6 @@ var (
 		ibcclientclient.UpgradeProposalHandler,
 		incentivesclient.CreateIncentivesProposalHandler,
 		incentivesclient.TerminateIncentivesProposalHandler,
-		safetyclient.SafetyFundSpendProposalHandler,
 	)
 
 	// module account permissions
@@ -479,7 +477,11 @@ func NewMarsApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 	)
-	app.SafetyKeeper = safetykeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
+	app.SafetyKeeper = safetykeeper.NewKeeper(
+		app.AccountKeeper,
+		app.BankKeeper,
+		string(app.AccountKeeper.GetModuleAddress(govtypes.ModuleName)),
+	)
 
 	// finally, create gov keeper
 	//
@@ -831,7 +833,6 @@ func initGovRouter(app *MarsApp) govv1beta1.Router {
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
 	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
-	govRouter.AddRoute(safetytypes.RouterKey, safety.NewProposalHandler(app.SafetyKeeper))
 
 	return govRouter
 }

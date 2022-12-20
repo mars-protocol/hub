@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/CosmWasm/wasmd v0.30.0
 	github.com/CosmWasm/wasmvm v1.1.1
+	github.com/cosmos/cosmos-proto v1.0.0-alpha8
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/ibc-go/v6 v6.0.0
@@ -71,7 +72,6 @@ require (
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
@@ -310,7 +310,7 @@ replace (
 	// https://github.com/near/borsh/discussions/110
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	// NOTE: The replacement of ics23 related to the dragonberry patch is no longer
-	// required since sdk 0.46.7. Use `github.com/confio/ics23/go v0.9.0` instead.
-	// https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7
+// NOTE: The replacement of ics23 related to the dragonberry patch is no longer
+// required since sdk 0.46.7. Use `github.com/confio/ics23/go v0.9.0` instead.
+// https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7
 )

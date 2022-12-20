@@ -131,7 +131,7 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // deprecated
 func (AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewMsgHandler())
+	return sdk.Route{}
 }
 
 // deprecated
