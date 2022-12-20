@@ -211,7 +211,7 @@ type MarsApp struct {
 
 	// codecs
 	legacyAmino       *codec.LegacyAmino
-	codec             codec.Codec
+	Codec             codec.Codec // make codec public for testing purposes
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// invariant check period
@@ -296,7 +296,7 @@ func NewMarsApp(
 	app := &MarsApp{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
-		codec:             codec,
+		Codec:             codec,
 		interfaceRegistry: interfaceRegistry,
 		invCheckPeriod:    invCheckPeriod,
 		keys:              keys,
@@ -681,7 +681,7 @@ func (app *MarsApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
-	return app.mm.InitGenesis(ctx, app.codec, genesisState)
+	return app.mm.InitGenesis(ctx, app.Codec, genesisState)
 }
 
 // LoadHeight loads a particular height

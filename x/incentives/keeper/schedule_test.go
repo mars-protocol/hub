@@ -8,40 +8,36 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
+
+	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
 func TestCreateSchedule(t *testing.T) {
-	app := marsapptesting.MakeMockApp()
+	accts := marsapptesting.MakeRandomAccounts(1)
+	maccAddr := authtypes.NewModuleAddress(types.ModuleName)
+
+	// schedule 1 is already started, balance is held by incentives module acct
+	// schedule 2 is not started yet, balance is held by community pool
+	app := marsapptesting.MakeMockApp(
+		accts,
+		[]banktypes.Balance{{
+			Address: maccAddr.String(),
+			Coins:   mockSchedules[0].TotalAmount,
+		}},
+		accts,
+		mockSchedules[1].TotalAmount,
+	)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	accts := marsapptesting.MakeRandomAccounts(1)
-	deployer := accts[0]
-
-	// assume we already have mockSchedule[0] active; a successful gov proposal about to add mockSchedule[1]
+	// assume we already have mockSchedule[0] active;
+	// a successful gov proposal about to add mockSchedule[1]
 	app.IncentivesKeeper.SetNextScheduleID(ctx, 2)
 	app.IncentivesKeeper.SetSchedule(ctx, mockSchedules[0])
-
-	// assign appropriate amount of coins to the deployer and incentives module account
-	maccAddr := app.IncentivesKeeper.GetModuleAddress()
-	app.BankKeeper.InitGenesis(
-		ctx,
-		&banktypes.GenesisState{
-			Balances: []banktypes.Balance{{
-				Address: deployer.String(),
-				Coins:   mockSchedules[1].TotalAmount,
-			}, {
-				Address: maccAddr.String(),
-				Coins:   mockSchedules[0].TotalAmount,
-			}},
-		},
-	)
-
-	// the deployer funds the community pool
-	app.DistrKeeper.FundCommunityPool(ctx, mockSchedules[1].TotalAmount, deployer)
 
 	// create the schedule upon a successful governance proposal
 	_, err := app.IncentivesKeeper.CreateSchedule(
@@ -77,29 +73,32 @@ func TestCreateSchedule(t *testing.T) {
 }
 
 func TestTerminateSchedule(t *testing.T) {
-	app := marsapptesting.MakeMockApp()
+	accts := marsapptesting.MakeRandomAccounts(1)
+	maccAddr := authtypes.NewModuleAddress(types.ModuleName)
+
+	// for this test case, we assume there are a few ongoing incentives programs.
+	// compute what should be the remaining balance of the incentives module
+	// accounts.
+	amount := sdk.NewCoins()
+	for _, mockSchedule := range mockSchedulesReleased {
+		amount = amount.Add(mockSchedule.TotalAmount...).Sub(mockSchedule.ReleasedAmount...)
+	}
+
+	app := marsapptesting.MakeMockApp(
+		accts,
+		[]banktypes.Balance{{
+			Address: maccAddr.String(),
+			Coins:   amount,
+		}},
+		accts,
+		sdk.NewCoins(),
+	)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	app.IncentivesKeeper.SetNextScheduleID(ctx, 3)
 	for _, mockSchedule := range mockSchedulesReleased {
 		app.IncentivesKeeper.SetSchedule(ctx, mockSchedule)
 	}
-
-	maccAddr := app.IncentivesKeeper.GetModuleAddress()
-	amount := sdk.NewCoins()
-	for _, mockSchedule := range mockSchedulesReleased {
-		amount = amount.Add(mockSchedule.TotalAmount...).Sub(mockSchedule.ReleasedAmount...)
-	}
-
-	app.BankKeeper.InitGenesis(
-		ctx,
-		&banktypes.GenesisState{
-			Balances: []banktypes.Balance{{
-				Address: maccAddr.String(),
-				Coins:   amount,
-			}},
-		},
-	)
 
 	// terminate the schedules upon a successful governance proposal
 	_, err := app.IncentivesKeeper.TerminateSchedules(ctx, []uint64{1, 2})

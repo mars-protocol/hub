@@ -14,6 +14,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
+	marsapp "github.com/mars-protocol/hub/app"
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
 	"github.com/mars-protocol/hub/x/gov/keeper"
@@ -22,28 +23,26 @@ import (
 )
 
 func TestQueryVotingPowers(t *testing.T) {
-	app := marsapptesting.MakeMockApp()
+	// generate random addresses
+	accts := marsapptesting.MakeRandomAccounts(4)
+	validator := accts[0]
+	deployer := accts[1]
+	voters := accts[2:]
+
+	// create mock app and context
+	app := marsapptesting.MakeMockApp(
+		accts,
+		[]banktypes.Balance{{
+			Address: deployer.String(),
+			Coins:   sdk.NewCoins(sdk.NewCoin(marsapp.BondDenom, sdk.NewInt(50000000))),
+		}},
+		[]sdk.AccAddress{validator},
+		sdk.NewCoins(),
+	)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{Time: time.Unix(10000, 0)}) // block time is required for testing
 
-	accts := marsapptesting.MakeRandomAccounts(3)
-	deployer := accts[0]
-	voters := accts[1:]
-
+	// take the wasm keeper from the app
 	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper)
-
-	// set mars token balance for deployer
-	app.BankKeeper.InitGenesis(
-		ctx,
-		&banktypes.GenesisState{
-			Params: banktypes.Params{
-				DefaultSendEnabled: true, // must set this to true so that tokens can be transferred
-			},
-			Balances: []banktypes.Balance{{
-				Address: deployer.String(),
-				Coins:   sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(50000000))),
-			}},
-		},
-	)
 
 	// store vesting contract code
 	codeID, _, err := contractKeeper.Create(ctx, deployer, testdata.VestingWasm, nil)

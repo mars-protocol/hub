@@ -14,7 +14,7 @@ import (
 )
 
 func setupGenesisTest() (ctx sdk.Context, app *marsapp.MarsApp) {
-	app = marsapptesting.MakeMockApp()
+	app = marsapptesting.MakeSimpleMockApp()
 	ctx = app.BaseApp.NewContext(false, tmproto.Header{})
 
 	app.IncentivesKeeper.InitGenesis(ctx, &mockGenesisState)

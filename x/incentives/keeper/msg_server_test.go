@@ -9,6 +9,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -37,31 +38,22 @@ func init() {
 }
 
 func setupMsgServerTest() (ctx sdk.Context, app *marsapp.MarsApp) {
-	app = marsapptesting.MakeMockApp()
+	accts := marsapptesting.MakeRandomAccounts(1)
+	maccAddr := authtypes.NewModuleAddress(types.ModuleName)
+
+	// we give sufficient token amounts to both the community pool and
+	// incentives module account, so that we can both create or terminate
+	// schedules.
+	app = marsapptesting.MakeMockApp(
+		accts,
+		[]banktypes.Balance{{
+			Address: maccAddr.String(),
+			Coins:   mockSchedule.TotalAmount,
+		}},
+		accts,
+		mockSchedule.TotalAmount,
+	)
 	ctx = app.BaseApp.NewContext(false, tmproto.Header{Time: time.Unix(16667, 0)})
-
-	maccAddr := app.IncentivesKeeper.GetModuleAddress()
-
-	app.BankKeeper.InitGenesis(
-		ctx,
-		&banktypes.GenesisState{
-			Params: banktypes.Params{
-				DefaultSendEnabled: true, // must set this to true so that tokens can be transferred
-			},
-			Balances: []banktypes.Balance{{
-				Address: maccAddr.String(),
-				Coins:   mockSchedule.TotalAmount,
-			}},
-		},
-	)
-
-	app.IncentivesKeeper.InitGenesis(
-		ctx,
-		&types.GenesisState{
-			NextScheduleId: 1,
-			Schedules:      []types.Schedule{},
-		},
-	)
 
 	return ctx, app
 }
