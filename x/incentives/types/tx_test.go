@@ -11,34 +11,38 @@ import (
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
-func getMockCreateScheduleProposal() types.CreateIncentivesScheduleProposal {
-	return types.CreateIncentivesScheduleProposal{
-		Title:       "title",
-		Description: "description",
-		StartTime:   time.Unix(10000, 0),
-		EndTime:     time.Unix(20000, 0),
-		Amount:      sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(10000))),
+const govModuleAccount = "mars10d07y265gmmuvt4z0w9aw880jnsr700j8l2urg"
+
+func init() {
+	sdk.GetConfig().SetBech32PrefixForAccount("mars", "marspub")
+}
+
+func getMockMsgCreateSchedule() types.MsgCreateSchedule {
+	return types.MsgCreateSchedule{
+		Authority: govModuleAccount,
+		StartTime: time.Unix(10000, 0),
+		EndTime:   time.Unix(20000, 0),
+		Amount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(10000))),
 	}
 }
 
-func getMockTerminateScheduleProposal() types.TerminateIncentivesSchedulesProposal {
-	return types.TerminateIncentivesSchedulesProposal{
-		Title:       "title",
-		Description: "description",
-		Ids:         []uint64{1, 2, 3, 4, 5},
+func getMockTerminateScheduleProposal() types.MsgTerminateSchedules {
+	return types.MsgTerminateSchedules{
+		Authority: govModuleAccount,
+		Ids:       []uint64{1, 2, 3, 4, 5},
 	}
 }
 
 func TestValidateCreateScheduleProposal(t *testing.T) {
-	p := getMockCreateScheduleProposal()
+	p := getMockMsgCreateSchedule()
 	p.EndTime = time.Unix(9999, 0)
 	require.Error(t, p.ValidateBasic(), types.ErrInvalidProposalStartEndTimes)
 
-	p = getMockCreateScheduleProposal()
+	p = getMockMsgCreateSchedule()
 	p.Amount = sdk.NewCoins()
 	require.Error(t, p.ValidateBasic(), types.ErrInvalidProposalAmount)
 
-	p = getMockCreateScheduleProposal()
+	p = getMockMsgCreateSchedule()
 	require.NoError(t, p.ValidateBasic())
 }
 

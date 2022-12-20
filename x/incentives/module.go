@@ -89,6 +89,7 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
 }
 
@@ -132,7 +133,7 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // deprecated
 func (AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewMsgHandler())
+	return sdk.Route{}
 }
 
 // deprecated
