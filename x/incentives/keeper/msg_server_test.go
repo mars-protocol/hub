@@ -1,4 +1,4 @@
-package incentives_test
+package keeper_test
 
 import (
 	"testing"
@@ -10,11 +10,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	marsapp "github.com/mars-protocol/hub/app"
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
-	"github.com/mars-protocol/hub/x/incentives"
+	"github.com/mars-protocol/hub/x/incentives/keeper"
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
@@ -26,9 +27,18 @@ var mockSchedule = types.Schedule{
 	ReleasedAmount: sdk.Coins(nil),
 }
 
-func setupHandlerTest() (ctx sdk.Context, app *marsapp.MarsApp) {
+const (
+	govModuleAccount    = "mars10d07y265gmmuvt4z0w9aw880jnsr700j8l2urg"
+	notGovModuleAccount = "mars1z926ax906k0ycsuckele6x5hh66e2m4m09whw6"
+)
+
+func init() {
+	sdk.GetConfig().SetBech32PrefixForAccount("mars", "marspub")
+}
+
+func setupMsgServerTest() (ctx sdk.Context, app *marsapp.MarsApp) {
 	app = marsapptesting.MakeMockApp()
-	ctx = app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx = app.BaseApp.NewContext(false, tmproto.Header{Time: time.Unix(16667, 0)})
 
 	maccAddr := app.IncentivesKeeper.GetModuleAddress()
 
@@ -57,35 +67,49 @@ func setupHandlerTest() (ctx sdk.Context, app *marsapp.MarsApp) {
 }
 
 func TestCreateScheduleProposalPassed(t *testing.T) {
-	ctx, app := setupHandlerTest()
+	ctx, app := setupMsgServerTest()
 
-	hdlr := incentives.NewProposalHandler(app.IncentivesKeeper)
-	proposal := &types.CreateIncentivesScheduleProposal{
-		Title:       "title",
-		Description: "description",
-		StartTime:   mockSchedule.StartTime,
-		EndTime:     mockSchedule.EndTime,
-		Amount:      mockSchedule.TotalAmount,
+	msgServer := keeper.NewMsgServerImpl(app.IncentivesKeeper)
+	req := &types.MsgCreateSchedule{
+		Authority: govModuleAccount,
+		StartTime: mockSchedule.StartTime,
+		EndTime:   mockSchedule.EndTime,
+		Amount:    mockSchedule.TotalAmount,
 	}
-	require.NoError(t, hdlr(ctx, proposal))
+	_, err := msgServer.CreateSchedule(ctx, req)
+	require.NoError(t, err)
 
 	_, found := app.IncentivesKeeper.GetSchedule(ctx, 1)
 	require.True(t, found)
 }
 
 func TestTerminateSchedulesProposalPassed(t *testing.T) {
-	ctx, app := setupHandlerTest()
+	ctx, app := setupMsgServerTest()
 
 	app.IncentivesKeeper.SetSchedule(ctx, mockSchedule)
 
-	hdlr := incentives.NewProposalHandler(app.IncentivesKeeper)
-	proposal := &types.TerminateIncentivesSchedulesProposal{
-		Title:       "title",
-		Description: "description",
-		Ids:         []uint64{1},
+	msgServer := keeper.NewMsgServerImpl(app.IncentivesKeeper)
+	req := &types.MsgTerminateSchedules{
+		Authority: govModuleAccount,
+		Ids:       []uint64{1},
 	}
-	require.NoError(t, hdlr(ctx, proposal))
+	_, err := msgServer.TerminateSchedules(ctx, req)
+	require.NoError(t, err)
 
 	_, found := app.IncentivesKeeper.GetSchedule(ctx, 1)
 	require.False(t, found)
+}
+
+func TestNotAuthority(t *testing.T) {
+	ctx, app := setupMsgServerTest()
+
+	msgServer := keeper.NewMsgServerImpl(app.IncentivesKeeper)
+	req := &types.MsgCreateSchedule{
+		Authority: notGovModuleAccount,
+		StartTime: mockSchedule.StartTime,
+		EndTime:   mockSchedule.EndTime,
+		Amount:    mockSchedule.TotalAmount,
+	}
+	_, err := msgServer.CreateSchedule(ctx, req)
+	require.Error(t, err, govtypes.ErrInvalidSigner)
 }

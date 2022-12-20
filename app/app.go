@@ -103,11 +103,9 @@ import (
 
 	// mars modules
 	"github.com/mars-protocol/hub/x/incentives"
-	incentivesclient "github.com/mars-protocol/hub/x/incentives/client"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
 	"github.com/mars-protocol/hub/x/safety"
-	safetyclient "github.com/mars-protocol/hub/x/safety/client"
 	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
 	safetytypes "github.com/mars-protocol/hub/x/safety/types"
 
@@ -169,9 +167,6 @@ var (
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-		incentivesclient.CreateIncentivesProposalHandler,
-		incentivesclient.TerminateIncentivesProposalHandler,
-		safetyclient.SafetyFundSpendProposalHandler,
 	)
 
 	// module account permissions
@@ -311,6 +306,9 @@ func NewMarsApp(
 
 	// **** create keepers ****
 
+	// address of the gov module account
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+
 	app.ParamsKeeper = initParamsKeeper(
 		codec,
 		legacyAmino,
@@ -374,7 +372,7 @@ func NewMarsApp(
 		codec,
 		homePath,
 		app.BaseApp,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authority,
 	)
 
 	// staking keeper and its dependencies
@@ -478,8 +476,13 @@ func NewMarsApp(
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.StakingKeeper,
+		authority,
 	)
-	app.SafetyKeeper = safetykeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
+	app.SafetyKeeper = safetykeeper.NewKeeper(
+		app.AccountKeeper,
+		app.BankKeeper,
+		authority,
+	)
 
 	// finally, create gov keeper
 	//
@@ -830,8 +833,6 @@ func initGovRouter(app *MarsApp) govv1beta1.Router {
 	govRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
-	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
-	govRouter.AddRoute(safetytypes.RouterKey, safety.NewProposalHandler(app.SafetyKeeper))
 
 	return govRouter
 }

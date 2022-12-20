@@ -14,16 +14,17 @@ import (
 type Keeper struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
+	authority     string
 }
 
 // NewKeeper creates a new Keeper instance
-func NewKeeper(accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, authority string) Keeper {
 	// ensure the module account is set
 	if accountKeeper.GetModuleAddress(types.ModuleName) == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	return Keeper{accountKeeper, bankKeeper}
+	return Keeper{accountKeeper, bankKeeper, authority}
 }
 
 // Logger returns a module-specific logger
