@@ -9,7 +9,6 @@ import (
 
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -39,18 +38,10 @@ type VotingPower struct {
 }
 
 func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *marsapp.MarsApp, proposal govv1.Proposal, valoper sdk.AccAddress, voters []sdk.AccAddress) {
-	app = marsapptesting.MakeMockApp()
-	ctx = app.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
-
 	accts := marsapptesting.MakeRandomAccounts(len(votingPowers) + 2)
 	deployer := accts[0]
 	valoper = accts[1]
 	voters = accts[2:]
-
-	pks := simapp.CreateTestPubKeys(1)
-	valPubKey := pks[0]
-
-	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper)
 
 	// calculate the sum of tokens staked and in vesting
 	totalStaked := sdk.ZeroInt()
@@ -60,49 +51,25 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 		totalVesting = totalVesting.Add(sdk.NewInt(votingPower.Vesting))
 	}
 
-	// register voter accounts at the auth module
-	for _, voter := range voters {
-		app.AccountKeeper.SetAccount(ctx, authtypes.NewBaseAccountWithAddress(voter))
-	}
-
 	// set mars token balance for deployer and voters
 	balances := []banktypes.Balance{{
 		Address: deployer.String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin("umars", totalVesting)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(marsapp.BondDenom, totalVesting)),
 	}}
 	for idx, votingPower := range votingPowers {
 		balances = append(balances, banktypes.Balance{
 			Address: voters[idx].String(),
-			Coins:   sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(votingPower.Staked))),
+			Coins:   sdk.NewCoins(sdk.NewCoin(marsapp.BondDenom, sdk.NewInt(votingPower.Staked))),
 		})
 	}
 
-	app.BankKeeper.InitGenesis(
-		ctx,
-		&banktypes.GenesisState{
-			Params: banktypes.Params{
-				DefaultSendEnabled: true, // must set this to true so that tokens can be transferred
-			},
-			Balances: balances,
-		},
-	)
+	app = marsapptesting.MakeMockApp(accts, balances, []sdk.AccAddress{valoper}, sdk.NewCoins())
+	ctx = app.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
-	// set bond denom to `umars`
-	stakingParams := app.StakingKeeper.GetParams(ctx)
-	stakingParams.BondDenom = "umars"
-	app.StakingKeeper.SetParams(ctx, stakingParams)
-
-	// create validator
-	// NOTE: the validator's status must be set to as bonded
-	val, err := stakingtypes.NewValidator(sdk.ValAddress(valoper), valPubKey, stakingtypes.Description{})
-	val.Status = stakingtypes.Bonded
-	require.NoError(t, err)
-	require.True(t, val.IsBonded())
-
-	app.StakingKeeper.SetValidator(ctx, val)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, val)
-	app.StakingKeeper.SetValidatorByPowerIndex(ctx, val)
-	app.StakingKeeper.AfterValidatorCreated(ctx, val.GetOperator()) // required to initialize distr keeper properly
+	// register voter accounts at the auth module
+	for _, voter := range voters {
+		app.AccountKeeper.SetAccount(ctx, authtypes.NewBaseAccountWithAddress(voter))
+	}
 
 	// voters make delegations
 	for idx, votingPower := range votingPowers {
@@ -110,7 +77,7 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 			val, found := app.StakingKeeper.GetValidator(ctx, sdk.ValAddress(valoper))
 			require.True(t, found)
 
-			_, err = app.StakingKeeper.Delegate(
+			_, err := app.StakingKeeper.Delegate(
 				ctx,
 				voters[idx],
 				sdk.NewInt(votingPower.Staked),
@@ -121,6 +88,8 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 			require.NoError(t, err)
 		}
 	}
+
+	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper)
 
 	// store vesting contract code
 	codeID, _, err := contractKeeper.Create(ctx, deployer, testdata.VestingWasm, nil)
@@ -160,11 +129,10 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 				contractAddr,
 				deployer,
 				executeMsg,
-				sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(votingPower.Vesting))),
+				sdk.NewCoins(sdk.NewCoin(marsapp.BondDenom, sdk.NewInt(votingPower.Vesting))),
 			)
 			require.NoError(t, err)
 		}
-
 	}
 
 	// create a governance proposal
@@ -183,19 +151,20 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 // verify that the test is properly setup
 func TestTallyProperSetup(t *testing.T) {
 	votingPowers := []VotingPower{
-		{Staked: 30, Vesting: 21},
-		{Staked: 49, Vesting: 0},
+		{Staked: 30_000_000, Vesting: 20_000_000},
+		{Staked: 49_000_000, Vesting: 0},
 	}
 
 	ctx, app, proposal, valoper, voters := setupTest(t, votingPowers)
 
 	// total staked token amount should be correct
-	require.Equal(t, sdk.NewInt(79), app.StakingKeeper.TotalBondedTokens(ctx))
+	// 30 from voter[0] + 49 from voter[1] + 1 from valoper
+	require.Equal(t, sdk.NewInt(80_000_000), app.StakingKeeper.TotalBondedTokens(ctx))
 
 	// validator should have been registered
 	val, found := app.StakingKeeper.GetValidator(ctx, sdk.ValAddress(valoper))
 	require.True(t, found)
-	require.Equal(t, sdk.NewInt(79), val.Tokens)
+	require.Equal(t, sdk.NewInt(80_000_000), val.Tokens)
 
 	// staked token amount for each voter should be correct
 	for idx, votingPower := range votingPowers {
@@ -232,8 +201,8 @@ func TestTallyProperSetup(t *testing.T) {
 // voters[0] votes with a small voting power; voters[1] with a large voting power does not vote
 func TestTallyNoQuorum(t *testing.T) {
 	ctx, app, proposal, _, voters := setupTest(t, []VotingPower{
-		{Staked: 1, Vesting: 1},
-		{Staked: 100, Vesting: 100},
+		{Staked: 1_000_000, Vesting: 1_000_000},
+		{Staked: 100_000_000, Vesting: 100_000_000},
 	})
 
 	// voters[0] votes yes
@@ -244,30 +213,42 @@ func TestTallyNoQuorum(t *testing.T) {
 	require.False(t, burnDeposits) // different from native sdk, we don't burn deposit here
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.NewInt(2), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(2_000_000), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
 
+// voter[0] has 49 + 50 = 99 voting power, votes abstain
+// valoper also votes abstain
+// such that all eligible voters vote abstain
 func TestTallyOnlyAbstain(t *testing.T) {
-	ctx, app, proposal, _, voters := setupTest(t, []VotingPower{{Staked: 50, Vesting: 50}})
+	ctx, app, proposal, valoper, voters := setupTest(t, []VotingPower{
+		{Staked: 49_000_000, Vesting: 50_000_000},
+	})
 
 	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionAbstain), ""))
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, valoper, govv1.NewNonSplitVoteOption(govv1.OptionAbstain), ""))
 
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(100), sdk.ZeroInt(), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(100_000_000), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
 
+// voter[0] votes veto with 34 voting power
+// voter[1] and valoper abstain with their 66 power
+// final result: 66 abstain, 34 veto
+//
+// NOTE: the 1/3 veto threshold refers to 1/3 of *all votes*, including
+// abstaining votes
 func TestTallyVeto(t *testing.T) {
 	ctx, app, proposal, valoper, voters := setupTest(t, []VotingPower{
-		{Staked: 0, Vesting: 34},
-		{Staked: 50, Vesting: 16}, // NOTE: validator only votes with the 50 staked tokens, not the 16 vesting tokens
+		{Staked: 0, Vesting: 34_000_000},
+		{Staked: 49_000_000, Vesting: 16_000_000},
 	})
 
 	// validator abstains
@@ -276,21 +257,30 @@ func TestTallyVeto(t *testing.T) {
 	// voters[0] votes veto
 	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionNoWithVeto), ""))
 
+	// voter[1] abstains
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[1], govv1.NewNonSplitVoteOption(govv1.OptionAbstain), ""))
+
 	passes, burnDeposits, tallyResults := app.GovKeeper.Tally(ctx, proposal)
 	require.False(t, passes)
 	require.True(t, burnDeposits)
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(50), sdk.ZeroInt(), sdk.NewInt(34)),
+		govv1.NewTallyResult(sdk.ZeroInt(), sdk.NewInt(66_000_000), sdk.ZeroInt(), sdk.NewInt(34_000_000)),
 		tallyResults,
 	)
 }
 
+// valoper votes no with 1 power
+// voter[0] votes no with 50 power
+// voter[1] votes yes with 49 power
 func TestTallyNo(t *testing.T) {
-	ctx, app, proposal, _, voters := setupTest(t, []VotingPower{
-		{Staked: 25, Vesting: 26},
-		{Staked: 0, Vesting: 49},
+	ctx, app, proposal, valoper, voters := setupTest(t, []VotingPower{
+		{Staked: 25_000_000, Vesting: 25_000_000},
+		{Staked: 0, Vesting: 49_000_000},
 	})
+
+	// valoper votes no
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, valoper, govv1.NewNonSplitVoteOption(govv1.OptionNo), ""))
 
 	// voters[0] votes no
 	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionNo), ""))
@@ -303,16 +293,22 @@ func TestTallyNo(t *testing.T) {
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(49_000_000), sdk.ZeroInt(), sdk.NewInt(51_000_000), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
 
+// valoper votes yes with 1 power
+// voter[0] votes yes with 50 power
+// voter[1] votes no with 49 power
 func TestTallyYes(t *testing.T) {
-	ctx, app, proposal, _, voters := setupTest(t, []VotingPower{
-		{Staked: 25, Vesting: 26},
-		{Staked: 0, Vesting: 49},
+	ctx, app, proposal, valoper, voters := setupTest(t, []VotingPower{
+		{Staked: 25_000_000, Vesting: 25_000_000},
+		{Staked: 0, Vesting: 49_000_000},
 	})
+
+	// valoper votes yes
+	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, valoper, govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
 
 	// voters[0] votes yes
 	app.GovKeeper.SetVote(ctx, govv1.NewVote(proposal.Id, voters[0], govv1.NewNonSplitVoteOption(govv1.OptionYes), ""))
@@ -325,7 +321,7 @@ func TestTallyYes(t *testing.T) {
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.NewInt(51), sdk.ZeroInt(), sdk.NewInt(49), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(51_000_000), sdk.ZeroInt(), sdk.NewInt(49_000_000), sdk.ZeroInt()),
 		tallyResults,
 	)
 }
@@ -335,8 +331,8 @@ func TestTallyYes(t *testing.T) {
 // the final result should be 51 no vs 49 yes, proposal fails
 func TestTallyValidatorVoteOverride(t *testing.T) {
 	ctx, app, proposal, valoper, voters := setupTest(t, []VotingPower{
-		{Staked: 30, Vesting: 21},
-		{Staked: 49, Vesting: 0},
+		{Staked: 30_000_000, Vesting: 21_000_000},
+		{Staked: 48_000_000, Vesting: 0},
 	})
 
 	// validator votes yes
@@ -352,7 +348,7 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.NewInt(79), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(79_000_000), sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroInt()),
 		tallyResults,
 	)
 
@@ -364,7 +360,7 @@ func TestTallyValidatorVoteOverride(t *testing.T) {
 	require.False(t, burnDeposits)
 	require.Equal(
 		t,
-		govv1.NewTallyResult(sdk.NewInt(49), sdk.ZeroInt(), sdk.NewInt(51), sdk.ZeroInt()),
+		govv1.NewTallyResult(sdk.NewInt(49_000_000), sdk.ZeroInt(), sdk.NewInt(51_000_000), sdk.ZeroInt()),
 		tallyResults,
 	)
 }

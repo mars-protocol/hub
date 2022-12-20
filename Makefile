@@ -127,20 +127,26 @@ test:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.11.3
-protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
-protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+# We use osmolabs' docker image instead of tendermintdev/sdk-proto-gen.
+# The only difference is that the Osmosis version uses Go 1.19 while the
+# tendermintdev one uses 1.18.
+protoVer=v0.8
+protoImageName=osmolabs/osmo-proto-gen:$(protoVer)
+containerProtoGenGo=mars-proto-gen-go-$(protoVer)
+containerProtoGenSwagger=mars-proto-gen-swagger-$(protoVer)
 
 proto-gen: proto-go-gen proto-swagger-gen
 
 proto-go-gen:
 	@echo "🤖 Generating Go code from protobuf..."
-	@$(protoImage) sh ./scripts/protocgen.sh
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGenGo}$$"; then docker start -a $(containerProtoGenGo); else docker run --name $(containerProtoGenGo) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
+		sh ./scripts/protocgen.sh; fi
 	@echo "✅ Completed Go code generation!"
 
 proto-swagger-gen:
 	@echo "🤖 Generating Swagger code from protobuf..."
-	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGenSwagger}$$"; then docker start -a $(containerProtoGenSwagger); else docker run --name $(containerProtoGenSwagger) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
+		sh ./scripts/protoc-swagger-gen.sh; fi
 	@echo "✅ Completed Swagger code generation!"
 
 ###############################################################################
