@@ -1,0 +1,35 @@
+name: Go
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - v*
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Run tests
+        run: make test
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3.2.0
+        with:
+          version: latest
