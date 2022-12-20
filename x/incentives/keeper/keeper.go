@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/mars-protocol/hub/x/incentives/types"
@@ -15,18 +16,21 @@ import (
 // Keeper is the incentives module's keeper
 type Keeper struct {
 	cdc      codec.BinaryCodec
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	distrKeeper   types.DistrKeeper
 	stakingKeeper types.StakingKeeper
+
+	authority string
 }
 
 // NewKeeper creates a new incentives module keeper
 func NewKeeper(
-	cdc codec.BinaryCodec, storeKey sdk.StoreKey, accountKeeper types.AccountKeeper,
+	cdc codec.BinaryCodec, storeKey storetypes.StoreKey, accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper, distrKeeper types.DistrKeeper, stakingKeeper types.StakingKeeper,
+	authority string,
 ) Keeper {
 	// ensure incentives module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -40,6 +44,7 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		distrKeeper:   distrKeeper,
 		stakingKeeper: stakingKeeper,
+		authority:     authority,
 	}
 }
 

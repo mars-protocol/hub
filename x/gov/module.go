@@ -10,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/mars-protocol/hub/x/gov/keeper"
 )
@@ -24,14 +26,16 @@ var _ module.AppModule = AppModule{}
 type AppModule struct {
 	gov.AppModule
 
-	keeper keeper.Keeper
+	keeper        keeper.Keeper
+	accountKeeper govtypes.AccountKeeper
 }
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak govtypes.AccountKeeper, bk govtypes.BankKeeper) AppModule {
 	return AppModule{
-		AppModule: gov.NewAppModule(cdc, keeper.Keeper, ak, bk),
-		keeper:    keeper,
+		AppModule:     gov.NewAppModule(cdc, keeper.Keeper, ak, bk),
+		keeper:        keeper,
+		accountKeeper: ak,
 	}
 }
 
@@ -48,7 +52,14 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 // NOTE: this overwrites the vanilla gov module RegisterServices function
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// msg server - use the vanilla implementation
-	govtypes.RegisterMsgServer(cfg.MsgServer(), govkeeper.NewMsgServerImpl(am.keeper.Keeper))
+	// The changes we've made to execution are in EndBlocker, so the msgServer
+	// doesn't need to be changed.
+	msgServer := govkeeper.NewMsgServerImpl(am.keeper.Keeper)
+	govv1beta1.RegisterMsgServer(cfg.MsgServer(), govkeeper.NewLegacyMsgServerImpl(am.accountKeeper.GetModuleAddress(govtypes.ModuleName).String(), msgServer))
+	govv1.RegisterMsgServer(cfg.MsgServer(), msgServer)
+
 	// query server - use our custom implementation
-	govtypes.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+	queryServer := keeper.NewQueryServerImpl(am.keeper)
+	govv1beta1.RegisterQueryServer(cfg.QueryServer(), keeper.NewLegacyQueryServerImpl(queryServer))
+	govv1.RegisterQueryServer(cfg.QueryServer(), queryServer)
 }

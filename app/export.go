@@ -27,7 +27,7 @@ func (app *MarsApp) ExportAppStateAndValidators(
 		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState := app.mm.ExportGenesis(ctx, app.codec)
+	genState := app.mm.ExportGenesis(ctx, app.Codec)
 	appState, err := json.MarshalIndent(genState, "", "  ")
 	if err != nil {
 		return servertypes.ExportedApp{}, err
@@ -115,7 +115,10 @@ func (app *MarsApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
 		app.DistrKeeper.SetFeePool(ctx, feePool)
 
-		app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
+		if err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
+			panic(err)
+		}
+
 		return false
 	})
 
@@ -124,8 +127,12 @@ func (app *MarsApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		del := delegation.GetDelegatorAddr()
 		val := delegation.GetValidatorAddr()
 
-		app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, del, val)
-		app.DistrKeeper.Hooks().AfterDelegationModified(ctx, del, val)
+		if err := app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, del, val); err != nil {
+			panic(err)
+		}
+		if err := app.DistrKeeper.Hooks().AfterDelegationModified(ctx, del, val); err != nil {
+			panic(err)
+		}
 	}
 
 	// reset context height

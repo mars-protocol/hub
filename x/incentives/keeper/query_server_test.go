@@ -18,7 +18,7 @@ import (
 )
 
 func setupQueryServerTest() (ctx sdk.Context, app *marsapp.MarsApp) {
-	app = marsapptesting.MakeMockApp()
+	app = marsapptesting.MakeSimpleMockApp()
 	ctx = app.BaseApp.NewContext(false, tmproto.Header{})
 
 	for _, schedule := range mockSchedules {

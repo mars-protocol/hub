@@ -4,5 +4,8 @@
 # build
 build/
 
+# testing
+testdata/
+
 # macOS
 .DS_Store

@@ -11,7 +11,7 @@ import (
 func main() {
 	setAddressPrefixes(marsapp.AccountAddressPrefix)
 	rootCmd := NewRootCmd(marsapp.MakeEncodingConfig())
-	if err := svrcmd.Execute(rootCmd, marsapp.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "MARS", marsapp.DefaultNodeHome); err != nil {
 		os.Exit(1)
 	}
 }

@@ -19,7 +19,7 @@ func TotalUnreleasedIncentives(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		expectedTotal := sdk.NewCoins()
 		k.IterateSchedules(ctx, func(schedule types.Schedule) bool {
-			expectedTotal = expectedTotal.Add(schedule.TotalAmount.Sub(schedule.ReleasedAmount)...)
+			expectedTotal = expectedTotal.Add(schedule.TotalAmount.Sub(schedule.ReleasedAmount...)...)
 			return false
 		})
 

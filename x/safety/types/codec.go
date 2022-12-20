@@ -2,13 +2,15 @@ package types
 
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
-		(*govtypes.Content)(nil),
-		&SafetyFundSpendProposal{},
+		(*sdk.Msg)(nil),
+		&MsgSafetyFundSpend{},
 	)
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

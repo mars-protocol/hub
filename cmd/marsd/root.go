@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	tmcfg "github.com/tendermint/tendermint/config"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -49,6 +50,10 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 		Use:   "marsd",
 		Short: "Mars app-chain daemon",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			// set the default command outputs
+			cmd.SetOut(cmd.OutOrStdout())
+			cmd.SetErr(cmd.ErrOrStderr())
+
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
 				return err
@@ -64,7 +69,8 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
+
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmcfg.DefaultConfig())
 		},
 		SilenceUsage: true,
 	}

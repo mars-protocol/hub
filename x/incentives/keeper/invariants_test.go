@@ -16,7 +16,7 @@ import (
 )
 
 func TestUnreleasedIncentivesInvariant(t *testing.T) {
-	app := marsapptesting.MakeMockApp()
+	app := marsapptesting.MakeSimpleMockApp()
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	for _, mockSchedule := range mockSchedulesReleased {

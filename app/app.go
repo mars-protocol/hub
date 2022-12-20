@@ -20,13 +20,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	tmservice "github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	rpc "github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	api "github.com/cosmos/cosmos-sdk/server/api"
 	config "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -63,6 +63,8 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -84,16 +86,16 @@ import (
 	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
 
 	// ibc modules
-	ibctransfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v4/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v4/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	ibcporttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
+	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v6/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v6/modules/core/02-client"
+	ibcclientclient "github.com/cosmos/ibc-go/v6/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 
 	// wasm modules
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -101,11 +103,9 @@ import (
 
 	// mars modules
 	"github.com/mars-protocol/hub/x/incentives"
-	incentivesclient "github.com/mars-protocol/hub/x/incentives/client"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
 	"github.com/mars-protocol/hub/x/safety"
-	safetyclient "github.com/mars-protocol/hub/x/safety/client"
 	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
 	safetytypes "github.com/mars-protocol/hub/x/safety/types"
 
@@ -146,7 +146,7 @@ var (
 		evidence.AppModuleBasic{},
 		feegrantmodule.AppModuleBasic{},
 		genutil.AppModuleBasic{},
-		gov.NewAppModuleBasic(govProposalHandlers...), // gov AppModuleBasic is not customized, so we just use the vanilla one
+		gov.NewAppModuleBasic(govProposalHandlers), // gov AppModuleBasic is not customized, so we just use the vanilla one
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		staking.AppModuleBasic{},
@@ -163,13 +163,10 @@ var (
 		wasmclient.ProposalHandlers,
 		paramsclient.ProposalHandler,
 		distrclient.ProposalHandler,
-		upgradeclient.ProposalHandler,
-		upgradeclient.CancelProposalHandler,
+		upgradeclient.LegacyProposalHandler,
+		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-		incentivesclient.CreateIncentivesProposalHandler,
-		incentivesclient.TerminateIncentivesProposalHandler,
-		safetyclient.SafetyFundSpendProposalHandler,
 	)
 
 	// module account permissions
@@ -214,16 +211,16 @@ type MarsApp struct {
 
 	// codecs
 	legacyAmino       *codec.LegacyAmino
-	codec             codec.Codec
+	Codec             codec.Codec // make codec public for testing purposes
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// invariant check period
 	invCheckPeriod uint
 
 	// keys to access the substores
-	keys    map[string]*sdk.KVStoreKey
-	tkeys   map[string]*sdk.TransientStoreKey
-	memKeys map[string]*sdk.MemoryStoreKey
+	keys    map[string]*storetypes.KVStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
 	AccountKeeper     authkeeper.AccountKeeper
@@ -299,7 +296,7 @@ func NewMarsApp(
 	app := &MarsApp{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
-		codec:             codec,
+		Codec:             codec,
 		interfaceRegistry: interfaceRegistry,
 		invCheckPeriod:    invCheckPeriod,
 		keys:              keys,
@@ -308,6 +305,9 @@ func NewMarsApp(
 	}
 
 	// **** create keepers ****
+
+	// address of the gov module account
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	app.ParamsKeeper = initParamsKeeper(
 		codec,
@@ -318,7 +318,7 @@ func NewMarsApp(
 
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(
-		app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()),
+		app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable()),
 	)
 
 	// add capability keeper and ScopeToModule for ibc module
@@ -340,11 +340,13 @@ func NewMarsApp(
 		getSubspace(app, authtypes.ModuleName),
 		authtypes.ProtoBaseAccount,
 		maccPerms,
+		AccountAddressPrefix,
 	)
 	app.AuthzKeeper = authzkeeper.NewKeeper(
 		keys[authzkeeper.StoreKey],
 		codec,
 		app.BaseApp.MsgServiceRouter(),
+		app.AccountKeeper,
 	)
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		codec,
@@ -369,7 +371,8 @@ func NewMarsApp(
 		keys[upgradetypes.StoreKey],
 		codec,
 		homePath,
-		nil,
+		app.BaseApp,
+		authority,
 	)
 
 	// staking keeper and its dependencies
@@ -389,7 +392,6 @@ func NewMarsApp(
 		app.BankKeeper,
 		&stakingKeeper,
 		authtypes.FeeCollectorName,
-		app.ModuleAccountAddrs(), // we unblock fee collector in bank keeper, but keep blocking it here
 	)
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		codec,
@@ -474,8 +476,13 @@ func NewMarsApp(
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.StakingKeeper,
+		authority,
 	)
-	app.SafetyKeeper = safetykeeper.NewKeeper(app.AccountKeeper, app.BankKeeper)
+	app.SafetyKeeper = safetykeeper.NewKeeper(
+		app.AccountKeeper,
+		app.BankKeeper,
+		authority,
+	)
 
 	// finally, create gov keeper
 	//
@@ -490,6 +497,8 @@ func NewMarsApp(
 		&stakingKeeper,
 		app.WasmKeeper,
 		initGovRouter(app),
+		app.MsgServiceRouter(),
+		govtypes.DefaultConfig(),
 	)
 
 	// **** module options ****
@@ -672,7 +681,7 @@ func (app *MarsApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
-	return app.mm.InitGenesis(ctx, app.codec, genesisState)
+	return app.mm.InitGenesis(ctx, app.Codec, genesisState)
 }
 
 // LoadHeight loads a particular height
@@ -705,27 +714,40 @@ func (app *MarsApp) SimulationManager() *module.SimulationManager {
 func (app *MarsApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 
-	// register RPC routes
-	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
-
-	// register REST routes
+	// register new tx routes from grpc-gateway
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
+	// register new tendermint queries routes from grpc-gateway
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
+	// register grpc-gateway routes for all modules
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API
-	apiSvr.Router.Handle("/swagger.yml", http.FileServer(http.FS(marsdocs.Swagger)))
-	apiSvr.Router.HandleFunc("/swagger/", marsdocs.Handler(Name, "/swagger.yml"))
+	if apiConfig.Swagger {
+		apiSvr.Router.Handle("/swagger.yml", http.FileServer(http.FS(marsdocs.Swagger)))
+		apiSvr.Router.HandleFunc("/swagger/", marsdocs.Handler(Name, "/swagger.yml"))
+	}
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *MarsApp) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+	authtx.RegisterTxService(
+		app.BaseApp.GRPCQueryRouter(),
+		clientCtx,
+		app.BaseApp.Simulate,
+		app.interfaceRegistry,
+	)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *MarsApp) RegisterTendermintService(clientCtx client.Context) {
-	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
+	tmservice.RegisterTendermintService(
+		clientCtx,
+		app.BaseApp.GRPCQueryRouter(),
+		app.interfaceRegistry,
+		app.Query,
+	)
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -784,14 +806,14 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 }
 
 // initializes params keeper and its subspaces
-func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(codec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
-	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
+	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable())
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
@@ -802,17 +824,15 @@ func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, k
 }
 
 // initializes governance proposal router
-func initGovRouter(app *MarsApp) govtypes.Router {
-	govRouter := govtypes.NewRouter()
+func initGovRouter(app *MarsApp) govv1beta1.Router {
+	govRouter := govv1beta1.NewRouter()
 
-	govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler)
+	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler)
 	govRouter.AddRoute(paramsproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper))
 	govRouter.AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper))
 	govRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
 	govRouter.AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, getEnabledProposals()))
-	govRouter.AddRoute(incentivestypes.RouterKey, incentives.NewProposalHandler(app.IncentivesKeeper))
-	govRouter.AddRoute(safetytypes.RouterKey, safety.NewProposalHandler(app.SafetyKeeper))
 
 	return govRouter
 }

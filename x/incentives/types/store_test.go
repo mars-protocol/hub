@@ -26,7 +26,7 @@ func TestGetBlockRewardBeforeStart(t *testing.T) {
 
 func TestGetBlockRewardAfterEnd(t *testing.T) {
 	blockReward := mockSchedule.GetBlockReward(time.Unix(42069, 0))
-	expected := mockSchedule.TotalAmount.Sub(mockSchedule.ReleasedAmount)
+	expected := mockSchedule.TotalAmount.Sub(mockSchedule.ReleasedAmount...)
 	require.Equal(t, expected, blockReward)
 }
 
