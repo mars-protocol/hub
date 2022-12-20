@@ -36,7 +36,7 @@ func (ms msgServer) SafetyFundSpend(goCtx context.Context, req *types.MsgSafetyF
 	}
 
 	ms.k.Logger(ctx).Info(
-		"Released coins from safety fund",
+		"released coins from safety fund",
 		"recipient", req.Recipient,
 		"amount", req.Amount.String(),
 	)

@@ -7,8 +7,6 @@ import (
 
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	marsutils "github.com/mars-protocol/hub/utils"
-
 	"github.com/mars-protocol/hub/x/incentives/types"
 )
 
@@ -86,12 +84,6 @@ func (k Keeper) ReleaseBlockReward(ctx sdk.Context, bondedVotes []abci.VoteInfo)
 
 		k.distrKeeper.AllocateTokensToValidator(ctx, validator, reward)
 	}
-
-	k.Logger(ctx).Info(
-		"Released incentives",
-		"ids", marsutils.UintArrayToString(ids, ","),
-		"amount", totalBlockReward.String(),
-	)
 
 	return ids, totalBlockReward
 }

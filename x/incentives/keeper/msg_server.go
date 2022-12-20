@@ -34,7 +34,7 @@ func (ms msgServer) CreateSchedule(goCtx context.Context, req *types.MsgCreateSc
 	}
 
 	ms.k.Logger(ctx).Info(
-		"Incentives schedule created",
+		"incentives schedule created",
 		"id", schedule.Id,
 		"amount", schedule.TotalAmount.String(),
 		"startTime", schedule.StartTime.String(),
@@ -57,7 +57,7 @@ func (ms msgServer) TerminateSchedules(goCtx context.Context, req *types.MsgTerm
 	}
 
 	ms.k.Logger(ctx).Info(
-		"Incentives schedule terminated",
+		"incentives schedule terminated",
 		"ids", marsutils.UintArrayToString(req.Ids, ","),
 		"refundedAmount", amount.String(),
 	)
