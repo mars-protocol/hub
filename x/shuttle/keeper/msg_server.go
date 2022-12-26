@@ -37,9 +37,11 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 	}
 
 	// build the register interchain account message
-	// TODO: what to use as the version string??
-	version := ""
-	msg := icacontrollertypes.NewMsgRegisterInterchainAccount(req.ConnectionId, owner, version)
+	//
+	// we use an empty string as version here. in this case, the ICA controller
+	// middleware will create the default metadata:
+	// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/apps/27-interchain-accounts/controller/keeper/handshake.go#L45-L51
+	msg := icacontrollertypes.NewMsgRegisterInterchainAccount(req.ConnectionId, owner, "")
 
 	// handle the message
 	handler := ms.k.router.Handler(msg)
