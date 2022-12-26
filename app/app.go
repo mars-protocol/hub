@@ -914,6 +914,8 @@ func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, k
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
+	paramsKeeper.Subspace(icacontrollertypes.StoreKey)
+	paramsKeeper.Subspace(icahosttypes.StoreKey)
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
