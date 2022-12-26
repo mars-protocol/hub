@@ -555,6 +555,7 @@ func NewMarsApp(
 		app.AccountKeeper,
 		app.ScopedShuttleKeeper,
 		app.ICAControllerKeeper,
+		app.MsgServiceRouter(),
 		authority,
 	)
 

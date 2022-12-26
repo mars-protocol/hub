@@ -5,6 +5,7 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -20,13 +21,20 @@ type Keeper struct {
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
 
+	// The baseapp's message service router.
+	// We use this to dispatch messages upon successful governance proposals.
+	router *baseapp.MsgServiceRouter
+
+	// The account who can execute shuttle module messages.
+	// Typically, this should be the x/gov module account.
 	authority string
 }
 
 // NewKeeper creates a new shuttle module keeper.
 func NewKeeper(
 	accountKeeper authkeeper.AccountKeeper, scopedKeeper capabilitykeeper.ScopedKeeper,
-	icaControllerKeeper icacontrollerkeeper.Keeper, authority string,
+	icaControllerKeeper icacontrollerkeeper.Keeper, router *baseapp.MsgServiceRouter,
+	authority string,
 ) Keeper {
 	// ensure shuttle module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -37,6 +45,7 @@ func NewKeeper(
 		accountKeeper:       accountKeeper,
 		scopedKeeper:        scopedKeeper,
 		icaControllerKeeper: icaControllerKeeper,
+		router:              router,
 		authority:           authority,
 	}
 }
