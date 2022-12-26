@@ -187,7 +187,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 //   - wasm: MsgExecuteContract, MsgMigrateContract
 //
 // For the others, we simply return the hex encoded bytes.
-func handleMsgData(msgData *sdk.MsgData) (string, error) {
+func handleMsgData(msgData *sdk.MsgData) (string, error) { //nolint:staticcheck // This function parses data from sdk 0.45 chains, so of course it contains deprecated stuff. Not my problem lol
 	switch msgData.MsgType {
 	case sdk.MsgTypeURL(&banktypes.MsgSend{}):
 		return handleProtoMsg[*banktypes.MsgSendResponse](msgData.Data, "bank/MsgSend")
@@ -206,6 +206,7 @@ func handleMsgData(msgData *sdk.MsgData) (string, error) {
 	}
 }
 
+// handleProtoMsg unmarshals bytes into a given proto message and stringifies it.
 func handleProtoMsg[T proto.Message](bz []byte, tyName string) (string, error) {
 	var msg T
 	if err := proto.Unmarshal(bz, msg); err != nil {
