@@ -13,17 +13,14 @@ import (
 	"github.com/mars-protocol/hub/x/shuttle/keeper"
 )
 
-var _ ibcporttypes.IBCModule = IBCModule{}
-
 // IBCModule implements the ICS26 interface for the shuttle module.
 type IBCModule struct{ k keeper.Keeper }
 
 // NewIBCModule creates a new IBCModule given the keeper.
-func NewIBCModule(k keeper.Keeper) IBCModule {
+func NewIBCModule(k keeper.Keeper) ibcporttypes.IBCModule {
 	return IBCModule{k}
 }
 
-// OnChanOpenInit implements the IBCModule interface
 func (im IBCModule) OnChanOpenInit(
 	ctx sdk.Context,
 	order ibcchanneltypes.Order,
@@ -34,10 +31,12 @@ func (im IBCModule) OnChanOpenInit(
 	counterparty ibcchanneltypes.Counterparty,
 	version string,
 ) (string, error) {
+	// the module is supposed to validate the version string here.
+	// however, the version string is provided by the module's msgServer as an
+	// empty string. therefore we skip the validation here.
 	return version, nil
 }
 
-// OnChanOpenTry implements the IBCModule interface
 func (im IBCModule) OnChanOpenTry(
 	ctx sdk.Context,
 	order ibcchanneltypes.Order,
@@ -48,10 +47,13 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty ibcchanneltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
-	return "", nil
+	// ICA channel handshake cannot be initiated from the host chain.
+	// the controller middleware should have rejected this request.
+	// if not, something seriously wrong must have happened, e.g. modules wired
+	// incorrectly in app.go. we panic in this case.
+	panic("UNREACHABLE: shuttle module OnChanOpenTry")
 }
 
-// OnChanOpenAck implements the IBCModule interface
 func (im IBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
@@ -59,47 +61,51 @@ func (im IBCModule) OnChanOpenAck(
 	counterpartyChannelID string,
 	counterpartyVersion string,
 ) error {
+	// counterpartyVersion is already validated by the controller middleware.
+	// we assume it's valid and don't validate again here.
 	return nil
 }
 
-// OnChanOpenConfirm implements the IBCModule interface
 func (im IBCModule) OnChanOpenConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
-	return nil
+	// see the comment in OnChanOpenTry on why we panic here
+	panic("UNREACHABLE: shuttle module OnChanOpenConfirm")
 }
 
-// OnChanCloseInit implements the IBCModule interface
 func (im IBCModule) OnChanCloseInit(
 	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
-	return nil
+	// we don't want to ever close the ICA channel, and provide no message type
+	// for doing so.
+	// if this function is somehow invoked, then something seriously wrong has
+	// happened. we panic in this case.
+	panic("UNREACHABLE: shuttle module OnChanCloseInit")
 }
 
-// OnChanCloseConfirm implements the IBCModule interface
 func (im IBCModule) OnChanCloseConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
-	return nil
+	// see the comment in OnChanCloseInit on why we panic here
+	panic("UNREACHABLE: shuttle module OnChanCloseConfirm")
 }
 
-// OnRecvPacket implements the IBCModule interface
 func (im IBCModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet ibcchanneltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-	// TODO
-	return ibcchanneltypes.NewErrorAcknowledgement(errors.New("UNIMPLEMENTED"))
+	// the ICA controller does not expect to receive any packet.
+	// the controller middleware should have rejected this request.
+	panic("UNREACHABLE: shuttle module OnRecvPacket")
 }
 
-// OnAcknowledgementPacket implements the IBCModule interface
 func (im IBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet ibcchanneltypes.Packet,
@@ -110,7 +116,6 @@ func (im IBCModule) OnAcknowledgementPacket(
 	return errors.New("UNIMPLEMENTED")
 }
 
-// OnTimeoutPacket implements the IBCModule interface.
 func (im IBCModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet ibcchanneltypes.Packet,
