@@ -937,28 +937,23 @@ func initGovRouter(app *MarsApp) govv1beta1.Router {
 
 // initialzies IBC router
 func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
-	// wrap transfer module inside fee middleware
 	var transferStack ibcporttypes.IBCModule
 	transferStack = ibctransfer.NewIBCModule(app.IBCTransferKeeper)
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
 
-	// wrap shuttle module in ICA controller middleware then in fee middleware
 	var icaControllerStack ibcporttypes.IBCModule
 	icaControllerStack = shuttle.NewIBCModule(app.ShuttleKeeper)
 	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
 	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, app.IBCFeeKeeper)
 
-	// wrap ICA host module inside fee middleware
 	var icaHostStack ibcporttypes.IBCModule
 	icaHostStack = icahost.NewIBCModule(app.ICAHostKeeper)
 	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, app.IBCFeeKeeper)
 
-	// wrap wasm module inside fee middleware
 	var wasmStack ibcporttypes.IBCModule
 	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
 	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
 
-	// add modules to the router
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
 	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerStack)
