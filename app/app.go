@@ -119,6 +119,9 @@ import (
 	"github.com/mars-protocol/hub/x/safety"
 	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
 	safetytypes "github.com/mars-protocol/hub/x/safety/types"
+	"github.com/mars-protocol/hub/x/shuttle"
+	shuttlekeeper "github.com/mars-protocol/hub/x/shuttle/keeper"
+	shuttletypes "github.com/mars-protocol/hub/x/shuttle/types"
 
 	marswasm "github.com/mars-protocol/hub/app/wasm"
 	marsdocs "github.com/mars-protocol/hub/docs"
@@ -173,6 +176,7 @@ var (
 		wasm.AppModuleBasic{},
 		incentives.AppModuleBasic{},
 		safety.AppModuleBasic{},
+		shuttle.AppModuleBasic{},
 	)
 
 	// governance proposal handlers
@@ -199,6 +203,7 @@ var (
 		wasm.ModuleName:                {authtypes.Burner},
 		incentivestypes.ModuleName:     nil,
 		safetytypes.ModuleName:         nil,
+		shuttletypes.ModuleName:        nil,
 	}
 )
 
@@ -263,6 +268,7 @@ type MarsApp struct {
 	WasmKeeper          wasm.Keeper
 	IncentivesKeeper    incentiveskeeper.Keeper
 	SafetyKeeper        safetykeeper.Keeper
+	ShuttleKeeper       shuttlekeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
@@ -270,6 +276,7 @@ type MarsApp struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
+	ScopedShuttleKeeper       capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -361,6 +368,7 @@ func NewMarsApp(
 	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
+	app.ScopedShuttleKeeper = app.CapabilityKeeper.ScopeToModule(shuttletypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -543,6 +551,12 @@ func NewMarsApp(
 		app.BankKeeper,
 		authority,
 	)
+	app.ShuttleKeeper = shuttlekeeper.NewKeeper(
+		app.AccountKeeper,
+		app.ScopedShuttleKeeper,
+		app.ICAControllerKeeper,
+		authority,
+	)
 
 	// finally, create gov keeper
 	//
@@ -592,6 +606,7 @@ func NewMarsApp(
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
 		safety.NewAppModule(app.SafetyKeeper),
+		shuttle.NewAppModule(app.ShuttleKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that
@@ -620,6 +635,7 @@ func NewMarsApp(
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
+		shuttletypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -644,6 +660,7 @@ func NewMarsApp(
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
+		shuttletypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -673,6 +690,7 @@ func NewMarsApp(
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
+		shuttletypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -923,7 +941,8 @@ func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
 
 	// wrap shuttle module in ICA controller middleware then in fee middleware
 	var icaControllerStack ibcporttypes.IBCModule
-	icaControllerStack = icacontroller.NewIBCMiddleware(nil, app.ICAControllerKeeper) // TODO: replace nil with shuttle module
+	icaControllerStack = shuttle.NewIBCModule(app.ShuttleKeeper)
+	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
 	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, app.IBCFeeKeeper)
 
 	// wrap ICA host module inside fee middleware
