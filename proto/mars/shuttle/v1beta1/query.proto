@@ -1,0 +1,31 @@
+syntax = "proto3";
+package mars.shuttle.v1beta1;
+
+option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+// Query defines the module's gRPC query service.
+service Query {
+  // Account returns the interchain account owned by the module on a given
+  // connection pair.
+  rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
+    option (google.api.http).get = "/mars/shuttle/v1beta1/account/{connection_id}";
+  }
+
+  // TODO: add a query to enumerate all interchain accounts
+}
+
+// QueryAccountRequest is the request type for the Query/Account RPC method.
+message QueryAccountRequest {
+  // ConnectionId is the identifier of the connection on which the interchain
+  // account is to be queried.
+  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+}
+
+// QueryAccountResponse is the response type for the Query/Account RPC method.
+message QueryAccountResponse {
+  // Address is the interchain account's address.
+  string address = 1;
+}
