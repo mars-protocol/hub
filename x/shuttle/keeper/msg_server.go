@@ -48,7 +48,7 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 	}
 
 	ms.k.Logger(ctx).Info(
-		"initiated handshake process for interchain account registration",
+		"initiated interchain account channel handshake",
 		"connectionID", req.ConnectionId,
 	)
 
