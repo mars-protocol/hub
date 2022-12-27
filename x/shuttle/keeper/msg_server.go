@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -55,4 +56,8 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 	)
 
 	return &types.MsgRegisterAccountResponse{}, nil
+}
+
+func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*types.MsgSendFundsResponse, error) {
+	return nil, fmt.Errorf("UNIMPLEMENTED")
 }
