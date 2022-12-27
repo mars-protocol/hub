@@ -123,6 +123,12 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 		ms.k.distrKeeper.DistributeFromFeePool(ctx, shortfall, owner)
 	}
 
+	// set timeout parameters
+	// we use the timestamp and not the height.
+	// note that the timeoutTimestamp in MsgTransfer is in nanoseconds
+	timeoutHeight := ibcclienttypes.Height{}
+	timeoutTimestamp := uint64(ctx.BlockTime().Add(timeoutTime).UnixNano())
+
 	// send the funds via ICS-20
 	//
 	// because ICS-20 only supports one coin per packet, we need to dispatch a
@@ -138,8 +144,8 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 			coin,
 			owner.String(),
 			address,
-			ibcclienttypes.Height{}, // no timeout height. we use timeout timestamp instead
-			uint64(ctx.BlockTime().Add(timeoutTime).Unix()),
+			timeoutHeight,
+			timeoutTimestamp,
 			memo,
 		)
 		if _, err := handler(ctx, msg); err != nil {
