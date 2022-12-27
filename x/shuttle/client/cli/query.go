@@ -21,6 +21,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		getAccountCmd(),
+		getAccountsCmd(),
 	)
 
 	return cmd
@@ -40,6 +41,33 @@ func getAccountCmd() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Account(cmd.Context(), &types.QueryAccountRequest{ConnectionId: args[0]})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func getAccountsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "accounts",
+		Short: "Query all interchain account owned by the shuttle module",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Accounts(cmd.Context(), &types.QueryAccountsRequest{})
 			if err != nil {
 				return err
 			}
