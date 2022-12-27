@@ -37,9 +37,11 @@ type Schedule struct {
 	StartTime time.Time `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time" yaml:"start_time"`
 	// EndTime is the UNIX timestamp of which this incentives schedule shall finish
 	EndTime time.Time `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time" yaml:"end_time"`
-	// TotalAmount is the total amount of coins that shall be released to stakers throughout the span of this incentives schedule
+	// TotalAmount is the total amount of coins that shall be released to stakers
+	// throughout the span of this incentives schedule
 	TotalAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=total_amount,json=totalAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"total_amount" yaml:"total_amount"`
-	// ReleasedAmount is the amount of coins that have already been released to the stakers as part of this incentives schedule
+	// ReleasedAmount is the amount of coins that have already been released to
+	// the stakers as part of this incentives schedule
 	ReleasedAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=released_amount,json=releasedAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"released_amount" yaml:"released_amount"`
 }
 
