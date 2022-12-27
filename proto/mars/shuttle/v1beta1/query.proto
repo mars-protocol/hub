@@ -14,7 +14,10 @@ service Query {
     option (google.api.http).get = "/mars/shuttle/v1beta1/account/{connection_id}";
   }
 
-  // TODO: add a query to enumerate all interchain accounts
+  // Accounts returns all interchain accounts owned by the module.
+  rpc Accounts(QueryAccountsRequest) returns (QueryAccountsResponse) {
+    option (google.api.http).get = "/mars/shuttle/v1beta1/accounts";
+  }
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
@@ -28,4 +31,19 @@ message QueryAccountRequest {
 message QueryAccountResponse {
   // Address is the interchain account's address.
   string address = 1;
+}
+
+// QueryAccountsRequest is the request type for the Query/Accounts RPC method.
+message QueryAccountsRequest {}
+
+// QueryAccountsResponse is the response type for Query/Accounts RPC method.
+message QueryAccountsResponse {
+  repeated QueryAccountsResponseItem accounts = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryAccountsResponseItem is the repeat unit in the response for the
+// Query/Accounts RPC method.
+message QueryAccountsResponseItem {
+  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+  string address       = 2;
 }

@@ -35,3 +35,29 @@ func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequ
 
 	return &types.QueryAccountResponse{Address: address}, nil
 }
+
+func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	owner := qs.k.GetModuleAddress()
+	portID, err := icatypes.NewControllerPortID(owner.String())
+	if err != nil {
+		return nil, err
+	}
+
+	// the icaControllerKeeper does not provide a method to enumerate interchain
+	// accounts of a particular owner or port id. instead, we simply fetch _all_
+	// interchain accounts and filter them by the port id.
+	allAccounts := qs.k.icaControllerKeeper.GetAllInterchainAccounts(ctx)
+	accounts := []types.QueryAccountsResponseItem{}
+	for _, account := range allAccounts {
+		if account.PortId == portID {
+			accounts = append(accounts, types.QueryAccountsResponseItem{
+				ConnectionId: account.ConnectionId,
+				Address:      account.AccountAddress,
+			})
+		}
+	}
+
+	return &types.QueryAccountsResponse{Accounts: accounts}, nil
+}
