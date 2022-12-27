@@ -8,7 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
 
@@ -18,6 +20,8 @@ import (
 // Keeper is the shuttle module's keeper.
 type Keeper struct {
 	accountKeeper       authkeeper.AccountKeeper
+	bankKeeper          bankkeeper.Keeper
+	distrKeeper         distrkeeper.Keeper
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
 
@@ -32,7 +36,8 @@ type Keeper struct {
 
 // NewKeeper creates a new shuttle module keeper.
 func NewKeeper(
-	accountKeeper authkeeper.AccountKeeper, scopedKeeper capabilitykeeper.ScopedKeeper,
+	accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
+	distrKeeper distrkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper,
 	icaControllerKeeper icacontrollerkeeper.Keeper, router *baseapp.MsgServiceRouter,
 	authority string,
 ) Keeper {
@@ -43,6 +48,8 @@ func NewKeeper(
 
 	return Keeper{
 		accountKeeper:       accountKeeper,
+		bankKeeper:          bankKeeper,
+		distrKeeper:         distrKeeper,
 		scopedKeeper:        scopedKeeper,
 		icaControllerKeeper: icaControllerKeeper,
 		router:              router,

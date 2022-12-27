@@ -553,6 +553,8 @@ func NewMarsApp(
 	)
 	app.ShuttleKeeper = shuttlekeeper.NewKeeper(
 		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
 		app.ScopedShuttleKeeper,
 		app.ICAControllerKeeper,
 		app.MsgServiceRouter(),
