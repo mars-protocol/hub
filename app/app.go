@@ -556,7 +556,6 @@ func NewMarsApp(
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		app.IBCTransferKeeper,
 		app.ICAControllerKeeper,
 		app.ScopedShuttleKeeper,
 		app.MsgServiceRouter(),

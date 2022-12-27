@@ -13,7 +13,6 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	ibcchannelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 
 	"github.com/mars-protocol/hub/x/shuttle/types"
@@ -25,7 +24,6 @@ type Keeper struct {
 	bankKeeper          bankkeeper.Keeper
 	distrKeeper         distrkeeper.Keeper
 	channelKeeper       ibcchannelkeeper.Keeper
-	transferKeeper      ibctransferkeeper.Keeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 
@@ -42,9 +40,8 @@ type Keeper struct {
 func NewKeeper(
 	accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper, channelKeeper ibcchannelkeeper.Keeper,
-	transferKeeper ibctransferkeeper.Keeper, icaControllerKeeper icacontrollerkeeper.Keeper,
-	scopedKeeper capabilitykeeper.ScopedKeeper, router *baseapp.MsgServiceRouter,
-	authority string,
+	icaControllerKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper,
+	router *baseapp.MsgServiceRouter, authority string,
 ) Keeper {
 	// ensure shuttle module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -56,7 +53,6 @@ func NewKeeper(
 		bankKeeper:          bankKeeper,
 		distrKeeper:         distrKeeper,
 		channelKeeper:       channelKeeper,
-		transferKeeper:      transferKeeper,
 		icaControllerKeeper: icaControllerKeeper,
 		scopedKeeper:        scopedKeeper,
 		router:              router,
