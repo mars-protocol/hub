@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
@@ -38,6 +39,10 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 
 func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if req.Authority != ms.k.authority {
+		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+	}
 
 	owner := ms.k.GetModuleAddress().String()
 	portID, err := icatypes.NewControllerPortID(owner)
@@ -74,6 +79,10 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 
 func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*types.MsgSendFundsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if req.Authority != ms.k.authority {
+		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+	}
 
 	owner := ms.k.GetModuleAddress()
 	portID, err := icatypes.NewControllerPortID(owner.String())
