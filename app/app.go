@@ -885,10 +885,14 @@ func getEnabledProposals() []wasm.ProposalType {
 //     community pool in order to
 //     create new incentives schedules upon successful governance proposals
 //
+//   - `shuttle`, so that it can draw funds from the community pool;
+//     additionally, if an ICS-20 packet times out, it can receive the refund.
+//
 // Further note on the 2nd point: the distrkeeper's `DistributeFromFeePool`
 // function uses bankkeeper's `SendCoinsFromModuleToAccount` instead of
 // `SendCoinsFromModuleToModule`. If it had used `FromModuleToModule`
-// then we won't need to allow incentives module account to receive funds here.
+// then we won't need to allow incentives and shuttle module accounts to receive
+// funds here.
 //
 // Forked from: https://github.com/cosmos/gaia/pull/1493
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
@@ -897,6 +901,7 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(incentivestypes.ModuleName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(safetytypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(shuttletypes.ModuleName).String())
 
 	return modAccAddrs
 }
