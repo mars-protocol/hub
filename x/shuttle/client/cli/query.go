@@ -58,7 +58,7 @@ func getAccountsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "accounts",
 		Short: "Query all interchain account owned by the shuttle module",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
