@@ -13,6 +13,8 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	ibcchannelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
@@ -22,8 +24,10 @@ type Keeper struct {
 	accountKeeper       authkeeper.AccountKeeper
 	bankKeeper          bankkeeper.Keeper
 	distrKeeper         distrkeeper.Keeper
-	scopedKeeper        capabilitykeeper.ScopedKeeper
+	channelKeeper       ibcchannelkeeper.Keeper
+	transferKeeper      ibctransferkeeper.Keeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
+	scopedKeeper        capabilitykeeper.ScopedKeeper
 
 	// The baseapp's message service router.
 	// We use this to dispatch messages upon successful governance proposals.
@@ -37,8 +41,9 @@ type Keeper struct {
 // NewKeeper creates a new shuttle module keeper.
 func NewKeeper(
 	accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
-	distrKeeper distrkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper,
-	icaControllerKeeper icacontrollerkeeper.Keeper, router *baseapp.MsgServiceRouter,
+	distrKeeper distrkeeper.Keeper, channelKeeper ibcchannelkeeper.Keeper,
+	transferKeeper ibctransferkeeper.Keeper, icaControllerKeeper icacontrollerkeeper.Keeper,
+	scopedKeeper capabilitykeeper.ScopedKeeper, router *baseapp.MsgServiceRouter,
 	authority string,
 ) Keeper {
 	// ensure shuttle module account is set
@@ -50,8 +55,10 @@ func NewKeeper(
 		accountKeeper:       accountKeeper,
 		bankKeeper:          bankKeeper,
 		distrKeeper:         distrKeeper,
-		scopedKeeper:        scopedKeeper,
+		channelKeeper:       channelKeeper,
+		transferKeeper:      transferKeeper,
 		icaControllerKeeper: icaControllerKeeper,
+		scopedKeeper:        scopedKeeper,
 		router:              router,
 		authority:           authority,
 	}
