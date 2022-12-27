@@ -101,7 +101,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	connectionID := channel.ConnectionHops[0]
 	address, found := ms.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrAccountNotFound, "no interchain account already exists on %s", connectionID)
+		return nil, sdkerrors.Wrapf(types.ErrAccountNotFound, "no interchain account exists on %s", connectionID)
 	}
 
 	// find token balances of the shuttle module account
