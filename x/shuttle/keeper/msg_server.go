@@ -65,9 +65,14 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 
 	// handle the message
 	handler := ms.k.router.Handler(msg)
-	if _, err = handler(ctx, msg); err != nil {
+	res, err := handler(ctx, msg)
+	if err != nil {
 		return nil, err
 	}
+
+	// IMPORTANT: emit the events!
+	// the IBC relayer listens to these events
+	ctx.EventManager().EmitEvents(res.GetEvents())
 
 	ms.k.Logger(ctx).Info(
 		"initiated interchain account channel handshake",
@@ -149,9 +154,14 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 		)
 
 		handler := ms.k.router.Handler(msg)
-		if _, err := handler(ctx, msg); err != nil {
+		res, err := handler(ctx, msg)
+		if err != nil {
 			return nil, err
 		}
+
+		// IMPORTANT: emit the events!
+		// the IBC relayer listens to these events
+		ctx.EventManager().EmitEvents(res.GetEvents())
 	}
 
 	ms.k.Logger(ctx).Info(
