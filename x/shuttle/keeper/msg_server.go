@@ -24,7 +24,7 @@ const (
 	//
 	// Currently we set this as a constant of 5 minutes. Should be make this a
 	// configurable parameter? Or a part of the proposal?
-	timeoutTime = 5 * time.Minute
+	timeoutTime = 15 * time.Minute
 
 	// memo is the memo string to be attached to ICS-20 packets.
 	//
