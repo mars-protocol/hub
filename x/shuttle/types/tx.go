@@ -78,6 +78,11 @@ func (m *MsgSendMessages) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidProposalMsg, err.Error())
 	}
 
+	// there must be at least one message
+	if len(msgs) < 1 {
+		return sdkerrors.Wrap(ErrInvalidProposalMsg, "proposal must contain at least one message")
+	}
+
 	// all messages must be valid and have at most 1 signer
 	//
 	// ideally we also want to make sure that this one signer matches the
