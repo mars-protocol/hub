@@ -27,7 +27,6 @@ var (
 // MsgRegisterAccount
 //------------------------------------------------------------------------------
 
-// ValidateBasic does a sanity check on the provided data
 func (m *MsgRegisterAccount) ValidateBasic() error {
 	// the authority address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
@@ -37,7 +36,6 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the expected signers for the message
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 	// we have already asserted that the authority address is valid in
 	// ValidateBasic, so can ignore the error here
@@ -49,7 +47,6 @@ func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 // MsgSendFunds
 //------------------------------------------------------------------------------
 
-// ValidateBasic does a sanity check on the provided data
 func (m *MsgSendFunds) ValidateBasic() error {
 	// the authority address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
@@ -64,7 +61,6 @@ func (m *MsgSendFunds) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the expected signers for the message
 func (m *MsgSendFunds) GetSigners() []sdk.AccAddress {
 	// we have already asserted that the authority address is valid in
 	// ValidateBasic, so can ignore the error here
@@ -76,7 +72,6 @@ func (m *MsgSendFunds) GetSigners() []sdk.AccAddress {
 // MsgSendMessages
 //------------------------------------------------------------------------------
 
-// ValidateBasic does a sanity check on the provided data
 func (m *MsgSendMessages) ValidateBasic() error {
 	// the authority address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
@@ -112,7 +107,6 @@ func (m *MsgSendMessages) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the expected signers for the message
 func (m *MsgSendMessages) GetSigners() []sdk.AccAddress {
 	// we have already asserted that the authority address is valid in
 	// ValidateBasic, so can ignore the error here
