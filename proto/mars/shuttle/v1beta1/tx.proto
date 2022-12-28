@@ -33,6 +33,10 @@ service Msg {
   rpc SendMessages(MsgSendMessages) returns (MsgSendMessagesResponse);
 }
 
+//------------------------------------------------------------------------------
+// RegisterAccount
+//------------------------------------------------------------------------------
+
 // MsgRegisterAccount is the request type for the Msg/RegisterAccount RPC method.
 //
 // This message is typically executed via a governance proposal with the gov
@@ -54,6 +58,10 @@ message MsgRegisterAccount {
 // MsgRegisterAccountResponse is the response type for the Msg/RegisterAccount
 // RPC method.
 message MsgRegisterAccountResponse {}
+
+//------------------------------------------------------------------------------
+// SendFunds
+//------------------------------------------------------------------------------
 
 // MsgSendFunds is the request type for the Msg/SendFunds RPC method.
 //
@@ -88,6 +96,10 @@ message MsgSendFunds {
 
 // MsgSendFundsResponse is the respones type for the Msg/SendFunds RPC method.
 message MsgSendFundsResponse {}
+
+//------------------------------------------------------------------------------
+// SendMessages
+//------------------------------------------------------------------------------
 
 // MsgSendMessages is the request type for the Msg/SendMessages RPC method.
 //

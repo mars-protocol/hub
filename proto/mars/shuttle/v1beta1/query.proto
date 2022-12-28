@@ -20,6 +20,10 @@ service Query {
   }
 }
 
+//------------------------------------------------------------------------------
+// Account
+//------------------------------------------------------------------------------
+
 // QueryAccountRequest is the request type for the Query/Account RPC method.
 message QueryAccountRequest {
   // ConnectionId is the identifier of the connection on which the interchain
@@ -32,6 +36,10 @@ message QueryAccountResponse {
   // Address is the interchain account's address.
   string address = 1;
 }
+
+//------------------------------------------------------------------------------
+// Accounts
+//------------------------------------------------------------------------------
 
 // QueryAccountsRequest is the request type for the Query/Accounts RPC method.
 message QueryAccountsRequest {}
