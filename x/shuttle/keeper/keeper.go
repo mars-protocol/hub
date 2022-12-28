@@ -6,6 +6,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -21,6 +22,8 @@ import (
 
 // Keeper is the shuttle module's keeper.
 type Keeper struct {
+	cdc codec.Codec
+
 	accountKeeper       authkeeper.AccountKeeper
 	bankKeeper          bankkeeper.Keeper
 	distrKeeper         distrkeeper.Keeper
@@ -39,9 +42,10 @@ type Keeper struct {
 
 // NewKeeper creates a new shuttle module keeper.
 func NewKeeper(
-	accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
-	distrKeeper distrkeeper.Keeper, channelKeeper ibcchannelkeeper.Keeper,
-	icaControllerKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper,
+	cdc codec.Codec, accountKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper, distrKeeper distrkeeper.Keeper,
+	channelKeeper ibcchannelkeeper.Keeper, icaControllerKeeper icacontrollerkeeper.Keeper,
+	scopedKeeper capabilitykeeper.ScopedKeeper,
 	router *baseapp.MsgServiceRouter, authority string,
 ) Keeper {
 	// ensure shuttle module account is set

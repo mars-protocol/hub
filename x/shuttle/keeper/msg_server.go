@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gogo/protobuf/proto"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 
@@ -171,6 +175,51 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 }
 
 func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessages) (*types.MsgSendMessagesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if req.Authority != ms.k.authority {
+		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+	}
+
+	owner := ms.k.GetModuleAddress()
+
+	protoMsgs, err := convertToProtoMessages(req.Messages)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := icatypes.SerializeCosmosTx(ms.k.cdc, protoMsgs)
+	if err != nil {
+		return nil, err
+	}
+
+	packetData := icatypes.InterchainAccountPacketData{
+		Type: icatypes.EXECUTE_TX,
+		Data: data,
+		Memo: memo,
+	}
+	msg := icacontrollertypes.NewMsgSendTx(
+		owner.String(),
+		req.ConnectionId,
+		uint64(timeoutTime.Seconds()),
+		packetData,
+	)
+
+	res, err := ms.k.executeMsg(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// IMPORTANT: emit the events!
+	// the IBC relayer listens to these events
+	ctx.EventManager().EmitEvents(res.GetEvents())
+
+	ms.k.Logger(ctx).Info(
+		"initiated ICS-20 transfer(s) to interchain account",
+		"connectionID", req.ConnectionId,
+		"numMsgs", len(req.Messages),
+	)
+
 	return nil, fmt.Errorf("UNIMPLEMENTED")
 }
 
@@ -181,4 +230,31 @@ func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessag
 // {2A, 3B, 4C} - {1A, 5B, 3D} = {1A, 4C}
 func saturateSub(coinsA sdk.Coins, coinsB sdk.Coins) sdk.Coins {
 	return coinsA.Sub(coinsA.Min(coinsB)...)
+}
+
+// getProtoMessages converts []*codectypes.Any to []proto.Message; returns error
+// if any of the Any's does not implemenent the proto.Message interface.
+//
+// In ../types/tx.go we use sdktx.GetMsgs to convert []*Any to []sdk.Msg.
+// Why can't we do the same here? Because the function we want to call next
+// wants []proto.Message instead of []sdk.Msg.
+//
+// Despite sdk.Msg is defined by extending proto.Message (and thus inherits all
+// the functions required by the proto.Message interface), a function that takes
+// a []proto.Message as argument will not accept []sdk.Msg!
+//
+// Instead, we need to explicitly build a []proto.Message.
+func convertToProtoMessages(anys []*codectypes.Any) ([]proto.Message, error) {
+	protoMsgs := []proto.Message{}
+
+	for _, any := range anys {
+		protoMsg, ok := any.GetCachedValue().(proto.Message)
+		if !ok {
+			return nil, sdkerrors.Wrapf(types.ErrInvalidProposalMsg, "%s does not implement the proto.Message interface", any.TypeUrl)
+		}
+
+		protoMsgs = append(protoMsgs, protoMsg)
+	}
+
+	return protoMsgs, nil
 }
