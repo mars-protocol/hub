@@ -78,13 +78,15 @@ func (m *MsgSendMessages) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidProposalMsg, err.Error())
 	}
 
-	// all messages must be valid
+	// all messages must be valid and have at most 1 signer
 	for _, msg := range msgs {
 		if err = msg.ValidateBasic(); err != nil {
 			return sdkerrors.Wrap(ErrInvalidProposalMsg, err.Error())
 		}
 
-		// TODO: should be check the messages' signers?
+		if len(msg.GetSigners()) > 1 {
+			return sdkerrors.Wrapf(ErrInvalidProposalMsg, "msg type %s has more than 1 signers", sdk.MsgTypeURL(msg))
+		}
 	}
 
 	return nil
