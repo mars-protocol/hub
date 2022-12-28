@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -220,7 +219,7 @@ func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessag
 		"numMsgs", len(req.Messages),
 	)
 
-	return nil, fmt.Errorf("UNIMPLEMENTED")
+	return &types.MsgSendMessagesResponse{}, nil
 }
 
 // saturateSub subtracts a set of coins from another. If the amount goes below
