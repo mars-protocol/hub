@@ -89,21 +89,19 @@ func (m *MsgSendMessages) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidProposalMsg, "proposal must contain at least one message")
 	}
 
-	// all messages must be valid and have at most 1 signer
+	// ideally, we want to check each message:
 	//
-	// ideally we also want to make sure that this one signer matches the
-	// interchain account's address. however this is a stateful check, while in
-	// ValidateBasic we're only allowed to do stateless checks.
-	for _, msg := range msgs {
-		if err = msg.ValidateBasic(); err != nil {
-			return sdkerrors.Wrap(ErrInvalidProposalMsg, err.Error())
-		}
-
-		if len(msg.GetSigners()) > 1 {
-			return sdkerrors.Wrapf(ErrInvalidProposalMsg, "msg type %s has more than 1 signers", sdk.MsgTypeURL(msg))
-		}
-	}
-
+	//  1. is valid (run msg.ValidateBasic)
+	//  2. has only one signer
+	//  3. this one signer is the interchain account
+	//
+	// unfortunately, these are not possible:
+	//
+	//  - for 1 and 2, the signer addresses has the host chain's bech prefix,
+	//    this would cause ValidateBasic and GetSigners to fail, despite the
+	//    message is perfectly valid.
+	//  - for 3, this is a stateful check (we need to query the ICA's address)
+	//    while in ValidateBasic we can only do stateless checks.
 	return nil
 }
 
