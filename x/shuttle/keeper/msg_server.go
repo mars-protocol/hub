@@ -27,9 +27,7 @@ const (
 	timeoutTime = 15 * time.Minute
 
 	// memo is the memo string to be attached to ICS-20 packets.
-	//
-	// TODO: think of something cool to use as memo
-	memo = ""
+	memo = "🛰️ INCOMING TRANSMISSION FROM MARS HUB"
 )
 
 type msgServer struct{ k Keeper }
