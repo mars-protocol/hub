@@ -1,6 +1,7 @@
 package types
 
 import (
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdktx "github.com/cosmos/cosmos-sdk/types/tx"
@@ -10,6 +11,16 @@ var (
 	_ sdk.Msg = &MsgRegisterAccount{}
 	_ sdk.Msg = &MsgSendFunds{}
 	_ sdk.Msg = &MsgSendMessages{}
+
+	// IMPORTANT: must implement this interface so that the GetCachedValue
+	// method will work.
+	//
+	// docs:
+	// https://docs.cosmos.network/main/core/encoding#interface-encoding-and-usage-of-any
+	//
+	// example in gov v1:
+	// https://github.com/cosmos/cosmos-sdk/blob/v0.46.7/x/gov/types/v1/msgs.go#L97
+	_ codectypes.UnpackInterfacesMessage = MsgSendMessages{}
 )
 
 //------------------------------------------------------------------------------
@@ -107,4 +118,8 @@ func (m *MsgSendMessages) GetSigners() []sdk.AccAddress {
 	// ValidateBasic, so can ignore the error here
 	addr, _ := sdk.AccAddressFromBech32(m.Authority)
 	return []sdk.AccAddress{addr}
+}
+
+func (m MsgSendMessages) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	return sdktx.UnpackInterfaces(unpacker, m.Messages)
 }
