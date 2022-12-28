@@ -105,6 +105,8 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 	// the IBC relayer listens to these events
 	ctx.EventManager().EmitEvents(res.GetEvents())
 
+	// TODO: currently this gets printed to CLI even during tx simulations.
+	// how can we make it only appear during actual deliverTx?
 	ms.k.Logger(ctx).Info(
 		"initiated interchain account channel handshake",
 		"connectionID", req.ConnectionId,
