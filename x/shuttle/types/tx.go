@@ -28,8 +28,8 @@ var (
 //------------------------------------------------------------------------------
 
 func (m *MsgRegisterAccount) ValidateBasic() error {
-	// the authority address must be valid
-	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+	// the sender address must be valid
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
 		return sdkerrors.Wrap(ErrInvalidProposalAuthority, err.Error())
 	}
 
@@ -37,9 +37,9 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 }
 
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	// we have already asserted that the authority address is valid in
+	// we have already asserted that the sender address is valid in
 	// ValidateBasic, so can ignore the error here
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
+	addr, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{addr}
 }
 

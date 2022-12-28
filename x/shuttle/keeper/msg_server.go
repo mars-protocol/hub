@@ -40,29 +40,63 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	return &msgServer{k}
 }
 
+// RegisterAccount creates a new interchain account, or if an interchain account
+// already exists but its channel is closed, reopen a new channel.
+//
+// There are two cases this function may be invoked:
+//
+//   - For a connection where the shuttle module has never registered an ICA,
+//     register one and open a channel for it;
+//   - For a connection where the shuttle module already owns an ICA, but the
+//     active channel associated with it has been closed, then open a new
+//     channel and set it as the new open channel.
+//
+// Per IBC specs, an ordered channel is closed if a packet times out:
+// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/core/04-channel/keeper/timeout.go#L173-L175
+//
+// We don't need to check for duplicate ICAs here; the controller module does
+// this for us:
+// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/apps/27-interchain-accounts/controller/keeper/account.go#L52-L56
+//
+// ## IMPORTANT NOTE
+//
+// In order versions of ibc-go there is a bug with the ICA host module that
+// prevents a closed ICA channel from being reopened.
+//
+// Specifically, the issue is this: When opening the new channel, the host chain
+// asserts that the old and new version strings match. On my controller chain,
+// the ICA controller module is wrapped in an ICS-29 fee middleware. Therefore
+// the channel's version is something like this:
+//
+// {"fee_version":"ics29-1","app_version":"{\"version\":\"ics27-1\", ...}"}
+//
+// However during channel handshake, the counterpartyVersion that the ICA host
+// module receives is:
+//
+// {"version":"ics27-1", ...}
+//
+// That is, without the fee middleware wrapper. Comparing these two will of
+// course result in a mismatch error!
+//
+// This has been fixed in v6:
+// https://github.com/cosmos/ibc-go/pull/2302
+//
+// However, as of ibc-go v4.2.0 (I'm using wasmd 0.30.0 for testing, which comes
+// with this version of ibc-go), the fix is not included.
+//
+// This means that if we are to create an ICA on a host chain with ibc-go <v6,
+// we must be suuuuper careful not to have packets timed out... in which case we
+// won't be able to reopen the channel!!!
 func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if req.Authority != ms.k.authority {
-		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
-	}
-
-	owner, portID, err := ms.k.GetOwnerAndPortID()
-	if err != nil {
-		return nil, err
-	}
-
-	// there must not already be an interchain account associated with this
-	// connection id
-	if address, found := ms.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, req.ConnectionId, portID); found {
-		return nil, sdkerrors.Wrapf(types.ErrAccountExists, "an interchain account with address %s already exists on %s", address, req.ConnectionId)
-	}
+	// the interchain account is to be owned by the shuttle module account
+	owner := ms.k.GetModuleAddress()
 
 	// build and execute the register interchain account message
 	//
-	// we use an empty string as version here. in this case, the ICA controller
-	// middleware will create the default metadata:
-	// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/apps/27-interchain-accounts/controller/keeper/handshake.go#L45-L51
+	// use an empty string as version here. the controller module will generate
+	// a default version string for us
 	msg := icacontrollertypes.NewMsgRegisterInterchainAccount(req.ConnectionId, owner.String(), "")
 	res, err := ms.k.executeMsg(ctx, msg)
 	if err != nil {

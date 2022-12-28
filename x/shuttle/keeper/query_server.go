@@ -66,6 +66,14 @@ func (qs queryServer) queryAccount(ctx sdk.Context, connectionID, portID string)
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "shuttle module-owned ICA: connection ID (%s)", connectionID)
 	}
 
+	// ordered channels are closed if a packet timesout:
+	// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/core/04-channel/keeper/timeout.go#L173-L175
+	//
+	// in this case, this method call will fail. simply reopen a new channel by
+	// sending a MsgRegisterAccount.
+	//
+	// it may be better to use a more informative error message here (e.g. "an
+	// interchain account exists but the channel is closed.")
 	channelID, found := qs.k.icaControllerKeeper.GetOpenActiveChannel(ctx, connectionID, portID)
 	if !found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "ICA open active channel: connectionID (%s), portID (%s)", connectionID, portID)
