@@ -7,6 +7,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
 
 // Msg defines the module's gRPC message service.
 service Msg {
@@ -26,6 +27,10 @@ service Msg {
   // module account. If the balance is not sufficient, it will attempt to draw
   // the difference from the community pool.
   rpc SendFunds(MsgSendFunds) returns (MsgSendFundsResponse);
+
+  // SendMessages is a governance operation for sending one or more messages to
+  // the host chain to be executed by the interchain account.
+  rpc SendMessages(MsgSendMessages) returns (MsgSendMessagesResponse);
 }
 
 // MsgRegisterAccount is the request type for the Msg/RegisterAccount RPC method.
@@ -83,3 +88,27 @@ message MsgSendFunds {
 
 // MsgSendFundsResponse is the respones type for the Msg/SendFunds RPC method.
 message MsgSendFundsResponse {}
+
+// MsgSendMessages is the request type for the Msg/SendMessages RPC method.
+//
+// This message is typically executed via a governance proposal with the gov
+// module being the executing authority.
+message MsgSendMessages {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // Authority is the account executing this message.
+  // It is typically the x/gov module account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // ConnectionId identifies the connection through which the messages are to
+  // be sent.
+  string connection_id = 2 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+
+  // Messages is an array of one or more messages that are to be executed by the
+  // interchain account.
+  repeated google.protobuf.Any messages = 3;
+}
+
+// MsgSendMessagesResponse is the response type for the Msg/SendMessages RPC
+// method.
+message MsgSendMessagesResponse {}

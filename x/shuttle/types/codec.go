@@ -11,6 +11,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgRegisterAccount{},
 		&MsgSendFunds{},
+		&MsgSendMessages{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

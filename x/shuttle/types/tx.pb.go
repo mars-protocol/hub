@@ -7,6 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
@@ -247,47 +248,162 @@ func (m *MsgSendFundsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSendFundsResponse proto.InternalMessageInfo
 
+// MsgSendMessages is the request type for the Msg/SendMessages RPC method.
+//
+// This message is typically executed via a governance proposal with the gov
+// module being the executing authority.
+type MsgSendMessages struct {
+	// Authority is the account executing this message.
+	// It is typically the x/gov module account.
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
+	// ConnectionId identifies the connection through which the messages are to
+	// be sent.
+	ConnectionId string `protobuf:"bytes,2,opt,name=connection_id,json=connectionId,proto3" json:"connection_id,omitempty" yaml:"connection_id"`
+	// Messages is an array of one or more messages that are to be executed by the
+	// interchain account.
+	Messages []*types1.Any `protobuf:"bytes,3,rep,name=messages,proto3" json:"messages,omitempty"`
+}
+
+func (m *MsgSendMessages) Reset()         { *m = MsgSendMessages{} }
+func (m *MsgSendMessages) String() string { return proto.CompactTextString(m) }
+func (*MsgSendMessages) ProtoMessage()    {}
+func (*MsgSendMessages) Descriptor() ([]byte, []int) {
+	return fileDescriptor_859750124112e73f, []int{4}
+}
+func (m *MsgSendMessages) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSendMessages) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSendMessages.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSendMessages) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSendMessages.Merge(m, src)
+}
+func (m *MsgSendMessages) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSendMessages) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSendMessages.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSendMessages proto.InternalMessageInfo
+
+func (m *MsgSendMessages) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
+func (m *MsgSendMessages) GetConnectionId() string {
+	if m != nil {
+		return m.ConnectionId
+	}
+	return ""
+}
+
+func (m *MsgSendMessages) GetMessages() []*types1.Any {
+	if m != nil {
+		return m.Messages
+	}
+	return nil
+}
+
+// MsgSendMessagesResponse is the response type for the Msg/SendMessages RPC
+// method.
+type MsgSendMessagesResponse struct {
+}
+
+func (m *MsgSendMessagesResponse) Reset()         { *m = MsgSendMessagesResponse{} }
+func (m *MsgSendMessagesResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgSendMessagesResponse) ProtoMessage()    {}
+func (*MsgSendMessagesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_859750124112e73f, []int{5}
+}
+func (m *MsgSendMessagesResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSendMessagesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSendMessagesResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSendMessagesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSendMessagesResponse.Merge(m, src)
+}
+func (m *MsgSendMessagesResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSendMessagesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSendMessagesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSendMessagesResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgRegisterAccount)(nil), "mars.shuttle.v1beta1.MsgRegisterAccount")
 	proto.RegisterType((*MsgRegisterAccountResponse)(nil), "mars.shuttle.v1beta1.MsgRegisterAccountResponse")
 	proto.RegisterType((*MsgSendFunds)(nil), "mars.shuttle.v1beta1.MsgSendFunds")
 	proto.RegisterType((*MsgSendFundsResponse)(nil), "mars.shuttle.v1beta1.MsgSendFundsResponse")
+	proto.RegisterType((*MsgSendMessages)(nil), "mars.shuttle.v1beta1.MsgSendMessages")
+	proto.RegisterType((*MsgSendMessagesResponse)(nil), "mars.shuttle.v1beta1.MsgSendMessagesResponse")
 }
 
 func init() { proto.RegisterFile("mars/shuttle/v1beta1/tx.proto", fileDescriptor_859750124112e73f) }
 
 var fileDescriptor_859750124112e73f = []byte{
-	// 480 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0x31, 0x6f, 0xd3, 0x40,
-	0x14, 0xc7, 0x73, 0x44, 0x54, 0xca, 0x51, 0x40, 0x58, 0x06, 0x52, 0x0b, 0x9c, 0xca, 0x53, 0x14,
-	0x11, 0x5f, 0x53, 0x10, 0x43, 0x25, 0x86, 0x06, 0xa9, 0x52, 0x87, 0x2c, 0xee, 0x06, 0x43, 0x65,
-	0x9f, 0x4f, 0x67, 0x8b, 0xf8, 0x2e, 0xf2, 0x3b, 0x57, 0xcd, 0x86, 0xf8, 0x04, 0xec, 0x7c, 0x03,
-	0xa6, 0x0e, 0x7c, 0x88, 0x8e, 0x15, 0x53, 0xa7, 0x80, 0x92, 0xa1, 0x33, 0xfd, 0x04, 0xc8, 0xf6,
-	0x39, 0x0e, 0x04, 0x04, 0xea, 0x74, 0x7e, 0xf7, 0x7b, 0xef, 0xdd, 0xdf, 0xff, 0x77, 0x87, 0x9f,
-	0x26, 0x7e, 0x0a, 0x04, 0xa2, 0x4c, 0xa9, 0x31, 0x23, 0x27, 0x83, 0x80, 0x29, 0x7f, 0x40, 0xd4,
-	0xa9, 0x3b, 0x49, 0xa5, 0x92, 0x86, 0x99, 0x63, 0x57, 0x63, 0x57, 0x63, 0xcb, 0xa6, 0x12, 0x12,
-	0x09, 0x24, 0xf0, 0xa1, 0xae, 0xa1, 0x32, 0x16, 0x65, 0x95, 0xf5, 0x58, 0xf3, 0x04, 0x38, 0x39,
-	0x19, 0xe4, 0x8b, 0x06, 0x5b, 0x25, 0x38, 0x2e, 0x22, 0x52, 0x06, 0x1a, 0x99, 0x5c, 0x72, 0x59,
-	0xee, 0xe7, 0x5f, 0xe5, 0xae, 0xf3, 0x09, 0x61, 0x63, 0x04, 0xdc, 0x63, 0x3c, 0x06, 0xc5, 0xd2,
-	0x7d, 0x4a, 0x65, 0x26, 0x94, 0xf1, 0x12, 0xb7, 0xfc, 0x4c, 0x45, 0x32, 0x8d, 0xd5, 0xb4, 0x8d,
-	0xb6, 0x51, 0xb7, 0x35, 0x6c, 0x7f, 0xfd, 0xd2, 0x37, 0x75, 0xc7, 0xfd, 0x30, 0x4c, 0x19, 0xc0,
-	0x91, 0x4a, 0x63, 0xc1, 0xbd, 0x3a, 0xd5, 0x78, 0x85, 0xef, 0x52, 0x29, 0x04, 0xa3, 0x2a, 0x96,
-	0xe2, 0x38, 0x0e, 0xdb, 0xb7, 0xca, 0xda, 0xeb, 0x59, 0xc7, 0x9c, 0xfa, 0xc9, 0x78, 0xcf, 0xf9,
-	0x05, 0x3b, 0xde, 0x66, 0x1d, 0x1f, 0x86, 0x7b, 0xf7, 0x3e, 0x5c, 0x9d, 0xf5, 0xea, 0x76, 0xce,
-	0x13, 0x6c, 0xad, 0x8b, 0xf3, 0x18, 0x4c, 0xa4, 0x00, 0xe6, 0xfc, 0x40, 0x78, 0x73, 0x04, 0xfc,
-	0x88, 0x89, 0xf0, 0x20, 0x13, 0x21, 0xdc, 0x58, 0xf5, 0x0b, 0x8c, 0x69, 0xe4, 0x0b, 0xc1, 0xc6,
-	0xb5, 0xe4, 0x87, 0xd7, 0xb3, 0xce, 0x03, 0x2d, 0x79, 0xc9, 0x1c, 0xaf, 0xa5, 0x83, 0xc3, 0xd0,
-	0xa0, 0x78, 0xc3, 0x4f, 0x72, 0x41, 0xed, 0xe6, 0x76, 0xb3, 0x7b, 0x67, 0x77, 0xcb, 0xd5, 0xe7,
-	0xe4, 0x53, 0xab, 0x46, 0xe9, 0xbe, 0x96, 0xb1, 0x18, 0xee, 0x9c, 0xcf, 0x3a, 0x8d, 0xcf, 0xdf,
-	0x3a, 0x5d, 0x1e, 0xab, 0x28, 0x0b, 0x5c, 0x2a, 0x13, 0x3d, 0x1c, 0xbd, 0xf4, 0x21, 0x7c, 0x47,
-	0xd4, 0x74, 0xc2, 0xa0, 0x28, 0x00, 0x4f, 0xb7, 0x5e, 0x73, 0xe4, 0x11, 0x36, 0x57, 0x7f, 0xb9,
-	0xf2, 0x62, 0xf7, 0x12, 0xe1, 0xe6, 0x08, 0xb8, 0x91, 0xe0, 0xfb, 0xbf, 0xcf, 0xb2, 0xeb, 0xfe,
-	0xe9, 0x8e, 0xb9, 0xeb, 0xc6, 0x5a, 0x3b, 0xff, 0x9b, 0x59, 0x1d, 0x6b, 0xbc, 0xc5, 0xad, 0xda,
-	0x7e, 0xe7, 0xaf, 0xe5, 0xcb, 0x1c, 0xab, 0xf7, 0xef, 0x9c, 0xaa, 0xb9, 0x75, 0xfb, 0xfd, 0xd5,
-	0x59, 0x0f, 0x0d, 0x0f, 0xce, 0xe7, 0x36, 0xba, 0x98, 0xdb, 0xe8, 0xfb, 0xdc, 0x46, 0x1f, 0x17,
-	0x76, 0xe3, 0x62, 0x61, 0x37, 0x2e, 0x17, 0x76, 0xe3, 0xcd, 0xb3, 0x15, 0x3b, 0xf3, 0xb6, 0xfd,
-	0xe2, 0x4e, 0x53, 0x39, 0x26, 0x51, 0x16, 0x90, 0xd3, 0xe5, 0xab, 0x2b, 0x8c, 0x0d, 0x36, 0x0a,
-	0xfa, 0xfc, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x96, 0x74, 0x96, 0xd0, 0x92, 0x03, 0x00, 0x00,
+	// 557 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x54, 0x3f, 0x6f, 0xd3, 0x4e,
+	0x18, 0x8e, 0x1b, 0xfd, 0xaa, 0x5f, 0x8e, 0x40, 0x85, 0x65, 0x68, 0x62, 0x81, 0x53, 0x59, 0x42,
+	0x8a, 0x22, 0xe2, 0x4b, 0x0a, 0x62, 0xa8, 0xc4, 0x90, 0x20, 0x55, 0xea, 0x90, 0xc5, 0xdd, 0x60,
+	0xa8, 0xfc, 0xe7, 0xb8, 0x58, 0xc4, 0x77, 0x91, 0xdf, 0x73, 0xd5, 0x6c, 0x88, 0x4f, 0xc0, 0xce,
+	0x37, 0x60, 0xea, 0xc0, 0xcc, 0x5c, 0x31, 0x55, 0x4c, 0x4c, 0x01, 0x25, 0x43, 0x67, 0xfa, 0x09,
+	0x90, 0xed, 0xb3, 0xdd, 0x36, 0xfc, 0xa9, 0x58, 0x98, 0xce, 0xaf, 0x9f, 0xe7, 0x79, 0xff, 0xdc,
+	0xfb, 0xd8, 0xe8, 0x7e, 0xe8, 0x44, 0x80, 0x61, 0x1c, 0x0b, 0x31, 0x21, 0xf8, 0xb0, 0xef, 0x12,
+	0xe1, 0xf4, 0xb1, 0x38, 0xb2, 0xa6, 0x11, 0x17, 0x5c, 0xd5, 0x12, 0xd8, 0x92, 0xb0, 0x25, 0x61,
+	0xdd, 0xf0, 0x38, 0x84, 0x1c, 0xb0, 0xeb, 0x40, 0xa9, 0xf1, 0x78, 0xc0, 0x32, 0x95, 0xbe, 0x29,
+	0xf1, 0x10, 0x28, 0x3e, 0xec, 0x27, 0x87, 0x04, 0x9a, 0x19, 0x70, 0x90, 0x46, 0x38, 0x0b, 0x24,
+	0xa4, 0x51, 0x4e, 0x79, 0xf6, 0x3e, 0x79, 0xca, 0x05, 0x94, 0x73, 0x3a, 0x21, 0x38, 0x8d, 0xdc,
+	0xf8, 0x25, 0x76, 0xd8, 0x2c, 0x83, 0xcc, 0x77, 0x0a, 0x52, 0x47, 0x40, 0x6d, 0x42, 0x03, 0x10,
+	0x24, 0x1a, 0x78, 0x1e, 0x8f, 0x99, 0x50, 0x9f, 0xa0, 0x9a, 0x13, 0x8b, 0x31, 0x8f, 0x02, 0x31,
+	0x6b, 0x28, 0x5b, 0x4a, 0xbb, 0x36, 0x6c, 0x7c, 0xfe, 0xd0, 0xd5, 0x64, 0xb1, 0x81, 0xef, 0x47,
+	0x04, 0x60, 0x5f, 0x44, 0x01, 0xa3, 0x76, 0x49, 0x55, 0x9f, 0xa2, 0x9b, 0x1e, 0x67, 0x8c, 0x78,
+	0x22, 0xe0, 0xec, 0x20, 0xf0, 0x1b, 0x6b, 0x99, 0xf6, 0x7c, 0xde, 0xd2, 0x66, 0x4e, 0x38, 0xd9,
+	0x31, 0x2f, 0xc1, 0xa6, 0x5d, 0x2f, 0xe3, 0x3d, 0x7f, 0xe7, 0xd6, 0x9b, 0xb3, 0xe3, 0x4e, 0x99,
+	0xce, 0xbc, 0x87, 0xf4, 0xd5, 0xe6, 0x6c, 0x02, 0x53, 0xce, 0x80, 0x98, 0xdf, 0x15, 0x54, 0x1f,
+	0x01, 0xdd, 0x27, 0xcc, 0xdf, 0x8d, 0x99, 0x0f, 0x7f, 0xdd, 0xf5, 0x63, 0x84, 0xbc, 0xb1, 0xc3,
+	0x18, 0x99, 0x94, 0x2d, 0xdf, 0x39, 0x9f, 0xb7, 0x6e, 0xcb, 0x96, 0x0b, 0xcc, 0xb4, 0x6b, 0x32,
+	0xd8, 0xf3, 0x55, 0x0f, 0xad, 0x3b, 0x61, 0xd2, 0x50, 0xa3, 0xba, 0x55, 0x6d, 0xdf, 0xd8, 0x6e,
+	0x5a, 0xb2, 0x4e, 0xb2, 0xd0, 0x7c, 0xcb, 0xd6, 0x33, 0x1e, 0xb0, 0x61, 0xef, 0x64, 0xde, 0xaa,
+	0xbc, 0xff, 0xda, 0x6a, 0xd3, 0x40, 0x8c, 0x63, 0xd7, 0xf2, 0x78, 0x28, 0xf7, 0x26, 0x8f, 0x2e,
+	0xf8, 0xaf, 0xb0, 0x98, 0x4d, 0x09, 0xa4, 0x02, 0xb0, 0x65, 0xea, 0x95, 0x1b, 0xb9, 0x8b, 0xb4,
+	0x8b, 0x23, 0x17, 0x77, 0xf1, 0x49, 0x41, 0x1b, 0x12, 0x18, 0x11, 0x00, 0x87, 0x12, 0xf8, 0x47,
+	0x4b, 0x54, 0x7b, 0xe8, 0xff, 0x50, 0xb6, 0x20, 0x6f, 0x46, 0xb3, 0x32, 0x03, 0x5a, 0xb9, 0x01,
+	0xad, 0x01, 0x9b, 0xd9, 0x05, 0x6b, 0x65, 0xc8, 0x26, 0xda, 0xbc, 0x32, 0x4b, 0x3e, 0xe7, 0xf6,
+	0xc7, 0x35, 0x54, 0x1d, 0x01, 0x55, 0x43, 0xb4, 0x71, 0xd5, 0xb3, 0x6d, 0xeb, 0x67, 0x9f, 0x99,
+	0xb5, 0x6a, 0x20, 0xbd, 0x77, 0x5d, 0x66, 0x5e, 0x56, 0x7d, 0x81, 0x6a, 0xa5, 0xcd, 0xcc, 0x5f,
+	0xca, 0x0b, 0x8e, 0xde, 0xf9, 0x33, 0xa7, 0x48, 0xee, 0xa3, 0xfa, 0xa5, 0xbd, 0x3d, 0xf8, 0xad,
+	0x36, 0xa7, 0xe9, 0xdd, 0x6b, 0xd1, 0xf2, 0x2a, 0xfa, 0x7f, 0xaf, 0xcf, 0x8e, 0x3b, 0xca, 0x70,
+	0xf7, 0x64, 0x61, 0x28, 0xa7, 0x0b, 0x43, 0xf9, 0xb6, 0x30, 0x94, 0xb7, 0x4b, 0xa3, 0x72, 0xba,
+	0x34, 0x2a, 0x5f, 0x96, 0x46, 0xe5, 0xf9, 0xc3, 0x0b, 0xe6, 0x4c, 0x32, 0x77, 0xd3, 0x6d, 0x79,
+	0x7c, 0x82, 0xc7, 0xb1, 0x8b, 0x8f, 0x8a, 0xdf, 0x5b, 0x6a, 0x53, 0x77, 0x3d, 0x45, 0x1f, 0xfd,
+	0x08, 0x00, 0x00, 0xff, 0xff, 0x77, 0xdb, 0xf6, 0xbf, 0xfb, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -315,6 +431,9 @@ type MsgClient interface {
 	// module account. If the balance is not sufficient, it will attempt to draw
 	// the difference from the community pool.
 	SendFunds(ctx context.Context, in *MsgSendFunds, opts ...grpc.CallOption) (*MsgSendFundsResponse, error)
+	// SendMessages is a governance operation for sending one or more messages to
+	// the host chain to be executed by the interchain account.
+	SendMessages(ctx context.Context, in *MsgSendMessages, opts ...grpc.CallOption) (*MsgSendMessagesResponse, error)
 }
 
 type msgClient struct {
@@ -343,6 +462,15 @@ func (c *msgClient) SendFunds(ctx context.Context, in *MsgSendFunds, opts ...grp
 	return out, nil
 }
 
+func (c *msgClient) SendMessages(ctx context.Context, in *MsgSendMessages, opts ...grpc.CallOption) (*MsgSendMessagesResponse, error) {
+	out := new(MsgSendMessagesResponse)
+	err := c.cc.Invoke(ctx, "/mars.shuttle.v1beta1.Msg/SendMessages", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// RegisterAccount is a governance operation for registering a new interchain
@@ -358,6 +486,9 @@ type MsgServer interface {
 	// module account. If the balance is not sufficient, it will attempt to draw
 	// the difference from the community pool.
 	SendFunds(context.Context, *MsgSendFunds) (*MsgSendFundsResponse, error)
+	// SendMessages is a governance operation for sending one or more messages to
+	// the host chain to be executed by the interchain account.
+	SendMessages(context.Context, *MsgSendMessages) (*MsgSendMessagesResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -369,6 +500,9 @@ func (*UnimplementedMsgServer) RegisterAccount(ctx context.Context, req *MsgRegi
 }
 func (*UnimplementedMsgServer) SendFunds(ctx context.Context, req *MsgSendFunds) (*MsgSendFundsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendFunds not implemented")
+}
+func (*UnimplementedMsgServer) SendMessages(ctx context.Context, req *MsgSendMessages) (*MsgSendMessagesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendMessages not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -411,6 +545,24 @@ func _Msg_SendFunds_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_SendMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSendMessages)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SendMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mars.shuttle.v1beta1.Msg/SendMessages",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SendMessages(ctx, req.(*MsgSendMessages))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mars.shuttle.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -422,6 +574,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendFunds",
 			Handler:    _Msg_SendFunds_Handler,
+		},
+		{
+			MethodName: "SendMessages",
+			Handler:    _Msg_SendMessages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -562,6 +718,80 @@ func (m *MsgSendFundsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgSendMessages) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSendMessages) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSendMessages) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Messages) > 0 {
+		for iNdEx := len(m.Messages) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Messages[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.ConnectionId) > 0 {
+		i -= len(m.ConnectionId)
+		copy(dAtA[i:], m.ConnectionId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ConnectionId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSendMessagesResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSendMessagesResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSendMessagesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -623,6 +853,38 @@ func (m *MsgSendFunds) Size() (n int) {
 }
 
 func (m *MsgSendFundsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgSendMessages) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ConnectionId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Messages) > 0 {
+		for _, e := range m.Messages {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgSendMessagesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -976,6 +1238,204 @@ func (m *MsgSendFundsResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgSendFundsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSendMessages) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSendMessages: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSendMessages: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ConnectionId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ConnectionId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Messages", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Messages = append(m.Messages, &types1.Any{})
+			if err := m.Messages[len(m.Messages)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSendMessagesResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSendMessagesResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSendMessagesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

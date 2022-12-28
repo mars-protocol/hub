@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -174,6 +175,10 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	)
 
 	return &types.MsgSendFundsResponse{}, nil
+}
+
+func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessages) (*types.MsgSendMessagesResponse, error) {
+	return nil, fmt.Errorf("UNIMPLEMENTED")
 }
 
 // saturateSub subtracts a set of coins from another. If the amount goes below

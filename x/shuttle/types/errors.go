@@ -8,5 +8,6 @@ var (
 	ErrChannelNotFound          = sdkerrors.Register(ModuleName, 4, "channel not found")
 	ErrInvalidProposalAmount    = sdkerrors.Register(ModuleName, 5, "invalid shuttle module proposal amount")
 	ErrInvalidProposalAuthority = sdkerrors.Register(ModuleName, 6, "invalid shuttle module proposal authority")
-	ErrMultihopUnsupported      = sdkerrors.Register(ModuleName, 7, "multihop channels are not supported")
+	ErrInvalidProposalMsg       = sdkerrors.Register(ModuleName, 7, "invalid shuttle module proposal messages")
+	ErrMultihopUnsupported      = sdkerrors.Register(ModuleName, 8, "multihop channels are not supported")
 )
