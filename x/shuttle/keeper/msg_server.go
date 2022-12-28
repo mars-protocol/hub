@@ -125,7 +125,9 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	// holds, then draw the difference from the community pool
 	shortfall := saturateSub(req.Amount, balance)
 	if !shortfall.Empty() {
-		ms.k.distrKeeper.DistributeFromFeePool(ctx, shortfall, owner)
+		if err = ms.k.distrKeeper.DistributeFromFeePool(ctx, shortfall, owner); err != nil {
+			return nil, err
+		}
 	}
 
 	// set timeout parameters
