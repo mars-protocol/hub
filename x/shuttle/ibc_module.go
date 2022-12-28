@@ -88,11 +88,7 @@ func (im IBCModule) OnChanCloseInit(
 	portID,
 	channelID string,
 ) error {
-	// we don't want to ever close the ICA channel, and provide no message type
-	// for doing so.
-	// if this function is somehow invoked, then something seriously wrong has
-	// happened. we panic in this case.
-	panic("UNREACHABLE: shuttle module OnChanCloseInit")
+	return nil
 }
 
 func (im IBCModule) OnChanCloseConfirm(
@@ -100,8 +96,7 @@ func (im IBCModule) OnChanCloseConfirm(
 	portID,
 	channelID string,
 ) error {
-	// see the comment in OnChanCloseInit on why we panic here
-	panic("UNREACHABLE: shuttle module OnChanCloseConfirm")
+	return nil
 }
 
 func (im IBCModule) OnRecvPacket(
