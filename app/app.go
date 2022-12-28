@@ -262,7 +262,7 @@ func NewMarsApp(
 	wasmOpts []wasm.Option, baseAppOptions ...func(*baseapp.BaseApp),
 ) *MarsApp {
 	legacyAmino := encodingConfig.Amino
-	codec := encodingConfig.Marshaler // this field will be renamed to `Codec`
+	codec := encodingConfig.Codec
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
 	bApp := baseapp.NewBaseApp(

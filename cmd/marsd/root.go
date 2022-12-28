@@ -34,7 +34,7 @@ import (
 // NewRootCmd creates root command for the Mars app-chain daemon
 func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Marshaler).
+		WithCodec(encodingConfig.Codec).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).

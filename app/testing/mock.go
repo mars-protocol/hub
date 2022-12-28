@@ -53,7 +53,7 @@ func MakeMockApp(accounts []sdk.AccAddress, balances []banktypes.Balance, operat
 	)
 
 	// create genesis state
-	genState := genesisStateWithValSet(encodingConfig.Marshaler, accounts, balances, operators, communityPool)
+	genState := genesisStateWithValSet(encodingConfig.Codec, accounts, balances, operators, communityPool)
 	stateBytes, err := json.MarshalIndent(genState, "", " ")
 	if err != nil {
 		panic(err)
