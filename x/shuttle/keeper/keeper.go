@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -53,7 +54,15 @@ func NewKeeper(
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
+	// make sure the codec is ProtoCodec
+	// ICA controller only accepts ProtoCodec for encoding messages:
+	// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/apps/27-interchain-accounts/types/codec.go#L32
+	if _, ok := cdc.(*codec.ProtoCodec); !ok {
+		panic(fmt.Sprintf("%s module keeper only accepts ProtoCodec; found %T", types.ModuleName, cdc))
+	}
+
 	return Keeper{
+		cdc:                 cdc,
 		accountKeeper:       accountKeeper,
 		bankKeeper:          bankKeeper,
 		distrKeeper:         distrKeeper,
