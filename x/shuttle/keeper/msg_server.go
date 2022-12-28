@@ -10,7 +10,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
-	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 
@@ -45,8 +44,7 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
 	}
 
-	owner := ms.k.GetModuleAddress().String()
-	portID, err := icatypes.NewControllerPortID(owner)
+	owner, portID, err := ms.k.GetOwnerAndPortID()
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +60,7 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 	// we use an empty string as version here. in this case, the ICA controller
 	// middleware will create the default metadata:
 	// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/apps/27-interchain-accounts/controller/keeper/handshake.go#L45-L51
-	msg := icacontrollertypes.NewMsgRegisterInterchainAccount(req.ConnectionId, owner, "")
+	msg := icacontrollertypes.NewMsgRegisterInterchainAccount(req.ConnectionId, owner.String(), "")
 	res, err := ms.k.executeMsg(ctx, msg)
 	if err != nil {
 		return nil, err
@@ -87,8 +85,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
 	}
 
-	owner := ms.k.GetModuleAddress()
-	portID, err := icatypes.NewControllerPortID(owner.String())
+	owner, portID, err := ms.k.GetOwnerAndPortID()
 	if err != nil {
 		return nil, err
 	}

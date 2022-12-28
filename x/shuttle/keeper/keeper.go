@@ -13,6 +13,7 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibcchannelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 
 	"github.com/mars-protocol/hub/x/shuttle/types"
@@ -68,6 +69,15 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // GetModuleAddress returns the shuttle module account's address.
 func (k Keeper) GetModuleAddress() sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
+}
+
+// GetOwnerAndPortID is a convenience method that returns the shuttle module
+// account, which acts as the owner of interchain accounts, as well as the ICA
+// controller port ID associated with it.
+func (k Keeper) GetOwnerAndPortID() (sdk.AccAddress, string, error) {
+	owner := k.GetModuleAddress()
+	portID, err := icatypes.NewControllerPortID(owner.String())
+	return owner, portID, err
 }
 
 // executeMsg executes message using the baseapp's message router.

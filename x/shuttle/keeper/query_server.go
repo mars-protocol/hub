@@ -6,8 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
-
 	"github.com/mars-protocol/hub/x/shuttle/types"
 )
 
@@ -22,8 +20,7 @@ func NewQueryServerImpl(k Keeper) types.QueryServer {
 func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequest) (*types.QueryAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	owner := qs.k.GetModuleAddress()
-	portID, err := icatypes.NewControllerPortID(owner.String())
+	_, portID, err := qs.k.GetOwnerAndPortID()
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +36,7 @@ func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequ
 func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	owner := qs.k.GetModuleAddress()
-	portID, err := icatypes.NewControllerPortID(owner.String())
+	_, portID, err := qs.k.GetOwnerAndPortID()
 	if err != nil {
 		return nil, err
 	}
