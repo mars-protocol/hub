@@ -20,13 +20,13 @@ import (
 )
 
 const (
-	// timeoutTime is the timeout time for ICS-20 packets.
+	// timeoutTime is the timeout time for packets.
 	//
 	// Currently we set this as a constant of 5 minutes. Should be make this a
 	// configurable parameter? Or a part of the proposal?
 	timeoutTime = 15 * time.Minute
 
-	// memo is the memo string to be attached to ICS-20 packets.
+	// memo is the memo string to be attached to packets.
 	memo = "🛰️ INCOMING TRANSMISSION FROM MARS HUB"
 )
 
