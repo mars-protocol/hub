@@ -194,7 +194,7 @@ func handleMsgData(msgData *sdk.MsgData) (string, error) { //nolint:staticcheck 
 	case sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}):
 		return handleProtoMsg[*stakingtypes.MsgDelegateResponse](msgData.Data, "staking/MsgDelegate")
 	case sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}):
-		return handleProtoMsg[*stakingtypes.MsgDelegateResponse](msgData.Data, "staking/MsgUndelegate")
+		return handleProtoMsg[*stakingtypes.MsgUndelegateResponse](msgData.Data, "staking/MsgUndelegate")
 	case sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}):
 		return handleProtoMsg[*distrtypes.MsgWithdrawDelegatorRewardResponse](msgData.Data, "distr/MsgWithdrawDelegatorReward")
 	case sdk.MsgTypeURL(&wasm.MsgExecuteContract{}):
