@@ -79,6 +79,10 @@ func (m *MsgSendMessages) ValidateBasic() error {
 	}
 
 	// all messages must be valid and have at most 1 signer
+	//
+	// ideally we also want to make sure that this one signer matches the
+	// interchain account's address. however this is a stateful check, while in
+	// ValidateBasic we're only allowed to do stateless checks.
 	for _, msg := range msgs {
 		if err = msg.ValidateBasic(); err != nil {
 			return sdkerrors.Wrap(ErrInvalidProposalMsg, err.Error())
