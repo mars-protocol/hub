@@ -200,7 +200,7 @@ func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessag
 	msg := icacontrollertypes.NewMsgSendTx(
 		owner.String(),
 		req.ConnectionId,
-		uint64(timeoutTime.Seconds()),
+		uint64(timeoutTime.Nanoseconds()), // NOTE: should be nanoseconds not seconds
 		packetData,
 	)
 
