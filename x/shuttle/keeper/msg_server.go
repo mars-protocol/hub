@@ -57,16 +57,13 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 		return nil, sdkerrors.Wrapf(types.ErrAccountExists, "an interchain account with address %s already exists on %s", address, req.ConnectionId)
 	}
 
-	// build the register interchain account message
+	// build and execute the register interchain account message
 	//
 	// we use an empty string as version here. in this case, the ICA controller
 	// middleware will create the default metadata:
 	// https://github.com/cosmos/ibc-go/blob/v6.1.0/modules/apps/27-interchain-accounts/controller/keeper/handshake.go#L45-L51
 	msg := icacontrollertypes.NewMsgRegisterInterchainAccount(req.ConnectionId, owner, "")
-
-	// handle the message
-	handler := ms.k.router.Handler(msg)
-	res, err := handler(ctx, msg)
+	res, err := ms.k.executeMsg(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +153,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 			memo,
 		)
 
-		handler := ms.k.router.Handler(msg)
-		res, err := handler(ctx, msg)
+		res, err := ms.k.executeMsg(ctx, msg)
 		if err != nil {
 			return nil, err
 		}

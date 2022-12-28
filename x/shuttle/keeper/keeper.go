@@ -65,7 +65,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// GetModuleAddress returns the shuttle module account's address
+// GetModuleAddress returns the shuttle module account's address.
 func (k Keeper) GetModuleAddress() sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
+}
+
+// executeMsg executes message using the baseapp's message router.
+func (k Keeper) executeMsg(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+	handler := k.router.Handler(msg)
+	return handler(ctx, msg)
 }
