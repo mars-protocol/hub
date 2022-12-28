@@ -248,7 +248,7 @@ func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessag
 	ctx.EventManager().EmitEvents(res.GetEvents())
 
 	ms.k.Logger(ctx).Info(
-		"initiated ICS-20 transfer(s) to interchain account",
+		"initiated ICS-27 tx execution with interchain account",
 		"connectionID", req.ConnectionId,
 		"numMsgs", len(req.Messages),
 	)
