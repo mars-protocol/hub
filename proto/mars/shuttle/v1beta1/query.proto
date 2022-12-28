@@ -26,15 +26,14 @@ service Query {
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
 message QueryAccountRequest {
-  // ConnectionId is the identifier of the connection on which the interchain
-  // account is to be queried.
+  // ConnectionId identified the connection associated with the interchain
+  // account.
   string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
 }
 
 // QueryAccountResponse is the response type for the Query/Account RPC method.
 message QueryAccountResponse {
-  // Address is the interchain account's address.
-  string address = 1;
+  AccountInfo account = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -46,12 +45,28 @@ message QueryAccountsRequest {}
 
 // QueryAccountsResponse is the response type for Query/Accounts RPC method.
 message QueryAccountsResponse {
-  repeated QueryAccountsResponseItem accounts = 1 [(gogoproto.nullable) = false];
+  repeated AccountInfo accounts = 1;
 }
 
-// QueryAccountsResponseItem is the repeat unit in the response for the
-// Query/Accounts RPC method.
-message QueryAccountsResponseItem {
-  string connection_id = 1 [(gogoproto.moretags) = "yaml:\"connection_id\""];
-  string address       = 2;
+//------------------------------------------------------------------------------
+// Other types
+//------------------------------------------------------------------------------
+
+// AccountInfo describes an interchain account, including its address and info
+// of the controller and host chains.
+message AccountInfo {
+  ChainInfo controller = 1;
+  ChainInfo host       = 2;
+  string    address    = 3;
+}
+
+// ChainInfo describes the IBC connection/port/channel on either the controller
+// or host chain.
+message ChainInfo {
+  string client_id     = 1;
+  string connection_id = 2;
+  string port_id       = 3;
+  string channel_id    = 4;
+
+  // TODO: add chain id?
 }

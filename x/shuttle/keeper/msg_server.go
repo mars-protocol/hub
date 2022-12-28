@@ -98,7 +98,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	// the objective is to find the connection id associated with the channel
 	channel, found := ms.k.channelKeeper.GetChannel(ctx, ibctransfertypes.PortID, req.ChannelId)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrChannelNotFound, "channel with port ID %s and channel ID %s does not exist", ibctransfertypes.PortID, req.ChannelId)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "channel with port ID %s and channel ID %s does not exist", ibctransfertypes.PortID, req.ChannelId)
 	}
 
 	// the transfer channel must only have one hop
@@ -113,7 +113,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	connectionID := channel.ConnectionHops[0]
 	address, found := ms.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrAccountNotFound, "no interchain account exists on %s", connectionID)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "no interchain account exists on %s", connectionID)
 	}
 
 	// find token balances of the shuttle module account
