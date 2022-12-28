@@ -136,7 +136,6 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	//
 	// the ibctransferkeeper has a sendTransfer method but it's not public.
 	// therefore we need to send a MsgTransfer to the baseapp msgRouter.
-	handler := ms.k.router.HandlerByTypeURL(sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}))
 	for _, coin := range req.Amount {
 		msg := ibctransfertypes.NewMsgTransfer(
 			ibctransfertypes.PortID,
@@ -148,6 +147,8 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 			timeoutTimestamp,
 			memo,
 		)
+
+		handler := ms.k.router.Handler(msg)
 		if _, err := handler(ctx, msg); err != nil {
 			return nil, err
 		}
