@@ -1,0 +1,21 @@
+{
+  "messages": [
+    {
+      "@type": "/mars.shuttle.v1beta1.MsgSendFunds",
+      "authority": "mars10d07y265gmmuvt4z0w9aw880jnsr700j8l2urg",
+      "channel_id": "channel-0",
+      "amount": [
+        {
+          "denom": "uastro",
+          "amount": "42069"
+        },
+        {
+          "denom": "umars",
+          "amount": "69420"
+        }
+      ]
+    }
+  ],
+  "metadata": "",
+  "deposit": "10000000umars"
+}
