@@ -16,8 +16,6 @@ import (
 // queryServer
 //------------------------------------------------------------------------------
 
-var _ govv1.QueryServer = queryServer{}
-
 type queryServer struct{ k Keeper }
 
 // NewQueryServerImpl creates an implementation of the QueryServer interface for
@@ -90,8 +88,6 @@ func (qs queryServer) Deposits(goCtx context.Context, req *govv1.QueryDepositsRe
 //------------------------------------------------------------------------------
 // legacyQueryServer
 //------------------------------------------------------------------------------
-
-var _ govv1beta1.QueryServer = legacyQueryServer{}
 
 type legacyQueryServer struct{ qs govv1.QueryServer }
 
