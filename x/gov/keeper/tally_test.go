@@ -137,8 +137,12 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 
 	// create a governance proposal
 	//
-	// typically it requires a minimum deposit to make the proposal enter voting period, but here
-	// we forcibly set the status as StatusVotingPeriod.
+	// typically it requires a minimum deposit to make the proposal enter voting
+	// period, but here we forcibly set the status as StatusVotingPeriod.
+	//
+	// typically we require the proposal's metadata to conform to a schema, but
+	// it's not necessary here as we're not creating the proposal through the
+	// msgServer.
 	proposal, err = govv1.NewProposal([]sdk.Msg{}, 1, "", time.Now(), time.Now())
 	proposal.Status = govv1.StatusVotingPeriod
 	require.NoError(t, err)

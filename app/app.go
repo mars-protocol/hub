@@ -503,7 +503,20 @@ func NewMarsApp(
 		app.WasmKeeper,
 		initGovRouter(app),
 		app.MsgServiceRouter(),
-		govtypes.DefaultConfig(),
+		// the vanilla gov module by default has a 255-character limit for
+		// proposal metadata, because it assumes proposals will be stored off-
+		// chain and only an IPFS hash will be uploaded on-chain.
+		//
+		// in this, imo, a big mistake! governance proposals are an important
+		// part of a blockchain's history, so their data should be persisted on-
+		// chain. it's not like they will take a huge storage space anyways.
+		//
+		// at Mars we require all proposal metadata to be stored on-chain, and
+		// they must conform to a schema (see the customgov module's README.)
+		// for this to work, we use u64::MAX as the max allowed length.
+		govtypes.Config{
+			MaxMetadataLen: ^uint64(0), // ^ is the bitwise NOT operator
+		},
 	)
 
 	// **** module options ****
