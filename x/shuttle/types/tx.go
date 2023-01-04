@@ -30,7 +30,7 @@ var (
 func (m *MsgRegisterAccount) ValidateBasic() error {
 	// the sender address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
-		return sdkerrors.Wrap(ErrInvalidProposalAuthority, err.Error())
+		return err
 	}
 
 	return nil
