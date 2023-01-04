@@ -11,75 +11,116 @@ import (
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
 	"github.com/mars-protocol/hub/x/gov/keeper"
-	"github.com/mars-protocol/hub/x/gov/types"
 )
 
 func TestProposalMetadataTypeCheck(t *testing.T) {
 	ctx, app, _, _, _ := setupTest(t, []VotingPower{{Staked: 1_000_000, Vesting: 0}})
 
+	testCases := []struct {
+		name        string
+		metadataStr string
+		expPass     bool
+	}{
+		{
+			"a valid proposal metadata",
+			`{
+				"title": "Mock Proposal",
+				"authors": ["Larry Engineer <gm@larry.engineer>"],
+				"summary": "Mock proposal for testing purposes",
+				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
+				"proposal_forum_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+				"vote_option_context": "Vote yes if you like this proposal, Vote no if you don't like it."
+			}`,
+			true,
+		},
+		{
+			"a valid metadata with missing optional fields",
+			`{
+				"title": "Mock Proposal",
+				"authors": [],
+				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module."
+			}`,
+			true,
+		},
+		{
+			"an invalid metadata with mandatory fields missing",
+			`{
+				"title": "Mock Proposal",
+				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module."
+			}`,
+			false,
+		},
+		{
+			"an invalid proposal with extra unexpected fields",
+			`{
+				"title": "Mock Proposal",
+				"authors": ["Larry Engineer <gm@larry.engineer>"],
+				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
+				"foo": "bar"
+			}`,
+			false,
+		},
+		{
+			"empty proposal metadata string is not accepted",
+			"",
+			false,
+		},
+	}
+
 	msgServer := keeper.NewMsgServerImpl(app.GovKeeper)
 
-	// a valid proposal
-	_, err := msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, `{
-		"title": "Mock Proposal",
-		"authors": ["Larry Engineer <gm@larry.engineer>"],
-		"summary": "Mock proposal for testing purposes",
-		"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
-		"proposal_forum_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-		"vote_option_context": "Vote yes if you like this proposal, Vote no if you don't like it."
-	}`))
-	require.NoError(t, err)
+	for _, tc := range testCases {
+		_, err := msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, tc.metadataStr))
 
-	// a valid proposal with missing optional fields
-	// authors can also be an empty array
-	_, err = msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, `{
-		"title": "Mock Proposal",
-		"authors": [],
-		"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module."
-	}`))
-	require.NoError(t, err)
-
-	// an invalid proposal with mandatory fields missing
-	_, err = msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, `{
-		"title": "Mock Proposal",
-		"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module."
-	}`))
-	require.Error(t, err, types.ErrInvalidMetadata)
-
-	// extra unexpected fields are not allowed
-	_, err = msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, `{
-		"title": "Mock Proposal",
-		"authors": ["Larry Engineer <gm@larry.engineer>"],
-		"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
-		"foo": "bar"
-	}`))
-	require.Error(t, err, types.ErrInvalidMetadata)
-
-	// empty metadata string is not allowed
-	_, err = msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, ""))
-	require.Error(t, err, types.ErrInvalidMetadata)
+		if tc.expPass {
+			require.NoError(t, err, "expect success but failed: name = %s", tc.name)
+		} else {
+			require.Error(t, err, "expect error but succeeded: name = %s", tc.name)
+		}
+	}
 }
 
 func TestVoteMetadataTypeCheck(t *testing.T) {
 	ctx, app, _, _, _ := setupTest(t, []VotingPower{{Staked: 1_000_000, Vesting: 0}})
 
+	testCases := []struct {
+		name        string
+		metadataStr string
+		expPass     bool
+	}{
+		{
+			"a valid vote metadata",
+			`{"justification":"I like the proposal"}`,
+			true,
+		},
+		{
+			"a valid metadata with missing optional fields",
+			"{}",
+			true,
+		},
+		{
+			"an invalid metadata with extra unexpected fields",
+			`{"foo":"bar"}`,
+			false,
+		},
+		{
+			"empty metadata string is accepted",
+			"",
+			true,
+		},
+	}
+
 	msgServer := keeper.NewMsgServerImpl(app.GovKeeper)
 
-	// a valid vote
-	_, err := msgServer.Vote(ctx, newMsgVote(`{"justification":"I like the proposal"}`))
-	require.NoError(t, err)
+	for _, tc := range testCases {
+		_, err := msgServer.Vote(ctx, newMsgVote(tc.metadataStr))
 
-	// a valid proposal with missing optional fields
-	_, err = msgServer.Vote(ctx, newMsgVote("{}"))
-	require.NoError(t, err)
-
-	// extra unexpected fields are not allowed
-	_, err = msgServer.SubmitProposal(ctx, newMsgSubmitProposal(t, `{"foo":"bar"}`))
-	require.Error(t, err, types.ErrInvalidMetadata)
-
-	// empty metadata string is accepted
-	_, err = msgServer.Vote(ctx, newMsgVote(""))
-	require.NoError(t, err)
+		if tc.expPass {
+			require.NoError(t, err, "expect success but failed: name = %s", tc.name)
+		} else {
+			require.Error(t, err, "expect error but succeeded: name = %s", tc.name)
+		}
+	}
 }
 
 func newMsgSubmitProposal(t *testing.T, metadataStr string) *govv1.MsgSubmitProposal {
