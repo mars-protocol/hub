@@ -21,10 +21,10 @@ type VoteMetadata struct {
 	X             map[string]interface{} `json:"-"` // unexpected fields go here
 }
 
-// UnmarshalProposalMetadata unmarshals a string into ProoposalMetdata.
+// UnmarshalProposalMetadata unmarshals a string into ProposalMetadata.
 //
 // Golang's JSON unmarshal function is retarded. It doesn't check for missing or
-// redundant fields. For example, here in ProposalMetata the "title" field is
+// redundant fields. For example, here in ProposalMetadata the "title" field is
 // required. But if we provide a JSON string that doesn't have a title, the
 // json.Unmarshal simply returns metadata.Title = "". Similarly if the JSON
 // string contains an unexpected field, it doesn't throw an error.
