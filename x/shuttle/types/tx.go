@@ -53,6 +53,11 @@ func (m *MsgSendFunds) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidProposalAuthority, err.Error())
 	}
 
+	// the coins amount must not be empty
+	if m.Amount.Empty() {
+		return sdkerrors.Wrap(ErrInvalidProposalAmount, "amount cannot be empty")
+	}
+
 	// the coins amount must be valid
 	if err := m.Amount.Validate(); err != nil {
 		return sdkerrors.Wrap(ErrInvalidProposalAmount, err.Error())
