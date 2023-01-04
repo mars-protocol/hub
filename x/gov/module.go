@@ -57,7 +57,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// msg server - use the vanilla implementation
 	// The changes we've made to execution are in EndBlocker, so the msgServer
 	// doesn't need to be changed.
-	msgServer := govkeeper.NewMsgServerImpl(am.keeper.Keeper)
+	msgServer := keeper.NewMsgServerImpl(am.keeper)
 	govv1beta1.RegisterMsgServer(cfg.MsgServer(), govkeeper.NewLegacyMsgServerImpl(am.accountKeeper.GetModuleAddress(govtypes.ModuleName).String(), msgServer))
 	govv1.RegisterMsgServer(cfg.MsgServer(), msgServer)
 
