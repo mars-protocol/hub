@@ -70,7 +70,7 @@ func TestVoteMetadataTypeCheck(t *testing.T) {
 	require.NoError(t, err)
 
 	// a valid proposal with missing optional fields
-	_, err = msgServer.Vote(ctx, newMsgVote(`{}`))
+	_, err = msgServer.Vote(ctx, newMsgVote("{}"))
 	require.NoError(t, err)
 
 	// extra unexpected fields are not allowed
