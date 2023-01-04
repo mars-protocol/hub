@@ -16,8 +16,8 @@ import (
 var (
 	testAuthority    = authtypes.NewModuleAddress(types.ModuleName)
 	testSender, _    = sdk.AccAddressFromBech32("cosmos17dtl0mjt3t77kpuhg2edqzjpszulwhgzuj9ljs")
-	testConnectionId = "connection_0"
-	testChannelId    = "channel_0"
+	testConnectionId = "connection-0"
+	testChannelId    = "channel-0"
 	testValidMsg, _  = codectypes.NewAnyWithValue(govv1.NewMsgVote(testAuthority, 1, govv1.OptionYes, ""))
 	testInvalidMsg   = &codectypes.Any{TypeUrl: "/test.MsgInvalidTest", Value: []byte{}}
 )
