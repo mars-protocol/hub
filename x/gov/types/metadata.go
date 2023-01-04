@@ -17,7 +17,7 @@ type ProposalMetadata struct {
 
 // VoteMetadata defines the required schema for vote metadata.
 type VoteMetadata struct {
-	Justification *string                `json:"justification,omitempty"`
+	Justification string                 `json:"justification,omitempty"`
 	X             map[string]interface{} `json:"-"` // unexpected fields go here
 }
 
@@ -87,10 +87,6 @@ func UnmarshalVoteMetadata(metadataStr string) (*VoteMetadata, error) {
 	}
 
 	delete(metadata.X, "justification")
-
-	if metadata.Justification == nil {
-		return nil, ErrInvalidMetadata.Wrap("missing field `justification`")
-	}
 
 	if len(metadata.X) > 0 {
 		return nil, ErrInvalidMetadata.Wrap("unexpected field(s)")
