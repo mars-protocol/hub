@@ -28,7 +28,7 @@ type VoteMetadata struct {
 //
 // Here's the equivalent Rust code for comparison, which properly throws an
 // error is a required field is missing:
-// https://play.rust-lang.org/?version=stable&mode=debug&edition=2015&gist=0e2eadad38b7cd212962b1a0e7a6da44
+// https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=0e2eadad38b7cd212962b1a0e7a6da44
 //
 // Therefore, we have to implement our own unmarshal function.
 func UnmarshalProposalMetadata(metadataStr string) (*ProposalMetadata, error) {
