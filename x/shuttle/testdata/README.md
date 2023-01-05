@@ -1,8 +1,10 @@
-# Manual testing
+# Demo
 
 This document describes how I do a manual end-to-end test with two local devnets. I use [marsd][1] (equipped with the shuttle module) as the controller chain and [wasmd][2] as the host chain. Use [hermes][3] to relay messages between the two.
 
 ## Info
+
+### Ports
 
 We will run marsd and wasmd both on localhost. They will be configured to run using the following ports. Make sure there are no other processes on your computer that occupy the same ports:
 
@@ -14,6 +16,8 @@ We will run marsd and wasmd both on localhost. They will be configured to run us
 | pprof | 6060  | 6061  |
 | grpc  | 9090  | 9091  |
 
+### Accounts
+
 Each chain comes with the following accounts. They use the `test` keyring backend so don't use them in production:
 
 | Name  | Address                                                                                            | Purpose   |
@@ -21,6 +25,21 @@ Each chain comes with the following accounts. They use the `test` keyring backen
 | test1 | `mars1s7mkj5j9jejlqx53dhjx82ljhp4lh4hc2l09nd` <br /> `wasm1s7mkj5j9jejlqx53dhjx82ljhp4lh4hca78f0a` | validator |
 | test2 | `mars1hyjtwtdnleadyyp73c3nnz4zs5yfnurue3mwjx` <br /> `wasm1hyjtwtdnleadyyp73c3nnz4zs5yfnuruwsnzwk` | relayer   |
 | test3 | `mars14whu3e6dujyhh424nc7tes3q97r9zzdddlhplq` <br /> `wasm14whu3e6dujyhh424nc7tes3q97r9zzdd67ldrs` | user      |
+
+There seed phrases are as follows
+
+```plain
+test1
+remove pyramid muffin alcohol quit tip situate feed solve urban attend clinic pelican tribe novel task need blanket bamboo join sudden left tunnel faint
+
+test2
+panther tree salute panther long cave green build arrow glad champion venture foam magnet tongue grace fun day mixed taxi island emerge kangaroo ribbon
+
+test3
+truck inhale decline orphan phrase arena then ahead harsh fortune clinic reveal tomato sick child glow laptop current future task another street once baby
+```
+
+### Host
 
 For wasmd there is a contract deployed during genesis at address
 
@@ -30,13 +49,13 @@ wasm14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s0phg4d
 
 This is a barebone contract taken from my [CosmWasm template][4], which uses the [cw-ownable][5] library for ownership management. The owner is initially set to `test3`.
 
-The objective for this test is to:
+### Objective
+
+The demo is successful if we can:
 
 - Register an interchain account owned by marsd shuttle module on wasmd
 - Send coins from marsd community pool to the ICA
 - Have the ICA claim the contract's ownership
-
-You will need to open at least 4 terminal tabs for this test.
 
 ## Preparation
 
@@ -63,12 +82,10 @@ Install hermes:
 cargo install ibc-relayer-cli --bin hermes --locked
 ```
 
-Copy chain and relayer configs found in this folder to your home directory:
+Extract config folders (`.mars`, `.wasmd`, `.hermes`) to your home directory. Note that this overwrites your local ones so backup first!
 
 ```bash
-cp ./.mars ~
-cp ./.wasmd ~
-cp ./.hermes ~
+tar xvzf configs.tar.gz -C ~
 ```
 
 Start the chains
@@ -153,7 +170,7 @@ base_account:
 Submit and vote on the proposal:
 
 ```bash
-marsd tx gov submit-proposal ./proposals/send_funds.json \
+marsd tx gov submit-proposal ./send_funds.json \
   --from test3 \
   --gas auto \
   --gas-adjustment 1.4
@@ -228,7 +245,7 @@ data:
 Submit and vote on the proposal:
 
 ```bash
-marsd tx gov submit-proposal ./proposals/send_messages.json \
+marsd tx gov submit-proposal ./send_messages.json \
   --from test3 \
   --gas auto \
   --gas-adjustment 1.4
