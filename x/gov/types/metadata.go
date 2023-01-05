@@ -55,9 +55,6 @@ func UnmarshalProposalMetadata(metadataStr string) (*ProposalMetadata, error) {
 }
 
 // UnmarshalVoteMetadata unmarshals a string into VoteMetdata.
-//
-// See the comments for UnmarshalProposalMetadata on why we need to define this
-// function instead of using Go's native json.Unmarshal function.
 func UnmarshalVoteMetadata(metadataStr string) (*VoteMetadata, error) {
 	var metadata VoteMetadata
 
