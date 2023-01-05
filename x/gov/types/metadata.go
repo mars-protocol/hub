@@ -6,51 +6,37 @@ import (
 
 // ProposalMetadata defines the required schema for proposal metadata.
 type ProposalMetadata struct {
-	Title             string                 `json:"title"`
-	Authors           []string               `json:"authors"`
-	Summary           string                 `json:"summary,omitempty"`
-	Details           string                 `json:"details"`
-	ProposalForumURL  string                 `json:"proposal_forum_url,omitempty"`
-	VoteOptionContext string                 `json:"vote_option_context,omitempty"`
-	X                 map[string]interface{} `json:"-"` // unexpected fields go here
+	Title             string   `json:"title"`
+	Authors           []string `json:"authors"`
+	Summary           string   `json:"summary,omitempty"`
+	Details           string   `json:"details"`
+	ProposalForumURL  string   `json:"proposal_forum_url,omitempty"`
+	VoteOptionContext string   `json:"vote_option_context,omitempty"`
 }
 
 // VoteMetadata defines the required schema for vote metadata.
 type VoteMetadata struct {
-	Justification string                 `json:"justification,omitempty"`
-	X             map[string]interface{} `json:"-"` // unexpected fields go here
+	Justification string `json:"justification,omitempty"`
 }
 
 // UnmarshalProposalMetadata unmarshals a string into ProposalMetadata.
 //
-// Golang's JSON unmarshal function is retarded. It doesn't check for missing or
-// redundant fields. For example, here in ProposalMetadata the "title" field is
-// required. But if we provide a JSON string that doesn't have a title, the
-// json.Unmarshal simply returns metadata.Title = "". Similarly if the JSON
-// string contains an unexpected field, it doesn't throw an error.
+// Golang's JSON unmarshal function is doesn't check for missing or fields.
+// Instead, for example, if the "title" field here in ProposalMetadata is
+// missing, the json.Unmarshal simply returns metadata.Title = "" instead of
+// throwing an error.
 //
-// Therefore we have to implement our own unmarshal function. See:
-//   - Assert required fields are included:
-//     https://stackoverflow.com/questions/19633763/unmarshaling-json-in-go-required-field
-//   - Assert unknown fields are not included:
-//     https://stackoverflow.com/questions/33436730/unmarshal-json-with-some-known-and-some-unknown-field-names
+// Here's the equivalent Rust code for comparison, which properly throws an
+// error is a required field is missing:
+// https://play.rust-lang.org/?gist=e881fa2a521171f7320ed11523fb6391
+//
+// Therefore, we have to implement our own unmarshal function.
 func UnmarshalProposalMetadata(metadataStr string) (*ProposalMetadata, error) {
 	var metadata ProposalMetadata
 
 	if err := json.Unmarshal([]byte(metadataStr), &metadata); err != nil {
 		return nil, ErrInvalidMetadata.Wrap(err.Error())
 	}
-
-	if err := json.Unmarshal([]byte(metadataStr), &metadata.X); err != nil {
-		return nil, ErrInvalidMetadata.Wrap(err.Error())
-	}
-
-	delete(metadata.X, "title")
-	delete(metadata.X, "authors")
-	delete(metadata.X, "summary")
-	delete(metadata.X, "details")
-	delete(metadata.X, "proposal_forum_url")
-	delete(metadata.X, "vote_option_context")
 
 	if metadata.Title == "" {
 		return nil, ErrInvalidMetadata.Wrap("missing field `title`")
@@ -62,10 +48,6 @@ func UnmarshalProposalMetadata(metadataStr string) (*ProposalMetadata, error) {
 
 	if metadata.Details == "" {
 		return nil, ErrInvalidMetadata.Wrap("missing field `details`")
-	}
-
-	if len(metadata.X) > 0 {
-		return nil, ErrInvalidMetadata.Wrap("unexpected field(s)")
 	}
 
 	return &metadata, nil
@@ -80,16 +62,6 @@ func UnmarshalVoteMetadata(metadataStr string) (*VoteMetadata, error) {
 
 	if err := json.Unmarshal([]byte(metadataStr), &metadata); err != nil {
 		return nil, ErrInvalidMetadata.Wrap(err.Error())
-	}
-
-	if err := json.Unmarshal([]byte(metadataStr), &metadata.X); err != nil {
-		return nil, ErrInvalidMetadata.Wrap(err.Error())
-	}
-
-	delete(metadata.X, "justification")
-
-	if len(metadata.X) > 0 {
-		return nil, ErrInvalidMetadata.Wrap("unexpected field(s)")
 	}
 
 	return &metadata, nil
