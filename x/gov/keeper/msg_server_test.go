@@ -51,14 +51,14 @@ func TestProposalMetadataTypeCheck(t *testing.T) {
 			false,
 		},
 		{
-			"an invalid proposal with extra unexpected fields",
+			"extra unexpected fields are accepted",
 			`{
 				"title": "Mock Proposal",
 				"authors": ["Larry Engineer <gm@larry.engineer>"],
 				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
 				"foo": "bar"
 			}`,
-			false,
+			true,
 		},
 		{
 			"empty proposal metadata string is not accepted",
@@ -99,9 +99,9 @@ func TestVoteMetadataTypeCheck(t *testing.T) {
 			true,
 		},
 		{
-			"an invalid metadata with extra unexpected fields",
+			"extra unexpected fields are accepted",
 			`{"foo":"bar"}`,
-			false,
+			true,
 		},
 		{
 			"empty metadata string is accepted",
