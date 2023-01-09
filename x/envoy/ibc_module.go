@@ -1,4 +1,4 @@
-package shuttle
+package envoy
 
 import (
 	"encoding/hex"
@@ -18,10 +18,10 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	"github.com/mars-protocol/hub/x/shuttle/keeper"
+	"github.com/mars-protocol/hub/x/envoy/keeper"
 )
 
-// IBCModule implements the ICS26 interface for the shuttle module.
+// IBCModule implements the ICS26 interface for the envoy module.
 type IBCModule struct{ k keeper.Keeper }
 
 // NewIBCModule creates a new IBCModule given the keeper.
@@ -59,7 +59,7 @@ func (im IBCModule) OnChanOpenTry(
 	// the controller middleware should have rejected this request.
 	// if not, something seriously wrong must have happened, e.g. modules wired
 	// incorrectly in app.go. we panic in this case.
-	panic("UNREACHABLE: shuttle module OnChanOpenTry")
+	panic("UNREACHABLE: envoy module OnChanOpenTry")
 }
 
 func (im IBCModule) OnChanOpenAck(
@@ -80,7 +80,7 @@ func (im IBCModule) OnChanOpenConfirm(
 	channelID string,
 ) error {
 	// see the comment in OnChanOpenTry on why we panic here
-	panic("UNREACHABLE: shuttle module OnChanOpenConfirm")
+	panic("UNREACHABLE: envoy module OnChanOpenConfirm")
 }
 
 func (im IBCModule) OnChanCloseInit(
@@ -106,12 +106,12 @@ func (im IBCModule) OnRecvPacket(
 ) ibcexported.Acknowledgement {
 	// the ICA controller does not expect to receive any packet.
 	// the controller middleware should have rejected this request.
-	panic("UNREACHABLE: shuttle module OnRecvPacket")
+	panic("UNREACHABLE: envoy module OnRecvPacket")
 }
 
 // OnAcknowledgementPacket parses the acknowledgement and prints log messages.
 //
-// Although the shuttle module can send both ICS-20 and ICS-27 packets, only
+// Although the envoy module can send both ICS-20 and ICS-27 packets, only
 // ICS-27 acknowledgements are routed here. ICS-20 packets are handled by the
 // ibctransfer module alone.
 //

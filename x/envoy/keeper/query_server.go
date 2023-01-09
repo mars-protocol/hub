@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
 type queryServer struct{ k Keeper }
@@ -63,7 +63,7 @@ func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRe
 func (qs queryServer) queryAccount(ctx sdk.Context, connectionID, portID string) (*types.AccountInfo, error) {
 	address, found := qs.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "shuttle module-owned ICA: connection ID (%s)", connectionID)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "envoy module-owned ICA: connection ID (%s)", connectionID)
 	}
 
 	// ordered channels are closed if a packet timesout:

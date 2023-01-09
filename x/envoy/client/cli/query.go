@@ -6,14 +6,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
-// GetQueryCmd returns the parent command for all shuttle module query commands.
+// GetQueryCmd returns the parent command for all envoy module query commands.
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the shuttle module",
+		Short:                      "Querying commands for the envoy module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -57,7 +57,7 @@ func getAccountCmd() *cobra.Command {
 func getAccountsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "accounts",
-		Short: "Query all interchain account owned by the shuttle module",
+		Short: "Query all interchain account owned by the envoy module",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

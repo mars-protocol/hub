@@ -3,10 +3,10 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
-// InitGenesis initializes the shuttle module's storage according to the
+// InitGenesis initializes the envoy module's storage according to the
 // provided genesis state.
 //
 // NOTE: we call `GetModuleAccount` instead of `SetModuleAccount` because the

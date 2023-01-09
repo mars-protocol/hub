@@ -1,7 +1,7 @@
 syntax = "proto3";
-package mars.shuttle.v1beta1;
+package mars.envoy.v1beta1;
 
-option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
+option go_package = "github.com/mars-protocol/hub/x/envoy/types";
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -11,12 +11,12 @@ service Query {
   // Account returns the interchain account owned by the module on a given
   // connection pair.
   rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
-    option (google.api.http).get = "/mars/shuttle/v1beta1/account/{connection_id}";
+    option (google.api.http).get = "/mars/envoy/v1beta1/account/{connection_id}";
   }
 
   // Accounts returns all interchain accounts owned by the module.
   rpc Accounts(QueryAccountsRequest) returns (QueryAccountsResponse) {
-    option (google.api.http).get = "/mars/shuttle/v1beta1/accounts";
+    option (google.api.http).get = "/mars/envoy/v1beta1/accounts";
   }
 }
 

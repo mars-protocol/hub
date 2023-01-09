@@ -1,4 +1,4 @@
-package shuttle_test
+package envoy_test
 
 import (
 	"testing"

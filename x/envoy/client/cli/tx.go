@@ -7,14 +7,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
-// GetTxCmd returns the parent command for all shuttle module tx commands.
+// GetTxCmd returns the parent command for all envoy module tx commands.
 func GetTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   types.ModuleName,
-		Short: "Shuttle transaction subcommands",
+		Short: "Envoy transaction subcommands",
 		RunE:  client.ValidateCmd,
 	}
 

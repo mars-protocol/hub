@@ -18,10 +18,10 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibcchannelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
-// Keeper is the shuttle module's keeper.
+// Keeper is the envoy module's keeper.
 type Keeper struct {
 	cdc codec.Codec
 
@@ -36,12 +36,12 @@ type Keeper struct {
 	// We use this to dispatch messages upon successful governance proposals.
 	router *baseapp.MsgServiceRouter
 
-	// The account who can execute shuttle module messages.
+	// The account who can execute envoy module messages.
 	// Typically, this should be the x/gov module account.
 	authority string
 }
 
-// NewKeeper creates a new shuttle module keeper.
+// NewKeeper creates a new envoy module keeper.
 func NewKeeper(
 	cdc codec.Codec, accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper, distrKeeper distrkeeper.Keeper,
@@ -49,7 +49,7 @@ func NewKeeper(
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 	router *baseapp.MsgServiceRouter, authority string,
 ) Keeper {
-	// ensure shuttle module account is set
+	// ensure envoy module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
@@ -79,12 +79,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// GetModuleAddress returns the shuttle module account's address.
+// GetModuleAddress returns the envoy module account's address.
 func (k Keeper) GetModuleAddress() sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
 
-// GetOwnerAndPortID is a convenience method that returns the shuttle module
+// GetOwnerAndPortID is a convenience method that returns the envoy module
 // account, which acts as the owner of interchain accounts, as well as the ICA
 // controller port ID associated with it.
 func (k Keeper) GetOwnerAndPortID() (sdk.AccAddress, string, error) {

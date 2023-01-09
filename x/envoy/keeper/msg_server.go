@@ -16,7 +16,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
 const (
@@ -43,9 +43,9 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 //
 // There are two cases this function may be invoked:
 //
-//   - For a connection where the shuttle module has never registered an ICA,
+//   - For a connection where the envoy module has never registered an ICA,
 //     register one and open a channel for it;
-//   - For a connection where the shuttle module already owns an ICA, but the
+//   - For a connection where the envoy module already owns an ICA, but the
 //     active channel associated with it has been closed, then open a new
 //     channel and set it as the new open channel.
 //
@@ -88,7 +88,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// the interchain account is to be owned by the shuttle module account
+	// the interchain account is to be owned by the envoy module account
 	owner := ms.k.GetModuleAddress()
 
 	// build and execute the register interchain account message
@@ -150,7 +150,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "no interchain account exists on %s", connectionID)
 	}
 
-	// find token balances of the shuttle module account
+	// find token balances of the envoy module account
 	balance := ms.k.bankKeeper.GetAllBalances(ctx, owner)
 
 	// if the proposal requires sending more coins than what the module acocunt

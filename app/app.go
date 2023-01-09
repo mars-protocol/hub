@@ -113,15 +113,15 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	// mars modules
+	"github.com/mars-protocol/hub/x/envoy"
+	envoykeeper "github.com/mars-protocol/hub/x/envoy/keeper"
+	envoytypes "github.com/mars-protocol/hub/x/envoy/types"
 	"github.com/mars-protocol/hub/x/incentives"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
 	"github.com/mars-protocol/hub/x/safety"
 	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
 	safetytypes "github.com/mars-protocol/hub/x/safety/types"
-	"github.com/mars-protocol/hub/x/shuttle"
-	shuttlekeeper "github.com/mars-protocol/hub/x/shuttle/keeper"
-	shuttletypes "github.com/mars-protocol/hub/x/shuttle/types"
 
 	marswasm "github.com/mars-protocol/hub/app/wasm"
 	marsdocs "github.com/mars-protocol/hub/docs"
@@ -176,7 +176,7 @@ var (
 		wasm.AppModuleBasic{},
 		incentives.AppModuleBasic{},
 		safety.AppModuleBasic{},
-		shuttle.AppModuleBasic{},
+		envoy.AppModuleBasic{},
 	)
 
 	// governance proposal handlers
@@ -203,7 +203,7 @@ var (
 		wasm.ModuleName:                {authtypes.Burner},
 		incentivestypes.ModuleName:     nil,
 		safetytypes.ModuleName:         nil,
-		shuttletypes.ModuleName:        nil,
+		envoytypes.ModuleName:          nil,
 	}
 )
 
@@ -268,7 +268,7 @@ type MarsApp struct {
 	WasmKeeper          wasm.Keeper
 	IncentivesKeeper    incentiveskeeper.Keeper
 	SafetyKeeper        safetykeeper.Keeper
-	ShuttleKeeper       shuttlekeeper.Keeper
+	envoyKeeper         envoykeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
@@ -276,7 +276,7 @@ type MarsApp struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
-	ScopedShuttleKeeper       capabilitykeeper.ScopedKeeper
+	ScopedenvoyKeeper         capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -368,7 +368,7 @@ func NewMarsApp(
 	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	app.ScopedShuttleKeeper = app.CapabilityKeeper.ScopeToModule(shuttletypes.ModuleName)
+	app.ScopedenvoyKeeper = app.CapabilityKeeper.ScopeToModule(envoytypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -551,14 +551,14 @@ func NewMarsApp(
 		app.BankKeeper,
 		authority,
 	)
-	app.ShuttleKeeper = shuttlekeeper.NewKeeper(
+	app.envoyKeeper = envoykeeper.NewKeeper(
 		app.Codec,
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.ICAControllerKeeper,
-		app.ScopedShuttleKeeper,
+		app.ScopedenvoyKeeper,
 		app.MsgServiceRouter(),
 		authority,
 	)
@@ -624,7 +624,7 @@ func NewMarsApp(
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
 		safety.NewAppModule(app.SafetyKeeper),
-		shuttle.NewAppModule(app.ShuttleKeeper),
+		envoy.NewAppModule(app.envoyKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that
@@ -653,7 +653,7 @@ func NewMarsApp(
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
-		shuttletypes.ModuleName,
+		envoytypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -678,7 +678,7 @@ func NewMarsApp(
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
-		shuttletypes.ModuleName,
+		envoytypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -708,7 +708,7 @@ func NewMarsApp(
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
-		shuttletypes.ModuleName,
+		envoytypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -902,13 +902,13 @@ func getEnabledProposals() []wasm.ProposalType {
 //     community pool in order to
 //     create new incentives schedules upon successful governance proposals
 //
-//   - `shuttle`, so that it can draw funds from the community pool;
+//   - `envoy`, so that it can draw funds from the community pool;
 //     additionally, if an ICS-20 packet times out, it can receive the refund.
 //
 // Further note on the 2nd point: the distrkeeper's `DistributeFromFeePool`
 // function uses bankkeeper's `SendCoinsFromModuleToAccount` instead of
 // `SendCoinsFromModuleToModule`. If it had used `FromModuleToModule`
-// then we won't need to allow incentives and shuttle module accounts to receive
+// then we won't need to allow incentives and envoy module accounts to receive
 // funds here.
 //
 // Forked from: https://github.com/cosmos/gaia/pull/1493
@@ -918,7 +918,7 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(incentivestypes.ModuleName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(safetytypes.ModuleName).String())
-	delete(modAccAddrs, authtypes.NewModuleAddress(shuttletypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(envoytypes.ModuleName).String())
 
 	return modAccAddrs
 }
@@ -964,7 +964,7 @@ func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
 
 	var icaControllerStack ibcporttypes.IBCModule
-	icaControllerStack = shuttle.NewIBCModule(app.ShuttleKeeper)
+	icaControllerStack = envoy.NewIBCModule(app.envoyKeeper)
 	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
 	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, app.IBCFeeKeeper)
 

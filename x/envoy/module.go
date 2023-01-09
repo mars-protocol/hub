@@ -1,4 +1,4 @@
-package shuttle
+package envoy
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/mars-protocol/hub/x/shuttle/client/cli"
-	"github.com/mars-protocol/hub/x/shuttle/keeper"
-	"github.com/mars-protocol/hub/x/shuttle/types"
+	"github.com/mars-protocol/hub/x/envoy/client/cli"
+	"github.com/mars-protocol/hub/x/envoy/keeper"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
 var (
@@ -73,7 +73,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule
 //------------------------------------------------------------------------------
 
-// AppModule implements an application module for the shuttle module
+// AppModule implements an application module for the envoy module
 type AppModule struct {
 	AppModuleBasic
 

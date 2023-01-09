@@ -1,7 +1,7 @@
 syntax = "proto3";
-package mars.shuttle.v1beta1;
+package mars.envoy.v1beta1;
 
-option go_package = "github.com/mars-protocol/hub/x/shuttle/types";
+option go_package = "github.com/mars-protocol/hub/x/envoy/types";
 
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
@@ -21,7 +21,7 @@ service Msg {
   // SendFunds is a governance operation for sending funds to an interchain
   // account via ICS-20.
   //
-  // The shuttle module will first attempt to use the balance held in its own
+  // The envoy module will first attempt to use the balance held in its own
   // module account. If the balance is not sufficient, it will attempt to draw
   // the difference from the community pool.
   rpc SendFunds(MsgSendFunds) returns (MsgSendFundsResponse);
