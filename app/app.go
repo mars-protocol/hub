@@ -94,9 +94,6 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
-	ibcfee "github.com/cosmos/ibc-go/v6/modules/apps/29-fee"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/keeper"
-	ibcfeetypes "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/types"
 	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
@@ -170,7 +167,6 @@ var (
 		staking.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		ibc.AppModuleBasic{},
-		ibcfee.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		wasm.AppModuleBasic{},
@@ -197,7 +193,6 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		ibcfeetypes.ModuleName:         nil,
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
 		wasm.ModuleName:                {authtypes.Burner},
@@ -261,7 +256,6 @@ type MarsApp struct {
 	StakingKeeper       stakingkeeper.Keeper
 	UpgradeKeeper       upgradekeeper.Keeper
 	IBCKeeper           *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
-	IBCFeeKeeper        ibcfeekeeper.Keeper
 	IBCTransferKeeper   ibctransferkeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
@@ -317,7 +311,6 @@ func NewMarsApp(
 		stakingtypes.StoreKey,
 		upgradetypes.StoreKey,
 		ibchost.StoreKey,
-		ibcfeetypes.StoreKey,
 		ibctransfertypes.StoreKey,
 		icacontrollertypes.StoreKey,
 		icahosttypes.StoreKey,
@@ -459,20 +452,11 @@ func NewMarsApp(
 		app.StakingKeeper,
 		app.UpgradeKeeper, app.ScopedIBCKeeper,
 	)
-	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
-		codec,
-		keys[ibcfeetypes.StoreKey],
-		app.IBCKeeper.ChannelKeeper, // default to ChannelKeeper, may be replaced with middleware such as ICS-29
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-	)
 	app.IBCTransferKeeper = ibctransferkeeper.NewKeeper(
 		codec,
 		keys[ibctransfertypes.StoreKey],
 		getSubspace(app, ibctransfertypes.ModuleName),
-		app.IBCFeeKeeper, // default to ChannelKeeper, may be replaced with middleware such as ICS-29
+		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
@@ -483,7 +467,7 @@ func NewMarsApp(
 		codec,
 		keys[icacontrollertypes.StoreKey],
 		getSubspace(app, icacontrollertypes.SubModuleName),
-		app.IBCFeeKeeper, // default to ChannelKeeper, may be replaced with middleware such as ICS-29
+		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.ScopedICAControllerKeeper,
@@ -493,7 +477,7 @@ func NewMarsApp(
 		codec,
 		keys[icahosttypes.StoreKey],
 		getSubspace(app, icahosttypes.SubModuleName),
-		app.IBCFeeKeeper, // default to ChannelKeeper, may be replaced with middleware such as ICS-29
+		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
@@ -618,7 +602,6 @@ func NewMarsApp(
 		staking.NewAppModule(codec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
-		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -647,7 +630,6 @@ func NewMarsApp(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		ibchost.ModuleName,
-		ibcfeetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
@@ -672,7 +654,6 @@ func NewMarsApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		ibchost.ModuleName,
-		ibcfeetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
@@ -702,7 +683,6 @@ func NewMarsApp(
 		upgradetypes.ModuleName,
 		feegrant.ModuleName,
 		ibchost.ModuleName,
-		ibcfeetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
@@ -957,30 +937,21 @@ func initGovRouter(app *MarsApp) govv1beta1.Router {
 	return govRouter
 }
 
-// initialzies IBC router
+// initIBCRouter initialzies IBC router.
+//
+// NOTE: We cannot wrap modules in the fee middleware yet until channel
+// upgradability is implemented. See discussion here:
+// https://discord.com/channels/955868717269516318/955877042883285023/1062113420712882278
 func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
-	var transferStack ibcporttypes.IBCModule
-	transferStack = ibctransfer.NewIBCModule(app.IBCTransferKeeper)
-	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
-
 	var icaControllerStack ibcporttypes.IBCModule
 	icaControllerStack = envoy.NewIBCModule(app.envoyKeeper)
 	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
-	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, app.IBCFeeKeeper)
-
-	var icaHostStack ibcporttypes.IBCModule
-	icaHostStack = icahost.NewIBCModule(app.ICAHostKeeper)
-	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, app.IBCFeeKeeper)
-
-	var wasmStack ibcporttypes.IBCModule
-	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
-	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
 
 	ibcRouter := ibcporttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, ibctransfer.NewIBCModule(app.IBCTransferKeeper))
 	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerStack)
-	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostStack)
-	ibcRouter.AddRoute(wasm.ModuleName, wasmStack)
+	ibcRouter.AddRoute(icahosttypes.SubModuleName, icahost.NewIBCModule(app.ICAHostKeeper))
+	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
 
 	return ibcRouter
 }
