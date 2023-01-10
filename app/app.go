@@ -262,7 +262,7 @@ type MarsApp struct {
 	WasmKeeper          wasm.Keeper
 	IncentivesKeeper    incentiveskeeper.Keeper
 	SafetyKeeper        safetykeeper.Keeper
-	envoyKeeper         envoykeeper.Keeper
+	EnvoyKeeper         envoykeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
@@ -270,7 +270,7 @@ type MarsApp struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
-	ScopedenvoyKeeper         capabilitykeeper.ScopedKeeper
+	ScopedEnvoyKeeper         capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -361,7 +361,7 @@ func NewMarsApp(
 	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	app.ScopedenvoyKeeper = app.CapabilityKeeper.ScopeToModule(envoytypes.ModuleName)
+	app.ScopedEnvoyKeeper = app.CapabilityKeeper.ScopeToModule(envoytypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -535,14 +535,14 @@ func NewMarsApp(
 		app.BankKeeper,
 		authority,
 	)
-	app.envoyKeeper = envoykeeper.NewKeeper(
+	app.EnvoyKeeper = envoykeeper.NewKeeper(
 		app.Codec,
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.ICAControllerKeeper,
-		app.ScopedenvoyKeeper,
+		app.ScopedEnvoyKeeper,
 		app.MsgServiceRouter(),
 		authority,
 	)
@@ -607,7 +607,7 @@ func NewMarsApp(
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
 		safety.NewAppModule(app.SafetyKeeper),
-		envoy.NewAppModule(app.envoyKeeper),
+		envoy.NewAppModule(app.EnvoyKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that
@@ -944,7 +944,7 @@ func initGovRouter(app *MarsApp) govv1beta1.Router {
 // https://discord.com/channels/955868717269516318/955877042883285023/1062113420712882278
 func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
 	var icaControllerStack ibcporttypes.IBCModule
-	icaControllerStack = envoy.NewIBCModule(app.envoyKeeper)
+	icaControllerStack = envoy.NewIBCModule(app.EnvoyKeeper)
 	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
 
 	ibcRouter := ibcporttypes.NewRouter()
