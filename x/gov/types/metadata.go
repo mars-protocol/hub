@@ -7,9 +7,9 @@ import (
 // ProposalMetadata defines the required schema for proposal metadata.
 type ProposalMetadata struct {
 	Title             string   `json:"title"`
-	Authors           []string `json:"authors"`
-	Summary           string   `json:"summary,omitempty"`
-	Details           string   `json:"details"`
+	Authors           []string `json:"authors,omitempty"`
+	Summary           string   `json:"summary"`
+	Details           string   `json:"details,omitempty"`
 	ProposalForumURL  string   `json:"proposal_forum_url,omitempty"`
 	VoteOptionContext string   `json:"vote_option_context,omitempty"`
 }
@@ -43,12 +43,8 @@ func UnmarshalProposalMetadata(metadataStr string) (*ProposalMetadata, error) {
 		return nil, ErrInvalidMetadata.Wrap("missing field `title`")
 	}
 
-	if metadata.Authors == nil {
-		return nil, ErrInvalidMetadata.Wrap("missing field `authors`")
-	}
-
-	if metadata.Details == "" {
-		return nil, ErrInvalidMetadata.Wrap("missing field `details`")
+	if metadata.Summary == "" {
+		return nil, ErrInvalidMetadata.Wrap("missing field `summary`")
 	}
 
 	return &metadata, nil

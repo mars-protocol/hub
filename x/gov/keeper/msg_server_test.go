@@ -37,8 +37,7 @@ func TestProposalMetadataTypeCheck(t *testing.T) {
 			"a valid metadata with missing optional fields",
 			`{
 				"title": "Mock Proposal",
-				"authors": [],
-				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module."
+				"summary": "Mock proposal for testing purposes"
 			}`,
 			true,
 		},
@@ -54,8 +53,7 @@ func TestProposalMetadataTypeCheck(t *testing.T) {
 			"extra unexpected fields are accepted",
 			`{
 				"title": "Mock Proposal",
-				"authors": ["Larry Engineer <gm@larry.engineer>"],
-				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
+				"summary": "Mock proposal for testing purposes",
 				"foo": "bar"
 			}`,
 			true,
