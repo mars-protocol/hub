@@ -88,9 +88,12 @@ func (k legacyMsgServer) SubmitProposal(goCtx context.Context, msg *govv1beta1.M
 		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
 	}
 
-	// this part is different from the vanilla gov module: we compose the
-	// metadata string based on the legacy content, instead of simply leaving
-	// it empty.
+	// this part is different from the vanilla gov module:
+	//
+	// we compose the metadata string based on the legacy content, instead of
+	// simply leaving it empty.
+	//
+	// this is necessary because of the metadata type check we implemented.
 	metadata := types.ProposalMetadata{
 		Title:   content.GetTitle(),
 		Summary: content.GetDescription(),
