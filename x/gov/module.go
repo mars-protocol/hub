@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/cosmos/cosmos-sdk/x/gov"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -54,11 +53,13 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 //
 // NOTE: this overwrites the vanilla gov module RegisterServices function
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	macc := am.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
+
 	// msg server - use the vanilla implementation
 	// The changes we've made to execution are in EndBlocker, so the msgServer
 	// doesn't need to be changed.
 	msgServer := keeper.NewMsgServerImpl(am.keeper)
-	govv1beta1.RegisterMsgServer(cfg.MsgServer(), govkeeper.NewLegacyMsgServerImpl(am.accountKeeper.GetModuleAddress(govtypes.ModuleName).String(), msgServer))
+	govv1beta1.RegisterMsgServer(cfg.MsgServer(), keeper.NewLegacyMsgServerImpl(macc, msgServer))
 	govv1.RegisterMsgServer(cfg.MsgServer(), msgServer)
 
 	// query server - use our custom implementation
