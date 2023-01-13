@@ -309,4 +309,14 @@ replace (
 	// Another discussion why not to use protobuf for blockchain storage:
 	// https://github.com/near/borsh/discussions/110
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
+	// use Informal System's fork of Tendermint Core
+	//
+	// It seems that the official repo is being abandoned and now Informal is
+	// taking over the development with their fork:
+	// https://github.com/tendermint/tendermint/issues/9972
+	//
+	// Twitter thread:
+	// https://twitter.com/informalinc/status/1613580954383040512
+	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.24
 )
