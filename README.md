@@ -2,6 +2,10 @@
 
 Mars Hub app-chain, built on top of [Tendermint][1], [Cosmos SDK][2], [IBC][3], and [CosmWasm][4].
 
+## Bug bounty
+
+A bug bounty is currently open for Mars Hub and peripheral contracts. See details [here](https://immunefi.com/bounty/mars/).
+
 ## Audits
 
 See reports [here](https://github.com/mars-protocol/mars-audits/tree/main/hub).
