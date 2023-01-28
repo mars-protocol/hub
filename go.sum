@@ -950,8 +950,8 @@ github.com/nishanths/exhaustive v0.8.3 h1:pw5O09vwg8ZaditDp/nQRqVnrMczSJDxRDJMow
 github.com/nishanths/exhaustive v0.8.3/go.mod h1:qj+zJJUgJ76tR92+25+03oYUhzF4R7/2Wk7fGTfCHmg=
 github.com/nishanths/predeclared v0.2.2 h1:V2EPdZPliZymNAn79T8RkNApBjMmVKh5XRpLm/w98Vk=
 github.com/nishanths/predeclared v0.2.2/go.mod h1:RROzoN6TnGQupbC+lqggsOlcgysk3LMK/HI84Mp280c=
-github.com/notional-labs/wasmd v0.30.0-sdk46 h1:n8R5WHgjydvLdYpXH9rbHm/9UCFO1PGG8Ug7Yos1S1U=
-github.com/notional-labs/wasmd v0.30.0-sdk46/go.mod h1:nw2EAKcljsu/c1LbJ9KS3HYn+JMbLHnCVza5PiPCLRU=
+github.com/notional-labs/wasmd v0.30.0-sdk468 h1:mhL9oNnrvrDOShT7ICW+mRlHADxKtV8l+txlJ5G2HfE=
+github.com/notional-labs/wasmd v0.30.0-sdk468/go.mod h1:BquY6h8BPHjdvGnWELGjuMWqt2mnhhXQmz5tyMIyQTY=
 github.com/nxadm/tail v1.4.4 h1:DQuhQpB1tVlglWS2hLQ5OV6B5r8aGxSrPc5Qo6uTN78=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oklog/oklog v0.3.2/go.mod h1:FCV+B7mhrz4o+ueLpx+KqkyXRGMWOYEvfiXtdGtbWGs=
