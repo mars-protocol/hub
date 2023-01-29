@@ -293,7 +293,7 @@ require (
 
 replace (
 	// use Notional's fork of wasmd with sdk 0.46
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.30.0-sdk46
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.30.0-sdk468
 
 	// use cosmos flavored gogo/protobuf
 	// https://github.com/cosmos/cosmos-sdk/issues/8469
