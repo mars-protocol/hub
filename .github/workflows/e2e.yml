@@ -1,15 +1,9 @@
-name: Envoy E2E
+name: E2E tests for marsd
 
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - x/envoy
-      - testing/e2e/envoy.ts
-      - .github/workflows/envoy-e2e.yml
+on: push
 
 jobs:
-  e2e:
+  envoy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -79,6 +73,6 @@ jobs:
       - name: Unzip testdata
         run: tar -xzf x/envoy/testdata/configs.tar.gz -C ~
 
-      - name: E2E test
-        working-directory: testing/e2e
-        run: deno test -A envoy.ts
+      - name: E2E test for Envoy module
+        working-directory: x/envoy/testdata/e2e
+        run: deno test -A envoy_test.ts
