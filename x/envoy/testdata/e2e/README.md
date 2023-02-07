@@ -2,27 +2,29 @@
 
 This directory contains end-to-end tests for the Envoy module.
 
-This end-to-end test is set up to run on
-[GitHub workflow CI](../../../../.github/workflows/e2e.yml).
-
 The tests are written in [Typescript](https://www.typescriptlang.org) to be
 executable in [Deno runtime](https://deno.land).
 
-## Locally
+## Executing
 
-One may use [`act`](https://github.com/nektos/act) to test this workflow
-locally.
+This end-to-end test is set up as a
+[GitHub Actions workflow](../../../../.github/workflows/e2e.yml).
 
-Alternatively, one also may run the tests locally using included Dockerfile.
+There are two ways to run this _workflow_ on code changes.
 
+### CI/CD
+
+Push commits to any GitHub repository will trigger this workflow on GitHub
+actions.
+
+### Locally
+
+[`act`](https://github.com/nektos/act) can be used to test this workflow on a
+local machine.
+
+```sh
+act -j envoy
 ```
-docker build . -t envoy-docker
-docker run --rm -it envoy-docker deno test -A envoy_test.ts
-```
-
-These steps do not require Deno to be installed locally.
-
-> **Note** Docker build takes changes from the MarsHub GitHub repository.
 
 ## Description
 

@@ -9,15 +9,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Make wasmd directory
-        run: mkdir wasmd
-
-      - name: Checkout wasmd repository
-        uses: actions/checkout@v3
-        with:
-          repository: CosmWasm/wasmd
-          ref: v0.30.0
-          path: wasmd
+      - name: Download and setup wasmd source
+        env:
+          REPO: CosmWasm/wasmd
+          TAG: 0.30.0
+        run: |
+          curl -OL https://github.com/${REPO}/archive/refs/tags/v${TAG}.zip
+          unzip v${TAG}.zip
+          mv wasmd-${TAG} wasmd
 
       - name: Setup Go-lang
         uses: actions/setup-go@v3
