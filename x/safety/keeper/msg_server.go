@@ -4,7 +4,6 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -23,7 +22,7 @@ func (ms msgServer) SafetyFundSpend(goCtx context.Context, req *types.MsgSafetyF
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.Authority != ms.k.authority {
-		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
 	}
 
 	recipientAddr, err := sdk.AccAddressFromBech32(req.Recipient)

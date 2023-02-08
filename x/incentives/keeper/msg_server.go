@@ -4,7 +4,6 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -25,7 +24,7 @@ func (ms msgServer) CreateSchedule(goCtx context.Context, req *types.MsgCreateSc
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.Authority != ms.k.authority {
-		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
 	}
 
 	schedule, err := ms.k.CreateSchedule(ctx, req.StartTime, req.EndTime, req.Amount)
@@ -48,7 +47,7 @@ func (ms msgServer) TerminateSchedules(goCtx context.Context, req *types.MsgTerm
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.Authority != ms.k.authority {
-		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
 	}
 
 	amount, err := ms.k.TerminateSchedules(ctx, req.Ids)
