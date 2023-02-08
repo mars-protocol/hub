@@ -1,0 +1,77 @@
+name: E2E tests for marsd
+
+on: push
+
+jobs:
+  envoy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download and setup wasmd source
+        env:
+          REPO: CosmWasm/wasmd
+          TAG: 0.30.0
+        run: |
+          curl -OL https://github.com/${REPO}/archive/refs/tags/v${TAG}.zip
+          unzip v${TAG}.zip
+          mv wasmd-${TAG} wasmd
+
+      - name: Setup Go-lang
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Cache Go artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-build-
+
+      - name: Cache Rust artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-cargo
+
+      - name: Cache Deno artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/deno
+          key: ${{ runner.os }}-deno
+
+      - name: Install marsd
+        run: make install
+
+      - name: Install wasmd
+        working-directory: wasmd
+        run: make install
+
+      - name: Install hermes
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: ibc-relayer-cli --bin hermes --locked
+
+      - name: Unzip testdata
+        run: tar -xzf x/envoy/testdata/configs.tar.gz -C ~
+
+      - name: E2E test for Envoy module
+        working-directory: x/envoy/testdata/e2e
+        run: deno test -A envoy_test.ts
