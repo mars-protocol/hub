@@ -1,4 +1,6 @@
-# Demo
+<!-- markdownlint-configure-file { "no-inline-html": false } -->
+
+# E2E tests for Envoy module
 
 This document describes how I do a manual end-to-end test with two local devnets. I use [marsd][1] (equipped with the envoy module) as the controller chain and [wasmd][2] as the host chain. Use [hermes][3] to relay messages between the two.
 
@@ -51,7 +53,7 @@ This is a barebone contract taken from my [CosmWasm template][4], which uses the
 
 ### Objective
 
-The demo is successful if we can:
+The test is considered successful if we can:
 
 - Register an interchain account owned by marsd envoy module on wasmd
 - Send coins from marsd community pool to the ICA

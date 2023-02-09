@@ -1,4 +1,4 @@
-name: E2E tests for marsd
+name: E2E
 
 on: push
 
@@ -70,8 +70,8 @@ jobs:
           args: ibc-relayer-cli --bin hermes --locked
 
       - name: Unzip testdata
-        run: tar -xzf x/envoy/testdata/configs.tar.gz -C ~
+        run: tar -xzf tests/e2e/configs.tar.gz -C ~
 
       - name: E2E test for Envoy module
-        working-directory: x/envoy/testdata/e2e
+        working-directory: tests/e2e/e2e
         run: deno test -A envoy_test.ts
