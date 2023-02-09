@@ -132,12 +132,12 @@ func (im IBCModule) OnAcknowledgementPacket(
 
 	var ack ibcchanneltypes.Acknowledgement
 	if err := ibcchanneltypes.SubModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-27 packet acknowledgement: %v", err)
+		return sdkerrors.ErrUnknownRequest.Wrapf("cannot unmarshal ICS-27 packet acknowledgement: %v", err)
 	}
 
 	var txMsgData sdk.TxMsgData
 	if err := proto.Unmarshal(ack.GetResult(), &txMsgData); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-27 tx message data: %v", err)
+		return sdkerrors.ErrUnknownRequest.Wrapf("cannot unmarshal ICS-27 tx message data: %v", err)
 	}
 
 	switch len(txMsgData.Data) {
@@ -205,7 +205,7 @@ func handleMsgData(msgData *sdk.MsgData) (string, error) { //nolint:staticcheck 
 func handleProtoMsg[T proto.Message](bz []byte, tyName string) (string, error) {
 	var msg T
 	if err := proto.Unmarshal(bz, msg); err != nil {
-		return "", sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "cannot unmarshal %s response: %v", tyName, err)
+		return "", sdkerrors.ErrJSONUnmarshal.Wrapf("cannot unmarshal %s response: %v", tyName, err)
 	}
 
 	return msg.String(), nil

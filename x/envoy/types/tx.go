@@ -3,7 +3,6 @@ package types
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdktx "github.com/cosmos/cosmos-sdk/types/tx"
 )
 
@@ -50,17 +49,17 @@ func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 func (m *MsgSendFunds) ValidateBasic() error {
 	// the authority address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return sdkerrors.Wrap(ErrInvalidProposalAuthority, err.Error())
+		return ErrInvalidProposalAuthority.Wrap(err.Error())
 	}
 
 	// the coins amount must not be empty
 	if m.Amount.Empty() {
-		return sdkerrors.Wrap(ErrInvalidProposalAmount, "amount cannot be empty")
+		return ErrInvalidProposalAmount.Wrap("amount cannot be empty")
 	}
 
 	// the coins amount must be valid
 	if err := m.Amount.Validate(); err != nil {
-		return sdkerrors.Wrap(ErrInvalidProposalAmount, err.Error())
+		return ErrInvalidProposalAmount.Wrap(err.Error())
 	}
 
 	return nil
@@ -80,18 +79,18 @@ func (m *MsgSendFunds) GetSigners() []sdk.AccAddress {
 func (m *MsgSendMessages) ValidateBasic() error {
 	// the authority address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return sdkerrors.Wrap(ErrInvalidProposalAuthority, err.Error())
+		return ErrInvalidProposalAuthority.Wrap(err.Error())
 	}
 
 	// the messages must each implement the sdk.Msg interface
 	msgs, err := sdktx.GetMsgs(m.Messages, sdk.MsgTypeURL(m))
 	if err != nil {
-		return sdkerrors.Wrap(ErrInvalidProposalMsg, err.Error())
+		return ErrInvalidProposalMsg.Wrap(err.Error())
 	}
 
 	// there must be at least one message
 	if len(msgs) < 1 {
-		return sdkerrors.Wrap(ErrInvalidProposalMsg, "proposal must contain at least one message")
+		return ErrInvalidProposalMsg.Wrap("proposal must contain at least one message")
 	}
 
 	// ideally, we want to check each message:

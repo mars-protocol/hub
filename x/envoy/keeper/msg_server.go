@@ -119,7 +119,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.Authority != ms.k.authority {
-		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
 	}
 
 	owner, portID, err := ms.k.GetOwnerAndPortID()
@@ -132,7 +132,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	// the objective is to find the connection id associated with the channel
 	channel, found := ms.k.channelKeeper.GetChannel(ctx, ibctransfertypes.PortID, req.ChannelId)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "channel with port ID %s and channel ID %s does not exist", ibctransfertypes.PortID, req.ChannelId)
+		return nil, sdkerrors.ErrNotFound.Wrapf("channel with port ID %s and channel ID %s does not exist", ibctransfertypes.PortID, req.ChannelId)
 	}
 
 	// the transfer channel must only have one hop
@@ -140,14 +140,14 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 	// we do not need to support multihop channels, as Mars Hub will establish
 	// direct connections with all its outpost chains.
 	if len(channel.ConnectionHops) > 1 {
-		return nil, sdkerrors.Wrapf(types.ErrMultihopUnsupported, "%s has more than one connection hops", req.ChannelId)
+		return nil, types.ErrMultihopUnsupported.Wrapf("%s has more than one connection hops", req.ChannelId)
 	}
 
 	// find the interchain account address associated with the connection
 	connectionID := channel.ConnectionHops[0]
 	address, found := ms.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "no interchain account exists on %s", connectionID)
+		return nil, sdkerrors.ErrNotFound.Wrapf("no interchain account exists on %s", connectionID)
 	}
 
 	// find token balances of the envoy module account
@@ -211,7 +211,7 @@ func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessag
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.Authority != ms.k.authority {
-		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", ms.k.authority, req.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
 	}
 
 	owner := ms.k.GetModuleAddress()
@@ -283,7 +283,7 @@ func convertToProtoMessages(anys []*codectypes.Any) ([]proto.Message, error) {
 	for _, any := range anys {
 		protoMsg, ok := any.GetCachedValue().(proto.Message)
 		if !ok {
-			return nil, sdkerrors.Wrapf(types.ErrInvalidProposalMsg, "%s does not implement the proto.Message interface", any.TypeUrl)
+			return nil, types.ErrInvalidProposalMsg.Wrapf("%s does not implement the proto.Message interface", any.TypeUrl)
 		}
 
 		protoMsgs = append(protoMsgs, protoMsg)
