@@ -73,5 +73,5 @@ jobs:
         run: tar -xzf tests/e2e/configs.tar.gz -C ~
 
       - name: E2E test for Envoy module
-        working-directory: tests/e2e/e2e
+        working-directory: tests/e2e
         run: deno test -A envoy_test.ts
