@@ -71,7 +71,7 @@ func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRe
 func (qs queryServer) queryAccount(ctx sdk.Context, connectionID, portID string) (*types.AccountInfo, error) {
 	address, found := qs.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "envoy module-owned ICA: connection ID (%s)", connectionID)
+		return nil, sdkerrors.ErrNotFound.Wrapf("envoy module-owned ICA: connection ID (%s)", connectionID)
 	}
 
 	// ordered channels are closed if a packet times out:
@@ -84,12 +84,12 @@ func (qs queryServer) queryAccount(ctx sdk.Context, connectionID, portID string)
 	// interchain account exists but the channel is closed.")
 	channelID, found := qs.k.icaControllerKeeper.GetOpenActiveChannel(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "ICA open active channel: connectionID (%s), portID (%s)", connectionID, portID)
+		return nil, sdkerrors.ErrNotFound.Wrapf("ICA open active channel: connectionID (%s), portID (%s)", connectionID, portID)
 	}
 
 	channel, found := qs.k.channelKeeper.GetChannel(ctx, portID, channelID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "IBC channel: portID (%s) channelID (%s)")
+		return nil, sdkerrors.ErrNotFound.Wrapf("IBC channel: portID (%s) channelID (%s)")
 	}
 
 	connection, err := qs.k.channelKeeper.GetConnection(ctx, connectionID)
@@ -108,12 +108,12 @@ func (qs queryServer) queryAccountFromChannel(ctx sdk.Context, channelID, portID
 
 	channel, found := qs.k.channelKeeper.GetChannel(ctx, portID, channelID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "IBC channel: portID (%s) channelID (%s)")
+		return nil, sdkerrors.ErrNotFound.Wrapf("IBC channel: portID (%s) channelID (%s)")
 	}
 
 	address, found := qs.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "envoy module-owned ICA: connection ID (%s)", connectionID)
+		return nil, sdkerrors.ErrNotFound.Wrapf("envoy module-owned ICA: connection ID (%s)", connectionID)
 	}
 
 	return composeAccountInfo(address, connectionID, portID, channelID, connection, channel), nil
