@@ -152,6 +152,13 @@ describe("e2e tests for envoy module", async () => {
     console.log({ ICAAddr: interchainAccAddr });
   });
 
+  await it("prepare the SendMessages proposal", async () => {
+    const msg = JSON.parse(await Deno.readTextFile(SEND_MSGS_JSON));
+    // update with the current interchain-account
+    msg.messages[0].messages[0].sender = interchainAccAddr;
+    await Deno.writeTextFile(SEND_MSGS_JSON, JSON.stringify(msg));
+  });
+
   await it("send funds to interchain-account", async () => {
     // gov proposal to send funds to envoy interchain-account
     await exec([
