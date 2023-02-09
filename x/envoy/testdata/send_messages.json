@@ -16,6 +16,6 @@
       ]
     }
   ],
-  "metadata": "",
+  "metadata": "{\"title\":\"Accept contract ownership\",\"summary\":\"Instruct the governance-controlled interchain account on connection-0 to accept the contract ownership.\"}",
   "deposit": "10000000umars"
 }
