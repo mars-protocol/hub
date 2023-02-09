@@ -1,7 +1,6 @@
 import {
   assert,
   assertEquals,
-  assertExists,
   assertNotEquals,
 } from "https://deno.land/std@0.176.0/testing/asserts.ts";
 import {
@@ -430,7 +429,7 @@ describe("e2e tests for envoy module", async () => {
     assertEquals(curr.owner, prev.pending_owner);
     // current owner is envoy interchain-account
     assertEquals(curr.owner, interchainAccAddr);
-    // current prending owner is null
+    // current pending owner is null
     assertEquals(curr.pending_owner, null);
   });
 });
