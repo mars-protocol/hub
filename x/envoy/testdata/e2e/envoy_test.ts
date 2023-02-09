@@ -20,12 +20,6 @@ const SEND_MSGS_JSON = "../send_messages.json";
 const CW_ADDR =
   "wasm14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s0phg4d";
 
-const PROP_METADATA = {
-  title: "This is the title",
-  authors: ["John Doe"],
-  details: "These are the details",
-};
-
 const RETRY_OPTION = {
   multiplier: 1,
   maxTimeout: 90000,
@@ -38,11 +32,11 @@ const RUNNING_PROCS: Deno.Process[] = [];
 async function exec(
   cmd: string[],
   stdin?: string,
-  is_detach?: boolean,
+  is_detach?: boolean
 ): Promise<string> {
   const p = Deno.run({
     cmd: cmd,
-    stdin: (typeof stdin === "undefined") ? "inherit" : "piped",
+    stdin: typeof stdin === "undefined" ? "inherit" : "piped",
     stdout: "piped",
   });
 
@@ -85,19 +79,17 @@ beforeAll(async () => {
   }, RETRY_OPTION);
 
   // create ibc client
-  await exec(
-    [
-      "hermes",
-      "create",
-      "channel",
-      "--a-chain=mars-dev-1",
-      "--a-port=transfer",
-      "--b-chain=wasm-dev-1",
-      "--b-port=transfer",
-      "--new-client-connection",
-      "--yes",
-    ],
-  );
+  await exec([
+    "hermes",
+    "create",
+    "channel",
+    "--a-chain=mars-dev-1",
+    "--a-port=transfer",
+    "--b-chain=wasm-dev-1",
+    "--b-port=transfer",
+    "--new-client-connection",
+    "--yes",
+  ]);
 
   // start hermes
   await exec(["hermes", "start"], undefined, true);
@@ -117,31 +109,29 @@ describe("e2e tests for envoy module", async () => {
 
   await it("register interchain-account of envoy module", async () => {
     // tx to register interchain-account of envoy module
-    await exec(
-      [
-        "marsd",
-        "tx",
-        "envoy",
-        "register-account",
-        "connection-0",
-        `--from=${USER_WALLET}`,
-        "--gas=auto",
-        "--gas-adjustment=1.4",
-        "--yes",
-      ],
-    );
+    await exec([
+      "marsd",
+      "tx",
+      "envoy",
+      "register-account",
+      "connection-0",
+      `--from=${USER_WALLET}`,
+      "--gas=auto",
+      "--gas-adjustment=1.4",
+      "--yes",
+    ]);
 
     // wait until the interchain-account is registered
     await retry(async () => {
       const data = JSON.parse(
-        await exec(["marsd", "q", "envoy", "accounts", "--output=json"]),
+        await exec(["marsd", "q", "envoy", "accounts", "--output=json"])
       );
 
       assert(data.accounts.length > 0);
     }, RETRY_OPTION);
 
     const icas = JSON.parse(
-      await exec(["marsd", "q", "envoy", "accounts", "--output=json"]),
+      await exec(["marsd", "q", "envoy", "accounts", "--output=json"])
     ).accounts;
 
     // interchain-account is registered
@@ -155,7 +145,7 @@ describe("e2e tests for envoy module", async () => {
         "account",
         "connection-0",
         "--output=json",
-      ]),
+      ])
     ).account.address;
 
     assertEquals(interchainAccAddr, icas[0].address);
@@ -163,69 +153,47 @@ describe("e2e tests for envoy module", async () => {
     console.log({ ICAAddr: interchainAccAddr });
   });
 
-  await it("prepare the SendFunds message", async () => {
-    const msg = JSON.parse(await Deno.readTextFile(SEND_FUNDS_JSON));
-    assertExists(msg.metadata);
-    // assign a valid metadata information
-    msg.metadata = JSON.stringify(PROP_METADATA);
-    await Deno.writeTextFile(SEND_FUNDS_JSON, JSON.stringify(msg));
-  });
-
-  await it("prepare the SendMessages message", async () => {
-    const msg = JSON.parse(await Deno.readTextFile(SEND_MSGS_JSON));
-    assertExists(msg.metadata);
-    // assign a valid metadata information
-    msg.metadata = JSON.stringify(PROP_METADATA);
-    // update with the current interchain-account
-    msg.messages[0].messages[0].sender = interchainAccAddr;
-    await Deno.writeTextFile(SEND_MSGS_JSON, JSON.stringify(msg));
-  });
-
   await it("send funds to interchain-account", async () => {
     // gov proposal to send funds to envoy interchain-account
-    await exec(
-      [
-        "marsd",
-        "tx",
-        "gov",
-        "submit-proposal",
-        SEND_FUNDS_JSON,
-        `--from=${USER_WALLET}`,
-        "--gas=auto",
-        "--gas-adjustment=1.4",
-        "--yes",
-      ],
-    );
+    await exec([
+      "marsd",
+      "tx",
+      "gov",
+      "submit-proposal",
+      SEND_FUNDS_JSON,
+      `--from=${USER_WALLET}`,
+      "--gas=auto",
+      "--gas-adjustment=1.4",
+      "--yes",
+    ]);
 
     // wait until the proposal is submitted
     await retry(async () => {
       const data = JSON.parse(
-        await exec(["marsd", "q", "gov", "proposals", "--output=json"]),
+        await exec(["marsd", "q", "gov", "proposals", "--output=json"])
       );
 
       assert(data.proposals.length > 0);
     }, RETRY_OPTION);
 
     // tx to vote for the proposal
-    await exec(
-      [
-        "marsd",
-        "tx",
-        "gov",
-        "vote",
-        "1",
-        "yes",
-        `--from=${VALIDATOR_WALLET}`,
-        "--gas=auto",
-        "--gas-adjustment=1.4",
-        "--yes",
-      ],
-    );
+    await exec([
+      "marsd",
+      "tx",
+      "gov",
+      "vote",
+      "1",
+      "yes",
+      `--from=${VALIDATOR_WALLET}`,
+      "--gas=auto",
+      "--gas-adjustment=1.4",
+      "--yes",
+    ]);
 
     // wait until the proposal is passed
     await retry(async () => {
       const data = JSON.parse(
-        await exec(["marsd", "q", "gov", "proposal", "1", "--output=json"]),
+        await exec(["marsd", "q", "gov", "proposal", "1", "--output=json"])
       );
 
       assertEquals(data.status, "PROPOSAL_STATUS_PASSED");
@@ -241,15 +209,22 @@ describe("e2e tests for envoy module", async () => {
           "balances",
           interchainAccAddr,
           "--output=json",
-        ]),
+        ])
       );
 
       assert(data.balances.length > 0);
     }, RETRY_OPTION);
 
-    const escrowAddress = (await exec(
-      ["marsd", "q", "ibc-transfer", "escrow-address", "transfer", "channel-0"],
-    )).trim();
+    const escrowAddress = (
+      await exec([
+        "marsd",
+        "q",
+        "ibc-transfer",
+        "escrow-address",
+        "transfer",
+        "channel-0",
+      ])
+    ).trim();
 
     interface Coin {
       denom: string;
@@ -264,14 +239,15 @@ describe("e2e tests for envoy module", async () => {
         "balances",
         escrowAddress,
         "--output=json",
-      ]),
+      ])
     ).balances;
 
     // escrow balance is non-empty
     assert(escrowBalances.length > 0);
 
-    const sentFunds: Coin[] =
-      JSON.parse(await Deno.readTextFile(SEND_FUNDS_JSON)).messages[0].amount;
+    const sentFunds: Coin[] = JSON.parse(
+      await Deno.readTextFile(SEND_FUNDS_JSON)
+    ).messages[0].amount;
 
     const wasmdBalances: Coin[] = JSON.parse(
       await exec([
@@ -281,7 +257,7 @@ describe("e2e tests for envoy module", async () => {
         "balances",
         interchainAccAddr,
         "--output=json",
-      ]),
+      ])
     ).balances;
 
     // escrow balance matches with ibc balance
@@ -293,23 +269,25 @@ describe("e2e tests for envoy module", async () => {
         const denomHash = wb.denom.split("/", 2)[1];
 
         const denomTrace = JSON.parse(
-          await exec(
-            [
-              "wasmd",
-              "q",
-              "ibc-transfer",
-              "denom-trace",
-              denomHash,
-              "--output=json",
-            ],
-          ),
+          await exec([
+            "wasmd",
+            "q",
+            "ibc-transfer",
+            "denom-trace",
+            denomHash,
+            "--output=json",
+          ])
         ).denom_trace;
 
-        return (await val) && sentFunds.some((sb) => {
-          return (sb.denom == denomTrace.base_denom) &&
-            (sb.balance == wb.balance);
-        });
-      }, Promise.resolve(true)),
+        return (
+          (await val) &&
+          sentFunds.some((sb) => {
+            return (
+              sb.denom == denomTrace.base_denom && sb.balance == wb.balance
+            );
+          })
+        );
+      }, Promise.resolve(true))
     );
   });
 
@@ -325,44 +303,23 @@ describe("e2e tests for envoy module", async () => {
     const wasmPayloadQ = { ownership: {} };
 
     // tx to transfer ownership of a smart contract
-    await exec(
-      [
-        "wasmd",
-        "tx",
-        "wasm",
-        "execute",
-        CW_ADDR,
-        JSON.stringify(wasmPayloadTx),
-        `--from=${USER_WALLET}`,
-        "--gas=auto",
-        "--gas-adjustment=1.4",
-        "--yes",
-      ],
-    );
+    await exec([
+      "wasmd",
+      "tx",
+      "wasm",
+      "execute",
+      CW_ADDR,
+      JSON.stringify(wasmPayloadTx),
+      `--from=${USER_WALLET}`,
+      "--gas=auto",
+      "--gas-adjustment=1.4",
+      "--yes",
+    ]);
 
     // wait until the transaction is processed
     await retry(async () => {
       const data = JSON.parse(
-        await exec(
-          [
-            "wasmd",
-            "q",
-            "wasm",
-            "contract-state",
-            "smart",
-            CW_ADDR,
-            JSON.stringify(wasmPayloadQ),
-            "--output=json",
-          ],
-        ),
-      );
-
-      assertNotEquals(data.data.pending_owner, null);
-    }, RETRY_OPTION);
-
-    const prev = JSON.parse(
-      await exec(
-        [
+        await exec([
           "wasmd",
           "q",
           "wasm",
@@ -371,57 +328,68 @@ describe("e2e tests for envoy module", async () => {
           CW_ADDR,
           JSON.stringify(wasmPayloadQ),
           "--output=json",
-        ],
-      ),
+        ])
+      );
+
+      assertNotEquals(data.data.pending_owner, null);
+    }, RETRY_OPTION);
+
+    const prev = JSON.parse(
+      await exec([
+        "wasmd",
+        "q",
+        "wasm",
+        "contract-state",
+        "smart",
+        CW_ADDR,
+        JSON.stringify(wasmPayloadQ),
+        "--output=json",
+      ])
     ).data;
 
     // the ownership is pending for envoy interchain-account
     assertEquals(prev.pending_owner, interchainAccAddr);
 
     // gov proposal to submit transactions to interchain-account
-    await exec(
-      [
-        "marsd",
-        "tx",
-        "gov",
-        "submit-proposal",
-        SEND_MSGS_JSON,
-        `--from=${USER_WALLET}`,
-        "--gas=auto",
-        "--gas-adjustment=1.4",
-        "--yes",
-      ],
-    );
+    await exec([
+      "marsd",
+      "tx",
+      "gov",
+      "submit-proposal",
+      SEND_MSGS_JSON,
+      `--from=${USER_WALLET}`,
+      "--gas=auto",
+      "--gas-adjustment=1.4",
+      "--yes",
+    ]);
 
     // wait until the proposal is processed
     await retry(async () => {
       const data = JSON.parse(
-        await exec(["marsd", "q", "gov", "proposals", "--output=json"]),
+        await exec(["marsd", "q", "gov", "proposals", "--output=json"])
       );
 
       assert(data.proposals.length > 1);
     }, RETRY_OPTION);
 
     // tx to submit vote
-    await exec(
-      [
-        "marsd",
-        "tx",
-        "gov",
-        "vote",
-        "2",
-        "yes",
-        `--from=${VALIDATOR_WALLET}`,
-        "--gas=auto",
-        "--gas-adjustment=1.4",
-        "--yes",
-      ],
-    );
+    await exec([
+      "marsd",
+      "tx",
+      "gov",
+      "vote",
+      "2",
+      "yes",
+      `--from=${VALIDATOR_WALLET}`,
+      "--gas=auto",
+      "--gas-adjustment=1.4",
+      "--yes",
+    ]);
 
     // wait until the proposal is passed
     await retry(async () => {
       const data = JSON.parse(
-        await exec(["marsd", "q", "gov", "proposal", "2", "--output=json"]),
+        await exec(["marsd", "q", "gov", "proposal", "2", "--output=json"])
       );
 
       assertEquals(data.status, "PROPOSAL_STATUS_PASSED");
@@ -430,26 +398,7 @@ describe("e2e tests for envoy module", async () => {
     // wait until the envoy transaction is processed in host chain
     await retry(async () => {
       const data = JSON.parse(
-        await exec(
-          [
-            "wasmd",
-            "q",
-            "wasm",
-            "contract-state",
-            "smart",
-            CW_ADDR,
-            JSON.stringify(wasmPayloadQ),
-            "--output=json",
-          ],
-        ),
-      );
-
-      assertEquals(data.data.pending_owner, null);
-    }, RETRY_OPTION);
-
-    const curr = JSON.parse(
-      await exec(
-        [
+        await exec([
           "wasmd",
           "q",
           "wasm",
@@ -458,8 +407,23 @@ describe("e2e tests for envoy module", async () => {
           CW_ADDR,
           JSON.stringify(wasmPayloadQ),
           "--output=json",
-        ],
-      ),
+        ])
+      );
+
+      assertEquals(data.data.pending_owner, null);
+    }, RETRY_OPTION);
+
+    const curr = JSON.parse(
+      await exec([
+        "wasmd",
+        "q",
+        "wasm",
+        "contract-state",
+        "smart",
+        CW_ADDR,
+        JSON.stringify(wasmPayloadQ),
+        "--output=json",
+      ])
     ).data;
 
     // previous pending owner is the current owner
