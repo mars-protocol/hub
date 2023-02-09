@@ -11,7 +11,6 @@ import (
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
@@ -30,7 +29,6 @@ type Keeper struct {
 	distrKeeper         distrkeeper.Keeper
 	channelKeeper       ibcchannelkeeper.Keeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
-	scopedKeeper        capabilitykeeper.ScopedKeeper
 
 	// The baseapp's message service router.
 	// We use this to dispatch messages upon successful governance proposals.
@@ -46,7 +44,6 @@ func NewKeeper(
 	cdc codec.Codec, accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper, distrKeeper distrkeeper.Keeper,
 	channelKeeper ibcchannelkeeper.Keeper, icaControllerKeeper icacontrollerkeeper.Keeper,
-	scopedKeeper capabilitykeeper.ScopedKeeper,
 	router *baseapp.MsgServiceRouter, authority string,
 ) Keeper {
 	// ensure envoy module account is set
@@ -68,7 +65,6 @@ func NewKeeper(
 		distrKeeper:         distrKeeper,
 		channelKeeper:       channelKeeper,
 		icaControllerKeeper: icaControllerKeeper,
-		scopedKeeper:        scopedKeeper,
 		router:              router,
 		authority:           authority,
 	}

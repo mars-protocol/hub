@@ -270,7 +270,6 @@ type MarsApp struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
-	ScopedEnvoyKeeper         capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -361,7 +360,6 @@ func NewMarsApp(
 	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	app.ScopedEnvoyKeeper = app.CapabilityKeeper.ScopeToModule(envoytypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -542,7 +540,6 @@ func NewMarsApp(
 		app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.ICAControllerKeeper,
-		app.ScopedEnvoyKeeper,
 		app.MsgServiceRouter(),
 		authority,
 	)
