@@ -448,7 +448,7 @@ func NewMarsApp(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2"
+	supportedCapabilities := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2"
 
 	// register wasm bindings of Mars modules here
 	wasmOpts = append(marswasm.RegisterCustomPlugins(&app.DistrKeeper), wasmOpts...)
@@ -470,7 +470,7 @@ func NewMarsApp(
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		supportedFeatures,
+		supportedCapabilities,
 		wasmOpts...,
 	)
 
