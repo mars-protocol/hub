@@ -1,7 +1,7 @@
 package types
 
 import (
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"cosmossdk.io/errors"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
@@ -10,6 +10,6 @@ import (
 // error codes 2-16, so we start from 17.
 // https://github.com/cosmos/cosmos-sdk/blob/main/x/gov/types/errors.go
 var (
-	ErrFailedToQueryVesting = sdkerrors.Register(govtypes.ModuleName, 17, "failed to query vesting contract")
-	ErrInvalidMetadata      = sdkerrors.Register(govtypes.ModuleName, 18, "invalid proposal or vote metadata")
+	ErrFailedToQueryVesting = errors.Register(govtypes.ModuleName, 17, "failed to query vesting contract")
+	ErrInvalidMetadata      = errors.Register(govtypes.ModuleName, 18, "invalid proposal or vote metadata")
 )

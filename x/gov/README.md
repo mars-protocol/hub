@@ -40,13 +40,15 @@ In Mars `customgov`, we want to storage the metadata on-chain. In order for this
   ```typescript
   type ProposalMetadata = {
     title: string;
-    authors: string[];
-    summary?: string;
-    details: string;
+    authors?: string[];
+    summary: string;
+    details?: string;
     proposal_forum_url?: string;
     vote_option_context?: string;
   };
   ```
+
+  We make `title` and `summary` mandatory and the other fields optional, because from sdk 0.47 [proposals will have mandatory title and summary fields](https://github.com/cosmos/cosmos-sdk/blob/v0.47.0-rc1/proto/cosmos/gov/v1/gov.proto#L85-L93). Once Mars Hub upgrades to sdk 0.47, we can make these two fields optional as well.
 
 - For vote metadata, we assert that it is either an empty string (it's ok if a voter doesn't want to provide a rationale for their vote), or if it's not empty, conforms to this schema:
 

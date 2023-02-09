@@ -1,16 +1,20 @@
 package keeper_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
 
 	"github.com/mars-protocol/hub/x/gov/keeper"
+	"github.com/mars-protocol/hub/x/gov/types"
 )
 
 func TestProposalMetadataTypeCheck(t *testing.T) {
@@ -37,8 +41,7 @@ func TestProposalMetadataTypeCheck(t *testing.T) {
 			"a valid metadata with missing optional fields",
 			`{
 				"title": "Mock Proposal",
-				"authors": [],
-				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module."
+				"summary": "Mock proposal for testing purposes"
 			}`,
 			true,
 		},
@@ -54,8 +57,7 @@ func TestProposalMetadataTypeCheck(t *testing.T) {
 			"extra unexpected fields are accepted",
 			`{
 				"title": "Mock Proposal",
-				"authors": ["Larry Engineer <gm@larry.engineer>"],
-				"details": "This is a mock-up proposal for use in the unit tests of Mars Hub's gov module.",
+				"summary": "Mock proposal for testing purposes",
 				"foo": "bar"
 			}`,
 			true,
@@ -121,6 +123,39 @@ func TestVoteMetadataTypeCheck(t *testing.T) {
 			require.Error(t, err, "expect error but succeeded: name = %s", tc.name)
 		}
 	}
+}
+
+func TestLegacyProposalMetadata(t *testing.T) {
+	ctx, app, _, _, _ := setupTest(t, []VotingPower{{Staked: 1_000_000, Vesting: 0}})
+
+	macc := app.AccountKeeper.GetModuleAddress(govtypes.ModuleName)
+
+	addrs := marsapptesting.MakeRandomAccounts(1)
+	proposer := addrs[0]
+
+	msgServer := keeper.NewMsgServerImpl(app.GovKeeper)
+	legacyMsgServer := keeper.NewLegacyMsgServerImpl(macc.String(), msgServer)
+
+	content := govv1beta1.NewTextProposal(
+		"Test community pool spend proposal",
+		"This is a mock proposal for testing the conversion of v1beta1 to v1 proposal",
+	)
+
+	expectedMetadataStr, err := json.Marshal(&types.ProposalMetadata{
+		Title:   content.GetTitle(),
+		Summary: content.GetDescription(),
+	})
+	require.NoError(t, err)
+
+	legacyMsg, err := govv1beta1.NewMsgSubmitProposal(content, sdk.NewCoins(), proposer)
+	require.NoError(t, err)
+
+	_, err = legacyMsgServer.SubmitProposal(ctx, legacyMsg)
+	require.NoError(t, err)
+
+	proposal, found := app.GovKeeper.GetProposal(ctx, 1)
+	require.Equal(t, true, found)
+	require.Equal(t, string(expectedMetadataStr), proposal.Metadata)
 }
 
 func newMsgSubmitProposal(t *testing.T, metadataStr string) *govv1.MsgSubmitProposal {
