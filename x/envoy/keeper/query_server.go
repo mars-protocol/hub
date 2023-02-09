@@ -89,7 +89,7 @@ func (qs queryServer) queryAccount(ctx sdk.Context, connectionID, portID string)
 
 	channel, found := qs.k.channelKeeper.GetChannel(ctx, portID, channelID)
 	if !found {
-		return nil, sdkerrors.ErrNotFound.Wrapf("IBC channel: portID (%s) channelID (%s)")
+		return nil, sdkerrors.ErrNotFound.Wrapf("IBC channel: portID (%s) channelID (%s)", portID, channelID)
 	}
 
 	connection, err := qs.k.channelKeeper.GetConnection(ctx, connectionID)
@@ -108,7 +108,7 @@ func (qs queryServer) queryAccountFromChannel(ctx sdk.Context, channelID, portID
 
 	channel, found := qs.k.channelKeeper.GetChannel(ctx, portID, channelID)
 	if !found {
-		return nil, sdkerrors.ErrNotFound.Wrapf("IBC channel: portID (%s) channelID (%s)")
+		return nil, sdkerrors.ErrNotFound.Wrapf("IBC channel: portID (%s) channelID (%s)", portID, channelID)
 	}
 
 	address, found := qs.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
