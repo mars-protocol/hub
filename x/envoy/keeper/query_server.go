@@ -33,7 +33,7 @@ func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequ
 	return &types.QueryAccountResponse{Account: account}, nil
 }
 
-func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
+func (qs queryServer) AccountsFromICA(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	_, portID, err := qs.k.GetOwnerAndPortID()
@@ -49,6 +49,38 @@ func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRe
 	for _, account := range allAccounts {
 		if account.PortId == portID {
 			account, err := qs.queryAccount(ctx, account.ConnectionId, portID)
+			if err != nil {
+				return nil, err
+			}
+
+			accounts = append(accounts, account)
+		}
+	}
+
+	return &types.QueryAccountsResponse{Accounts: accounts}, nil
+}
+
+func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	_, portID, err := qs.k.GetOwnerAndPortID()
+	if err != nil {
+		return nil, err
+	}
+
+	// we only need to fetch the channels with PortID equal to envoy module's ICA's
+	// we filter the channels by provided method GetAllChannelsWithPortPrefix()
+	// note, this will probably return valid ICA channels for envoy module
+	// but we will compare PortID explicitly to keep things safe
+	allChannels := qs.k.channelKeeper.GetAllChannelsWithPortPrefix(ctx, portID)
+	accounts := []*types.AccountInfo{}
+
+	for _, channel := range allChannels {
+		// allChannels is filtered by portID prefix, but not equality
+		// the following if-condition may seem unnecessary
+		// but, must remain for future-proofing
+		if channel.PortId == portID {
+			account, err := qs.queryAccountFromChannel(ctx, channel.ChannelId, portID)
 			if err != nil {
 				return nil, err
 			}
@@ -87,6 +119,39 @@ func (qs queryServer) queryAccount(ctx sdk.Context, connectionID, portID string)
 	connection, err := qs.k.channelKeeper.GetConnection(ctx, connectionID)
 	if err != nil {
 		return nil, err
+	}
+
+	return &types.AccountInfo{
+		Controller: &types.ChainInfo{
+			ClientId:     connection.GetClientID(),
+			ConnectionId: connectionID,
+			PortId:       portID,
+			ChannelId:    channelID,
+		},
+		Host: &types.ChainInfo{
+			ClientId:     connection.GetCounterparty().GetClientID(),
+			ConnectionId: connection.GetCounterparty().GetConnectionID(),
+			PortId:       channel.Counterparty.PortId,
+			ChannelId:    channel.Counterparty.ChannelId,
+		},
+		Address: address,
+	}, nil
+}
+
+func (qs queryServer) queryAccountFromChannel(ctx sdk.Context, channelID, portID string) (*types.AccountInfo, error) {
+	connectionID, connection, err := qs.k.channelKeeper.GetChannelConnection(ctx, portID, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	channel, found := qs.k.channelKeeper.GetChannel(ctx, portID, channelID)
+	if !found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "IBC channel: portID (%s) channelID (%s)")
+	}
+
+	address, found := qs.k.icaControllerKeeper.GetInterchainAccountAddress(ctx, connectionID, portID)
+	if !found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "envoy module-owned ICA: connection ID (%s)", connectionID)
 	}
 
 	return &types.AccountInfo{
