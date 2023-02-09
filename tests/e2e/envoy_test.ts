@@ -14,10 +14,9 @@ import { retry } from "https://deno.land/std@0.176.0/async/mod.ts";
 const VALIDATOR_WALLET = "test1";
 const _RELAYER_WALLET = "test2";
 const USER_WALLET = "test3";
-const SEND_FUNDS_JSON = "../send_funds.json";
-const SEND_MSGS_JSON = "../send_messages.json";
-const CW_ADDR =
-  "wasm14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s0phg4d";
+const SEND_FUNDS_JSON = "./send_funds.json";
+const SEND_MSGS_JSON = "./send_messages.json";
+const CW_ADDR = "wasm14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s0phg4d";
 
 const RETRY_OPTION = {
   multiplier: 1,
