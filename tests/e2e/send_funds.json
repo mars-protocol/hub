@@ -1,0 +1,21 @@
+{
+  "messages": [
+    {
+      "@type": "/mars.envoy.v1beta1.MsgSendFunds",
+      "authority": "mars10d07y265gmmuvt4z0w9aw880jnsr700j8l2urg",
+      "channel_id": "channel-0",
+      "amount": [
+        {
+          "denom": "uastro",
+          "amount": "42069"
+        },
+        {
+          "denom": "umars",
+          "amount": "69420"
+        }
+      ]
+    }
+  ],
+  "metadata": "{\"title\":\"Send funds\",\"summary\":\"Send 42069 uastro and 69420 umars to the governance-controlled interchain account by channel-0.\"}",
+  "deposit": "10000000umars"
+}

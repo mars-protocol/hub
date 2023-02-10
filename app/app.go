@@ -86,6 +86,14 @@ import (
 	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
 
 	// ibc modules
+	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
+	icacontroller "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollertypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
+	icahost "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
+	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
@@ -102,6 +110,9 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	// mars modules
+	"github.com/mars-protocol/hub/x/envoy"
+	envoykeeper "github.com/mars-protocol/hub/x/envoy/keeper"
+	envoytypes "github.com/mars-protocol/hub/x/envoy/types"
 	"github.com/mars-protocol/hub/x/incentives"
 	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
 	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
@@ -157,9 +168,11 @@ var (
 		upgrade.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
+		ica.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		incentives.AppModuleBasic{},
 		safety.AppModuleBasic{},
+		envoy.AppModuleBasic{},
 	)
 
 	// governance proposal handlers
@@ -181,9 +194,11 @@ var (
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:            nil,
 		wasm.ModuleName:                {authtypes.Burner},
 		incentivestypes.ModuleName:     nil,
 		safetytypes.ModuleName:         nil,
+		envoytypes.ModuleName:          nil,
 	}
 )
 
@@ -227,29 +242,34 @@ type MarsApp struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper     authkeeper.AccountKeeper
-	AuthzKeeper       authzkeeper.Keeper
-	BankKeeper        bankkeeper.Keeper
-	CapabilityKeeper  *capabilitykeeper.Keeper
-	CrisisKeeper      crisiskeeper.Keeper
-	DistrKeeper       distrkeeper.Keeper
-	EvidenceKeeper    evidencekeeper.Keeper
-	FeeGrantKeeper    feegrantkeeper.Keeper
-	GovKeeper         customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
-	ParamsKeeper      paramskeeper.Keeper
-	SlashingKeeper    slashingkeeper.Keeper
-	StakingKeeper     stakingkeeper.Keeper
-	UpgradeKeeper     upgradekeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
-	IBCTransferKeeper ibctransferkeeper.Keeper
-	WasmKeeper        wasm.Keeper
-	IncentivesKeeper  incentiveskeeper.Keeper
-	SafetyKeeper      safetykeeper.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	AuthzKeeper         authzkeeper.Keeper
+	BankKeeper          bankkeeper.Keeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	CrisisKeeper        crisiskeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	EvidenceKeeper      evidencekeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
+	GovKeeper           customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
+	ParamsKeeper        paramskeeper.Keeper
+	SlashingKeeper      slashingkeeper.Keeper
+	StakingKeeper       stakingkeeper.Keeper
+	UpgradeKeeper       upgradekeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
+	IBCTransferKeeper   ibctransferkeeper.Keeper
+	ICAControllerKeeper icacontrollerkeeper.Keeper
+	ICAHostKeeper       icahostkeeper.Keeper
+	WasmKeeper          wasm.Keeper
+	IncentivesKeeper    incentiveskeeper.Keeper
+	SafetyKeeper        safetykeeper.Keeper
+	EnvoyKeeper         envoykeeper.Keeper
 
 	// make scoped keepers public for testing purposes
-	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
-	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
-	ScopedWasmKeeper        capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
+	ScopedIBCTransferKeeper   capabilitykeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -291,6 +311,8 @@ func NewMarsApp(
 		upgradetypes.StoreKey,
 		ibchost.StoreKey,
 		ibctransfertypes.StoreKey,
+		icacontrollertypes.StoreKey,
+		icahosttypes.StoreKey,
 		wasm.StoreKey,
 		incentivestypes.StoreKey,
 	)
@@ -335,6 +357,8 @@ func NewMarsApp(
 	// grant capabilities for the ibc and ibc-transfer modules
 	app.ScopedIBCKeeper = app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	app.ScopedIBCTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
+	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
 	// add keepers
@@ -437,6 +461,27 @@ func NewMarsApp(
 		app.BankKeeper,
 		app.ScopedIBCTransferKeeper,
 	)
+	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
+		codec,
+		keys[icacontrollertypes.StoreKey],
+		getSubspace(app, icacontrollertypes.SubModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.ScopedICAControllerKeeper,
+		app.MsgServiceRouter(),
+	)
+	app.ICAHostKeeper = icahostkeeper.NewKeeper(
+		codec,
+		keys[icahosttypes.StoreKey],
+		getSubspace(app, icahosttypes.SubModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.AccountKeeper,
+		app.ScopedICAHostKeeper,
+		app.MsgServiceRouter(),
+	)
 
 	// create static IBC router, add transfer route, then set and seal it
 	app.IBCKeeper.SetRouter(initIBCRouter(app))
@@ -486,6 +531,16 @@ func NewMarsApp(
 	app.SafetyKeeper = safetykeeper.NewKeeper(
 		app.AccountKeeper,
 		app.BankKeeper,
+		authority,
+	)
+	app.EnvoyKeeper = envoykeeper.NewKeeper(
+		app.Codec,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.ICAControllerKeeper,
+		app.MsgServiceRouter(),
 		authority,
 	)
 
@@ -545,9 +600,11 @@ func NewMarsApp(
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
+		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
 		safety.NewAppModule(app.SafetyKeeper),
+		envoy.NewAppModule(app.EnvoyKeeper),
 	)
 
 	// During begin block, slashing happens after `distr.BeginBlocker` so that
@@ -571,9 +628,11 @@ func NewMarsApp(
 		paramstypes.ModuleName,
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
+		envoytypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -593,9 +652,11 @@ func NewMarsApp(
 		upgradetypes.ModuleName,
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
+		envoytypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -620,9 +681,11 @@ func NewMarsApp(
 		feegrant.ModuleName,
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
 		wasm.ModuleName,
 		incentivestypes.ModuleName,
 		safetytypes.ModuleName,
+		envoytypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -816,10 +879,14 @@ func getEnabledProposals() []wasm.ProposalType {
 //     community pool in order to
 //     create new incentives schedules upon successful governance proposals
 //
+//   - `envoy`, so that it can draw funds from the community pool;
+//     additionally, if an ICS-20 packet times out, it can receive the refund.
+//
 // Further note on the 2nd point: the distrkeeper's `DistributeFromFeePool`
 // function uses bankkeeper's `SendCoinsFromModuleToAccount` instead of
 // `SendCoinsFromModuleToModule`. If it had used `FromModuleToModule`
-// then we won't need to allow incentives module account to receive funds here.
+// then we won't need to allow incentives and envoy module accounts to receive
+// funds here.
 //
 // Forked from: https://github.com/cosmos/gaia/pull/1493
 func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
@@ -828,6 +895,7 @@ func getBlockedModuleAccountAddrs(app *MarsApp) map[string]bool {
 	delete(modAccAddrs, authtypes.NewModuleAddress(authtypes.FeeCollectorName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(incentivestypes.ModuleName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(safetytypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(envoytypes.ModuleName).String())
 
 	return modAccAddrs
 }
@@ -845,6 +913,8 @@ func initParamsKeeper(codec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, k
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
+	paramsKeeper.Subspace(icacontrollertypes.StoreKey)
+	paramsKeeper.Subspace(icahosttypes.StoreKey)
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
@@ -864,11 +934,21 @@ func initGovRouter(app *MarsApp) govv1beta1.Router {
 	return govRouter
 }
 
-// initialzies IBC router
+// initIBCRouter initialzies IBC router.
+//
+// NOTE: We cannot wrap modules in the fee middleware yet until channel
+// upgradability is implemented. See discussion here:
+// https://discord.com/channels/955868717269516318/955877042883285023/1062113420712882278
 func initIBCRouter(app *MarsApp) *ibcporttypes.Router {
-	ibcRouter := ibcporttypes.NewRouter()
+	var icaControllerStack ibcporttypes.IBCModule
+	icaControllerStack = envoy.NewIBCModule(app.EnvoyKeeper)
+	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
 
+	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, ibctransfer.NewIBCModule(app.IBCTransferKeeper))
+	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerStack)
+	ibcRouter.AddRoute(icahosttypes.SubModuleName, icahost.NewIBCModule(app.ICAHostKeeper))
+	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
 
 	return ibcRouter
 }
