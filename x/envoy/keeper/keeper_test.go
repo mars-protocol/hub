@@ -50,12 +50,10 @@ type KeeperTestSuite struct {
 	path2    *ibctesting.Path
 }
 
-// TestKeeperTestSuite runs all the tests within this package.
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
 
-// SetupTest creates a coordinator with 2 test chains.
 func (suite *KeeperTestSuite) SetupTest() {
 	// create 3 chains - one hub chain, two outpost chains
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 3)
@@ -85,7 +83,7 @@ func newICAPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
 func getMarsApp(chain *ibctesting.TestChain) *marsapp.MarsApp {
 	app, ok := chain.App.(*marsapp.MarsApp)
 	if !ok {
-		panic("not mars app")
+		panic("not a MarsApp")
 	}
 
 	return app
