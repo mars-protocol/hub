@@ -9,7 +9,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
 
@@ -62,20 +62,24 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.outpost1 = suite.coordinator.GetChain(ibctesting.GetChainID(2))
 	suite.outpost2 = suite.coordinator.GetChain(ibctesting.GetChainID(3))
 
-	suite.path1 = newICAPath(suite.hub, suite.outpost1)
-	suite.path2 = newICAPath(suite.hub, suite.outpost2)
+	suite.path1 = newTransferPath(suite.hub, suite.outpost1)
+	suite.path2 = newTransferPath(suite.hub, suite.outpost2)
 
 	suite.coordinator.SetupConnections(suite.path1)
 	suite.coordinator.SetupConnections(suite.path2)
+
+	suite.coordinator.CreateTransferChannels(suite.path1)
+	suite.coordinator.CreateTransferChannels(suite.path2)
 }
 
-func newICAPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
+func newTransferPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(hub, outpost)
 
-	path.EndpointA.ChannelConfig.PortID = icatypes.HostPortID
-	path.EndpointB.ChannelConfig.PortID = icatypes.HostPortID
-	path.EndpointA.ChannelConfig.Order = ibcchanneltypes.ORDERED
-	path.EndpointB.ChannelConfig.Order = ibcchanneltypes.ORDERED
+	path.EndpointA.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointA.ChannelConfig.Order = ibcchanneltypes.UNORDERED
+	path.EndpointB.ChannelConfig.Order = ibcchanneltypes.UNORDERED
+	path.EndpointA.ChannelConfig.Version = ibctransfertypes.Version
 
 	return path
 }
