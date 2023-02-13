@@ -10,6 +10,11 @@ import (
 	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
+var (
+	envoyInitBalance         = sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(200)))
+	communityPoolInitBalance = sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(300)), sdk.NewCoin("uastro", sdk.NewInt(500)))
+)
+
 func (suite *KeeperTestSuite) TestRegisterAccount() {
 	testCases := []struct {
 		name     string
@@ -31,7 +36,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			"success - second account",
 			func() {
 				ctx := suite.hub.GetContext()
-				app := suite.getMarsApp()
+				app := getMarsApp(suite.hub)
 				msgServer := keeper.NewMsgServerImpl(app.EnvoyKeeper)
 
 				// register an account on outpost 2
@@ -63,7 +68,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			"failure - port is already bound",
 			func() {
 				ctx := suite.hub.GetContext()
-				app := suite.getMarsApp()
+				app := getMarsApp(suite.hub)
 
 				_, portID, err := app.EnvoyKeeper.GetOwnerAndPortID()
 				suite.Require().NoError(err)
@@ -87,7 +92,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			"failure - channel is already active",
 			func() {
 				ctx := suite.hub.GetContext()
-				app := suite.getMarsApp()
+				app := getMarsApp(suite.hub)
 
 				_, portID, _ := app.EnvoyKeeper.GetOwnerAndPortID()
 
@@ -112,7 +117,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 
 			// IMPORTANT: must do GetContext *after* SetupTest
 			ctx := suite.hub.GetContext()
-			app := suite.getMarsApp()
+			app := getMarsApp(suite.hub)
 			msgServer := keeper.NewMsgServerImpl(app.EnvoyKeeper)
 
 			// mallete mutates test data
@@ -127,11 +132,88 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
-
 				// TODO: verify the channel is properly registered
+				// TODO: verify events
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestSendFunds() {
+	testCases := []struct {
+		name                   string
+		authority              string
+		channelID              string
+		amount                 sdk.Coins
+		expPass                bool
+		expEnvoyRemain         sdk.Coins
+		expCommunityPoolRemain sdk.Coins
+	}{
+		{
+			"success - envoy module has enough coins",
+			authority.String(),
+			suite.path1.EndpointA.ChannelID, // to outpost1
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(123))),
+			true,
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(200-123))),
+			communityPoolInitBalance,
+		},
+
+		// success - envoy module does not have enough coins
+
+		// fail - commmunity pool does not have enough coins
+
+		// fail - not authority
+
+		// fail - amount is empty
+
+		// fail - channel not found
+
+		{
+			"fail - no interchain account found on the connection",
+			authority.String(),
+			suite.path2.EndpointA.ChannelID, // to outpost2, which doesn't have an ICA registered
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(123))),
+			false,
+			sdk.NewCoins(),
+			sdk.NewCoins(),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+
+			// set initial balances for envoy module and community pool
+			setTokenBalances(suite.hub, envoyInitBalance, communityPoolInitBalance)
+
+			// register an interchain account on outpost 1
+			registerInterchainAccount(suite.path1, owner.String())
+
+			ctx := suite.hub.GetContext()
+			app := getMarsApp(suite.hub)
+			msgServer := keeper.NewMsgServerImpl(app.EnvoyKeeper)
+
+			msg := &types.MsgSendFunds{
+				Authority: tc.authority,
+				ChannelId: tc.channelID,
+				Amount:    tc.amount,
+			}
+			res, err := msgServer.SendFunds(sdk.WrapSDKContext(ctx), msg)
+			events := ctx.EventManager().Events()
+
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+				// TODO: verify events
+				// TODO: verify token balances after msg execution
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(res)
+				suite.Require().Len(events, 0)
 			}
 		})
 	}

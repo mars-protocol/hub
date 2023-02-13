@@ -12,6 +12,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
@@ -22,6 +23,9 @@ import (
 )
 
 var (
+	// owner of the interchain account; should be the envoy module address
+	owner = authtypes.NewModuleAddress(types.ModuleName)
+
 	// sender is the account that will send permissionless messages,
 	// i.e. MsgRegisterAccount, in these tests. Here we use a random address.
 	sender = "mars1z926ax906k0ycsuckele6x5hh66e2m4m09whw6"
@@ -76,18 +80,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.coordinator.CreateTransferChannels(suite.path2)
 }
 
-func (suite *KeeperTestSuite) getMarsApp() *marsapp.MarsApp {
-	app, ok := suite.hub.App.(*marsapp.MarsApp)
-	if !ok {
-		panic("not a MarsApp")
-	}
-
-	return app
-}
-
-func (suite *KeeperTestSuite) setTokenBalances(envoy, communityPool sdk.Coins) {
-	ctx := suite.hub.GetContext()
-	app := suite.getMarsApp()
+func setTokenBalances(chain *ibctesting.TestChain, envoy, communityPool sdk.Coins) {
+	ctx := chain.GetContext()
+	app := getMarsApp(chain)
 
 	distrAddr := authtypes.NewModuleAddress(distrtypes.ModuleName)
 	envoyAddr := authtypes.NewModuleAddress(types.ModuleName)
@@ -109,10 +104,51 @@ func (suite *KeeperTestSuite) setTokenBalances(envoy, communityPool sdk.Coins) {
 	})
 
 	app.DistrKeeper.InitGenesis(ctx, distrtypes.GenesisState{
+		Params: distrtypes.DefaultParams(),
 		FeePool: distrtypes.FeePool{
 			CommunityPool: sdk.NewDecCoinsFromCoins(communityPool...),
 		},
 	})
+}
+
+func registerInterchainAccount(path *ibctesting.Path, owner string) {
+	controllerCtx := path.EndpointA.Chain.GetContext()
+	controllerApp := getMarsApp(path.EndpointA.Chain)
+
+	channelSequence := controllerApp.IBCKeeper.ChannelKeeper.GetNextChannelSequence(controllerCtx)
+
+	if err := controllerApp.ICAControllerKeeper.RegisterInterchainAccount(controllerCtx, path.EndpointA.ConnectionID, owner, ""); err != nil {
+		panic(err)
+	}
+
+	// commit state changes for proof verification
+	path.EndpointA.Chain.NextBlock()
+
+	// create ICA path, update channel ids
+	icaPath := updateToICAPath(path, owner)
+	icaPath.EndpointA.ChannelID = ibcchanneltypes.FormatChannelIdentifier(channelSequence)
+	icaPath.EndpointB.ChannelID = ""
+
+	if err := icaPath.EndpointB.ChanOpenTry(); err != nil {
+		panic(err)
+	}
+
+	if err := icaPath.EndpointA.ChanOpenAck(); err != nil {
+		panic(err)
+	}
+
+	if err := icaPath.EndpointB.ChanOpenConfirm(); err != nil {
+		panic(err)
+	}
+}
+
+func getMarsApp(chain *ibctesting.TestChain) *marsapp.MarsApp {
+	app, ok := chain.App.(*marsapp.MarsApp)
+	if !ok {
+		panic("not a MarsApp")
+	}
+
+	return app
 }
 
 func newTransferPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
@@ -123,6 +159,25 @@ func newTransferPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
 	path.EndpointA.ChannelConfig.Order = ibcchanneltypes.UNORDERED
 	path.EndpointB.ChannelConfig.Order = ibcchanneltypes.UNORDERED
 	path.EndpointA.ChannelConfig.Version = ibctransfertypes.Version
+	path.EndpointB.ChannelConfig.Version = ibctransfertypes.Version
+
+	return path
+}
+
+func updateToICAPath(path *ibctesting.Path, owner string) *ibctesting.Path {
+	controllerPortID, err := icatypes.NewControllerPortID(owner)
+	if err != nil {
+		panic(err)
+	}
+
+	version := icatypes.NewDefaultMetadataString(path.EndpointA.ConnectionID, path.EndpointB.ConnectionID)
+
+	path.EndpointA.ChannelConfig.PortID = controllerPortID
+	path.EndpointB.ChannelConfig.PortID = icatypes.HostPortID
+	path.EndpointA.ChannelConfig.Order = ibcchanneltypes.ORDERED
+	path.EndpointB.ChannelConfig.Order = ibcchanneltypes.ORDERED
+	path.EndpointA.ChannelConfig.Version = version
+	path.EndpointB.ChannelConfig.Version = version
 
 	return path
 }
