@@ -144,42 +144,60 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 
 func (suite *KeeperTestSuite) TestSendFunds() {
 	testCases := []struct {
-		name                   string
-		authority              string
-		channelID              string
-		amount                 sdk.Coins
-		expPass                bool
-		expEnvoyRemain         sdk.Coins
-		expCommunityPoolRemain sdk.Coins
+		name      string
+		authority string
+		channelID string
+		amount    sdk.Coins
+		expPass   bool
 	}{
 		{
-			"success - envoy module has enough coins",
+			"success - empty amount",
 			authority.String(),
-			suite.path1.EndpointA.ChannelID, // to outpost1
+			suite.path1.EndpointA.ChannelID,
+			sdk.NewCoins(),
+			true,
+		},
+		{
+			"success - envoy module has a sufficient balance",
+			authority.String(),
+			suite.path1.EndpointA.ChannelID,
 			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(123))),
 			true,
-			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(200-123))),
-			communityPoolInitBalance,
 		},
-
-		// success - envoy module does not have enough coins
-
-		// fail - commmunity pool does not have enough coins
-
-		// fail - not authority
-
-		// fail - amount is empty
-
-		// fail - channel not found
-
+		{
+			"success - envoy module does not have a sufficient balance, but community pool does",
+			authority.String(),
+			suite.path1.EndpointA.ChannelID,
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(250)), sdk.NewCoin("uastro", sdk.NewInt(69))),
+			true,
+		},
+		{
+			"fail - even community pool does not have a sufficient balance",
+			authority.String(),
+			suite.path1.EndpointA.ChannelID,
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(88888888))),
+			false,
+		},
+		{
+			"fail - sender is not authority",
+			sender,
+			suite.path1.EndpointA.ChannelID,
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(123))),
+			false,
+		},
+		{
+			"fail - non-existent channel",
+			authority.String(),
+			"channel-42069",
+			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(123))),
+			false,
+		},
 		{
 			"fail - no interchain account found on the connection",
 			authority.String(),
 			suite.path2.EndpointA.ChannelID, // to outpost2, which doesn't have an ICA registered
 			sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(123))),
 			false,
-			sdk.NewCoins(),
-			sdk.NewCoins(),
 		},
 	}
 
