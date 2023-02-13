@@ -36,13 +36,11 @@ var (
 )
 
 func init() {
-	ibctesting.DefaultTestingAppInit = SetupEnvoyTestingApp
-}
-
-func SetupEnvoyTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	encCfg := marsapp.MakeEncodingConfig()
-	app := marsapptesting.MakeSimpleMockApp()
-	return app, marsapp.DefaultGenesisState(encCfg.Codec)
+	ibctesting.DefaultTestingAppInit = func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		encCfg := marsapp.MakeEncodingConfig()
+		app := marsapptesting.MakeSimpleMockApp()
+		return app, marsapp.DefaultGenesisState(encCfg.Codec)
+	}
 }
 
 // KeeperTestSuite is a testing suite
