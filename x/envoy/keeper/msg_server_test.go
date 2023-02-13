@@ -31,7 +31,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			"success - second account",
 			func() {
 				ctx := suite.hub.GetContext()
-				app := getMarsApp(suite.hub)
+				app := suite.getMarsApp()
 				msgServer := keeper.NewMsgServerImpl(app.EnvoyKeeper)
 
 				// register an account on outpost 2
@@ -62,12 +62,13 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 		{
 			"failure - port is already bound",
 			func() {
-				app := getMarsApp(suite.hub)
+				ctx := suite.hub.GetContext()
+				app := suite.getMarsApp()
 
 				_, portID, err := app.EnvoyKeeper.GetOwnerAndPortID()
 				suite.Require().NoError(err)
 
-				app.IBCKeeper.PortKeeper.BindPort(suite.hub.GetContext(), portID)
+				app.IBCKeeper.PortKeeper.BindPort(ctx, portID)
 			},
 			false,
 		},
@@ -85,7 +86,8 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 		{
 			"failure - channel is already active",
 			func() {
-				app := getMarsApp(suite.hub)
+				ctx := suite.hub.GetContext()
+				app := suite.getMarsApp()
 
 				_, portID, _ := app.EnvoyKeeper.GetOwnerAndPortID()
 
@@ -97,8 +99,8 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 					suite.path1.EndpointA.ChannelConfig.Version,
 				)
 
-				app.IBCKeeper.ChannelKeeper.SetChannel(suite.hub.GetContext(), portID, ibctesting.FirstChannelID, channel)
-				app.ICAControllerKeeper.SetActiveChannelID(suite.hub.GetContext(), ibctesting.FirstConnectionID, portID, ibctesting.FirstChannelID)
+				app.IBCKeeper.ChannelKeeper.SetChannel(ctx, portID, ibctesting.FirstChannelID, channel)
+				app.ICAControllerKeeper.SetActiveChannelID(ctx, ibctesting.FirstConnectionID, portID, ibctesting.FirstChannelID)
 			},
 			false,
 		},
@@ -110,7 +112,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 
 			// IMPORTANT: must do GetContext *after* SetupTest
 			ctx := suite.hub.GetContext()
-			app := getMarsApp(suite.hub)
+			app := suite.getMarsApp()
 			msgServer := keeper.NewMsgServerImpl(app.EnvoyKeeper)
 
 			// mallete mutates test data

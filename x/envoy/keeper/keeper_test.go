@@ -6,7 +6,10 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
@@ -15,6 +18,7 @@ import (
 
 	marsapp "github.com/mars-protocol/hub/app"
 	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
 var (
@@ -72,6 +76,45 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.coordinator.CreateTransferChannels(suite.path2)
 }
 
+func (suite *KeeperTestSuite) getMarsApp() *marsapp.MarsApp {
+	app, ok := suite.hub.App.(*marsapp.MarsApp)
+	if !ok {
+		panic("not a MarsApp")
+	}
+
+	return app
+}
+
+func (suite *KeeperTestSuite) setTokenBalances(envoy, communityPool sdk.Coins) {
+	ctx := suite.hub.GetContext()
+	app := suite.getMarsApp()
+
+	distrAddr := authtypes.NewModuleAddress(distrtypes.ModuleName)
+	envoyAddr := authtypes.NewModuleAddress(types.ModuleName)
+
+	app.BankKeeper.InitGenesis(ctx, &banktypes.GenesisState{
+		Params: banktypes.Params{
+			DefaultSendEnabled: true,
+		},
+		Balances: []banktypes.Balance{
+			{
+				Address: distrAddr.String(),
+				Coins:   communityPool,
+			},
+			{
+				Address: envoyAddr.String(),
+				Coins:   communityPool,
+			},
+		},
+	})
+
+	app.DistrKeeper.InitGenesis(ctx, distrtypes.GenesisState{
+		FeePool: distrtypes.FeePool{
+			CommunityPool: sdk.NewDecCoinsFromCoins(communityPool...),
+		},
+	})
+}
+
 func newTransferPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(hub, outpost)
 
@@ -82,13 +125,4 @@ func newTransferPath(hub, outpost *ibctesting.TestChain) *ibctesting.Path {
 	path.EndpointA.ChannelConfig.Version = ibctransfertypes.Version
 
 	return path
-}
-
-func getMarsApp(chain *ibctesting.TestChain) *marsapp.MarsApp {
-	app, ok := chain.App.(*marsapp.MarsApp)
-	if !ok {
-		panic("not a MarsApp")
-	}
-
-	return app
 }
