@@ -1,18 +1,43 @@
 package keeper_test
 
 import (
+	"github.com/gogo/protobuf/proto"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	ibcchanneltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
+
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/mars-protocol/hub/x/envoy/keeper"
 	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
 var (
-	envoyInitBalance         = sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(200)))
+	// initial coin balance of the envoy module
+	envoyInitBalance = sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(200)))
+
+	// initial balance of the community pool
 	communityPoolInitBalance = sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(300)), sdk.NewCoin("uastro", sdk.NewInt(500)))
+
+	// some random messages for use in testing SendMessages
+	mockMessages = []proto.Message{
+		&govv1.MsgVote{
+			Voter:      "interchainAccountAddress",
+			ProposalId: 69420,
+			Option:     govv1.OptionNoWithVeto,
+			Metadata:   "lol",
+		},
+		&wasm.MsgExecuteContract{
+			Sender:   "interchainAccountAddress",
+			Contract: "contractAddress",
+			Msg:      []byte(`{"detonate_nuclear_bomb":{}}`),
+			Funds:    sdk.NewCoins(),
+		},
+	}
 )
 
 func (suite *KeeperTestSuite) TestRegisterAccount() {
@@ -230,6 +255,91 @@ func (suite *KeeperTestSuite) TestSendFunds() {
 				suite.Require().NotNil(res)
 				// TODO: verify events
 				// TODO: verify token balances after msg execution
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(res)
+				suite.Require().Len(events, 0)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestSendMessages() {
+	testCases := []struct {
+		name         string
+		authority    string
+		connectionID string
+		messages     []proto.Message
+		expPass      bool
+	}{
+		{
+			"success",
+			authority.String(),
+			suite.path1.EndpointA.ConnectionID,
+			mockMessages,
+			true,
+		},
+		{
+			"fail - no message",
+			authority.String(),
+			suite.path1.EndpointA.ConnectionID,
+			[]proto.Message{},
+			false,
+		},
+		{
+			"fail - sender is not authority",
+			sender,
+			suite.path1.EndpointA.ConnectionID,
+			mockMessages,
+			false,
+		},
+		{
+			"fail - non-existent connection",
+			authority.String(),
+			"connection-88888",
+			mockMessages,
+			false,
+		},
+		{
+			"fail - no interchain account found on the connection",
+			authority.String(),
+			suite.path2.EndpointA.ConnectionID, // to outpost2, which doesn't have an ICA registered
+			mockMessages,
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+
+			// register an interchain account on outpost 1
+			registerInterchainAccount(suite.path1, owner.String())
+
+			ctx := suite.hub.GetContext()
+			app := getMarsApp(suite.hub)
+			msgServer := keeper.NewMsgServerImpl(app.EnvoyKeeper)
+
+			anys := []*codectypes.Any{}
+			for _, protoMsg := range tc.messages {
+				any, err := codectypes.NewAnyWithValue(protoMsg)
+				suite.Require().NoError(err)
+
+				anys = append(anys, any)
+			}
+
+			msg := &types.MsgSendMessages{
+				Authority:    tc.authority,
+				ConnectionId: tc.connectionID,
+				Messages:     anys,
+			}
+			res, err := msgServer.SendMessages(sdk.WrapSDKContext(ctx), msg)
+			events := ctx.EventManager().Events()
+
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+				// TODO: verify events
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
