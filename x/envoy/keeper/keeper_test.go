@@ -26,6 +26,9 @@ var (
 	// owner of the interchain account; should be the envoy module address
 	owner = authtypes.NewModuleAddress(types.ModuleName)
 
+	// the port that is associated to the ICA owner
+	portID, _ = icatypes.NewControllerPortID(owner.String())
+
 	// sender is the account that will send permissionless messages,
 	// i.e. MsgRegisterAccount, in these tests. Here we use a random address.
 	sender = "mars1z926ax906k0ycsuckele6x5hh66e2m4m09whw6"
