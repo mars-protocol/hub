@@ -128,6 +128,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 				ConnectionId: suite.path1.EndpointA.ConnectionID, // should be the connection id on the hub chain
 			}
 			res, err := msgServer.RegisterAccount(sdk.WrapSDKContext(ctx), msg)
+			events := ctx.EventManager().Events()
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -137,6 +138,7 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
+				suite.Require().Len(events, 0)
 			}
 		})
 	}
