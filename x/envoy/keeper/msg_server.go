@@ -9,7 +9,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
@@ -119,8 +118,8 @@ func (ms msgServer) RegisterAccount(goCtx context.Context, req *types.MsgRegiste
 func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*types.MsgSendFundsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if req.Authority != ms.k.authority {
-		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
+	if !marsutils.Contains(ms.k.authorities, req.Authority) {
+		return nil, types.ErrUnauthorized.Wrapf("address `%s` is not authorized to send this message", req.Authority)
 	}
 
 	owner, portID, err := ms.k.GetOwnerAndPortID()
@@ -211,8 +210,8 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessages) (*types.MsgSendMessagesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if req.Authority != ms.k.authority {
-		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", ms.k.authority, req.Authority)
+	if !marsutils.Contains(ms.k.authorities, req.Authority) {
+		return nil, types.ErrUnauthorized.Wrapf("address `%s` is not authorized to send this message", req.Authority)
 	}
 
 	owner := ms.k.GetModuleAddress()
