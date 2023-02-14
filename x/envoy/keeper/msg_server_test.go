@@ -158,8 +158,9 @@ func (suite *KeeperTestSuite) TestRegisterAccount() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
-				// TODO: verify the channel is properly registered
-				// TODO: verify events
+				suite.Require().Len(events, 2)
+				suite.Require().Equal(ibcchanneltypes.EventTypeChannelOpenInit, events[0].Type)
+				suite.Require().Equal(sdk.EventTypeMessage, events[1].Type)
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
@@ -253,7 +254,7 @@ func (suite *KeeperTestSuite) TestSendFunds() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
-				// TODO: verify events
+				suite.Require().NotZero(events)
 				// TODO: verify token balances after msg execution
 			} else {
 				suite.Require().Error(err)
@@ -339,7 +340,9 @@ func (suite *KeeperTestSuite) TestSendMessages() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
-				// TODO: verify events
+				suite.Require().Len(events, 2)
+				suite.Require().Equal(ibcchanneltypes.EventTypeSendPacket, events[0].Type)
+				suite.Require().Equal(sdk.EventTypeMessage, events[1].Type)
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
