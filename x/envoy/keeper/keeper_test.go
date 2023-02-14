@@ -99,7 +99,7 @@ func setTokenBalances(chain *ibctesting.TestChain, envoy, communityPool sdk.Coin
 			},
 			{
 				Address: envoyAddr.String(),
-				Coins:   communityPool,
+				Coins:   envoy,
 			},
 		},
 	})

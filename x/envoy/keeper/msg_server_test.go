@@ -5,6 +5,8 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	ibcchanneltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
@@ -12,6 +14,7 @@ import (
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 
+	marsutils "github.com/mars-protocol/hub/utils"
 	"github.com/mars-protocol/hub/x/envoy/keeper"
 	"github.com/mars-protocol/hub/x/envoy/types"
 )
@@ -255,7 +258,14 @@ func (suite *KeeperTestSuite) TestSendFunds() {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
 				suite.Require().NotZero(events)
-				// TODO: verify token balances after msg execution
+
+				envoyBalance := app.BankKeeper.GetAllBalances(ctx, authtypes.NewModuleAddress(types.ModuleName))
+				expEnvoyBalance := marsutils.SaturateSub(envoyInitBalance, tc.amount)
+				suite.Require().True(envoyBalance.IsEqual(expEnvoyBalance))
+
+				communityPoolBalance := app.BankKeeper.GetAllBalances(ctx, authtypes.NewModuleAddress(distrtypes.ModuleName))
+				expCommunityPoolBalance := marsutils.SaturateSub(communityPoolInitBalance, marsutils.SaturateSub(tc.amount, envoyInitBalance))
+				suite.Require().True(communityPoolBalance.IsEqual(expCommunityPoolBalance))
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)

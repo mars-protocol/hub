@@ -16,6 +16,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 
+	marsutils "github.com/mars-protocol/hub/utils"
 	"github.com/mars-protocol/hub/x/envoy/types"
 )
 
@@ -155,7 +156,7 @@ func (ms msgServer) SendFunds(goCtx context.Context, req *types.MsgSendFunds) (*
 
 	// if the proposal requires sending more coins than what the module acocunt
 	// holds, then draw the difference from the community pool
-	shortfall := saturateSub(req.Amount, balance)
+	shortfall := marsutils.SaturateSub(req.Amount, balance)
 	if !shortfall.Empty() {
 		if err = ms.k.distrKeeper.DistributeFromFeePool(ctx, shortfall, owner); err != nil {
 			return nil, err
@@ -254,15 +255,6 @@ func (ms msgServer) SendMessages(goCtx context.Context, req *types.MsgSendMessag
 	)
 
 	return &types.MsgSendMessagesResponse{}, nil
-}
-
-// saturateSub subtracts a set of coins from another. If the amount goes below
-// zero, it's set to zero.
-//
-// Example:
-// {2A, 3B, 4C} - {1A, 5B, 3D} = {1A, 4C}
-func saturateSub(coinsA sdk.Coins, coinsB sdk.Coins) sdk.Coins {
-	return coinsA.Sub(coinsA.Min(coinsB)...)
 }
 
 // getProtoMessages converts []*codectypes.Any to []proto.Message; returns error
