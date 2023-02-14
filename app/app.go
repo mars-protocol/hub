@@ -544,7 +544,7 @@ func NewMarsApp(
 		app.IBCKeeper.ChannelKeeper,
 		app.ICAControllerKeeper,
 		app.MsgServiceRouter(),
-		authority,
+		[]string{authority},
 	)
 
 	// finally, create gov keeper

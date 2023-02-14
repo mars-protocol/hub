@@ -34,9 +34,9 @@ type Keeper struct {
 	// We use this to dispatch messages upon successful governance proposals.
 	router *baseapp.MsgServiceRouter
 
-	// The account who can execute envoy module messages.
-	// Typically, this should be the x/gov module account.
-	authority string
+	// Accounts who can execute envoy module messages.
+	// Typically, this includes the gov module or other module accounts.
+	authorities []string
 }
 
 // NewKeeper creates a new envoy module keeper.
@@ -44,7 +44,7 @@ func NewKeeper(
 	cdc codec.Codec, accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper, distrKeeper distrkeeper.Keeper,
 	channelKeeper ibcchannelkeeper.Keeper, icaControllerKeeper icacontrollerkeeper.Keeper,
-	router *baseapp.MsgServiceRouter, authority string,
+	router *baseapp.MsgServiceRouter, authorities []string,
 ) Keeper {
 	// ensure envoy module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -66,7 +66,7 @@ func NewKeeper(
 		channelKeeper:       channelKeeper,
 		icaControllerKeeper: icaControllerKeeper,
 		router:              router,
-		authority:           authority,
+		authorities:         authorities,
 	}
 }
 
