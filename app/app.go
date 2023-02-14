@@ -104,6 +104,8 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	ibctesting "github.com/cosmos/ibc-go/v6/testing"
+	ibctestingtypes "github.com/cosmos/ibc-go/v6/testing/types"
 
 	// wasm modules
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -219,6 +221,7 @@ func init() {
 var (
 	_ simapp.App              = (*MarsApp)(nil)
 	_ servertypes.Application = (*MarsApp)(nil)
+	_ ibctesting.TestingApp   = (*MarsApp)(nil)
 )
 
 // MarsApp extends an ABCI application, but with most of its parameters exported.
@@ -835,6 +838,34 @@ func (app *MarsApp) RegisterTendermintService(clientCtx client.Context) {
 		app.interfaceRegistry,
 		app.Query,
 	)
+}
+
+//------------------------------------------------------------------------------
+// Implement `ibctesting.TestingApp` interface for `MarsApp`
+//------------------------------------------------------------------------------
+
+func (app *MarsApp) AppCodec() codec.Codec {
+	return app.Codec
+}
+
+func (app *MarsApp) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+func (app *MarsApp) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+func (app *MarsApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+func (app *MarsApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
+	return app.StakingKeeper
+}
+
+func (app *MarsApp) GetTxConfig() client.TxConfig {
+	return MakeEncodingConfig().TxConfig
 }
 
 //------------------------------------------------------------------------------
