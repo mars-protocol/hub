@@ -43,6 +43,8 @@ ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
   build_tags += gcc cleveldb
 else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
   build_tags += gcc rocksdb
+else ifeq (pebbledb,$(findstring pebbledb,$(MARS_BUILD_OPTIONS)))
+  build_tags += pebbledb
 endif
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
@@ -64,6 +66,8 @@ ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
 else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
+else ifeq (pebbledb,$(findstring pebbledb,$(MARS_BUILD_OPTIONS)))
+  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb -X github.com/tendermint/tm-db.ForceSync=1
 endif
 ifeq (,$(findstring nostrip,$(MARS_BUILD_OPTIONS)))
   ldflags += -w -s
