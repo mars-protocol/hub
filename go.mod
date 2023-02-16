@@ -330,6 +330,10 @@ replace (
 	// Twitter thread:
 	// https://twitter.com/informalinc/status/1613580954383040512
 	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
-)
 
-replace github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.8-0.20230214123107-77c191d0f7ee
+	// use Notional's fork of tm-db, which adds the support for pebbledb
+  //
+  // related twitter discussion:
+  // https://twitter.com/larry0x/status/1625977698723004421
+	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.8-0.20230214123107-77c191d0f7ee
+)
