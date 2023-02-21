@@ -158,7 +158,7 @@ RUNNER_BASE_IMAGE_ALPINE := alpine:3.17
 RUNNER_BASE_IMAGE_NONROOT := gcr.io/distroless/static-debian11:nonroot
 
 docker-build:
-	@DOCKER_BUILDKIT=1 docker build \
+	@DOCKER_BUILDKIT=1 $(DOCKER) build \
 		-t mars:local \
 		-t mars:local-distroless \
 		--build-arg GO_VERSION=$(GO_MAJOR_VERSION).$(GO_MINOR_VERSION) \
@@ -170,7 +170,7 @@ docker-build:
 docker-build-distroless: docker-build
 
 docker-build-alpine:
-	@DOCKER_BUILDKIT=1 docker build \
+	@DOCKER_BUILDKIT=1 $(DOCKER) build \
 		-t mars:local-alpine \
 		--build-arg GO_VERSION=$(GO_MAJOR_VERSION).$(GO_MINOR_VERSION) \
 		--build-arg RUNNER_IMAGE=$(RUNNER_BASE_IMAGE_ALPINE) \
@@ -179,7 +179,7 @@ docker-build-alpine:
 		-f Dockerfile .
 
 docker-build-nonroot:
-	@DOCKER_BUILDKIT=1 docker build \
+	@DOCKER_BUILDKIT=1 $(DOCKER) build \
 		-t mars:local-nonroot \
 		--build-arg GO_VERSION=$(GO_MAJOR_VERSION).$(GO_MINOR_VERSION) \
 		--build-arg RUNNER_IMAGE=$(RUNNER_BASE_IMAGE_NONROOT) \
