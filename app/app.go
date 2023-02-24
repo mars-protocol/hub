@@ -110,6 +110,7 @@ import (
 	// wasm modules
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	// mars modules
 	"github.com/mars-protocol/hub/x/envoy"

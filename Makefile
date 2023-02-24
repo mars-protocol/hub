@@ -109,7 +109,7 @@ build: enforce-go-version
 #   https://github.com/persistenceOne/incident-reports/blob/main/06-nov-2022_V4_upgrade_halt.md
 enforce-go-version:
 	@echo "🤖 Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
-ifneq ($(GO_MINOR_VERSION),19)
+ifeq ($(GO_MINOR_VERSION) \>= 19,19)
 	@echo "❌ ERROR: Go version 1.19 is required"
 	@exit 1
 endif
