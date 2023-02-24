@@ -75,6 +75,13 @@ func TestValidateCreateScheduleProposal(t *testing.T) {
 		{
 			"fail - coins are out of order",
 			func() {
+				msg.Amount = []sdk.Coin{sdk.NewCoin("umars", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(12345))}
+			},
+			types.ErrInvalidProposalAmount,
+		},
+		{
+			"fail - duplicate denoms",
+			func() {
 				msg.Amount = []sdk.Coin{sdk.NewCoin("uastro", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(12345))}
 			},
 			types.ErrInvalidProposalAmount,
