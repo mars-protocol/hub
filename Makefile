@@ -177,8 +177,6 @@ docker-build:
 		--build-arg GIT_COMMIT=$(COMMIT) \
 		-f Dockerfile .
 
-docker-build-distroless: docker-build
-
 docker-build-alpine:
 	@DOCKER_BUILDKIT=1 $(DOCKER) build \
 		-t mars:local-alpine \
@@ -196,6 +194,8 @@ docker-build-nonroot:
 		--build-arg GIT_VERSION=$(VERSION) \
 		--build-arg GIT_COMMIT=$(COMMIT) \
 		-f Dockerfile .
+
+docker-build-distroless: docker-build
 
 ################################################################################
 ###                                 Linting                                  ###
