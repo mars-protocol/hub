@@ -721,10 +721,9 @@ func NewMarsApp(
 
 	// Ensure that state sync delivers the cosmwasm directory as well
 	if manager := app.SnapshotManager(); manager != nil {
-		err = manager.RegisterExtensions(
+		if err := manager.RegisterExtensions(
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper),
-		)
-		if err != nil {
+		); err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
 		}
 	}
