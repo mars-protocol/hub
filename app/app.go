@@ -110,6 +110,7 @@ import (
 	// wasm modules
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	// mars modules
 	"github.com/mars-protocol/hub/x/envoy"
@@ -716,6 +717,15 @@ func NewMarsApp(
 	)
 	if err != nil {
 		panic(err)
+	}
+
+	// Ensure that state sync delivers the cosmwasm directory as well
+	if manager := app.SnapshotManager(); manager != nil {
+		if err := manager.RegisterExtensions(
+			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper),
+		); err != nil {
+			panic("failed to register snapshot extension: " + err.Error())
+		}
 	}
 
 	// initialize BaseApp
