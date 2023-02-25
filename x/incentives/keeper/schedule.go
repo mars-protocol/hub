@@ -27,7 +27,7 @@ func (k Keeper) CreateSchedule(ctx sdk.Context, startTime, endTime time.Time, am
 
 	maccAddr := k.GetModuleAddress()
 	if err := k.distrKeeper.DistributeFromFeePool(ctx, amount, maccAddr); err != nil {
-		return types.Schedule{}, sdkerrors.Wrap(types.ErrFailedWithdrawFromCommunityPool, err.Error())
+		return types.Schedule{}, types.ErrFailedWithdrawFromCommunityPool.Wrap(err.Error())
 	}
 
 	return schedule, nil
@@ -43,7 +43,7 @@ func (k Keeper) TerminateSchedules(ctx sdk.Context, ids []uint64) (amount sdk.Co
 	for _, id := range ids {
 		schedule, found := k.GetSchedule(ctx, id)
 		if !found {
-			return sdk.NewCoins(), sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, "incentives schedule with id %d does not exist", id)
+			return sdk.NewCoins(), sdkerrors.ErrKeyNotFound.Wrapf("incentives schedule with id %d does not exist", id)
 		}
 
 		amount = amount.Add(schedule.TotalAmount.Sub(schedule.ReleasedAmount...)...)
@@ -53,7 +53,7 @@ func (k Keeper) TerminateSchedules(ctx sdk.Context, ids []uint64) (amount sdk.Co
 
 	maccAddr := k.GetModuleAddress()
 	if err := k.distrKeeper.FundCommunityPool(ctx, amount, maccAddr); err != nil {
-		return sdk.NewCoins(), sdkerrors.Wrap(types.ErrFailedRefundToCommunityPool, err.Error())
+		return sdk.NewCoins(), types.ErrFailedRefundToCommunityPool.Wrap(err.Error())
 	}
 
 	return amount, nil

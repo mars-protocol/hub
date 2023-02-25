@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -30,7 +29,7 @@ func (ms msgServer) SubmitProposal(goCtx context.Context, msg *govv1.MsgSubmitPr
 	// the metadata string must not be empty. attempt to deserialize it using
 	// the given schema return error if fails.
 	if _, err := types.UnmarshalProposalMetadata(msg.Metadata); err != nil {
-		return nil, sdkerrors.Wrap(types.ErrInvalidMetadata, err.Error())
+		return nil, types.ErrInvalidMetadata.Wrap(err.Error())
 	}
 
 	// if metadata is good, we just hand over the rest to the vanilla msgServer
@@ -42,7 +41,7 @@ func (ms msgServer) Vote(goCtx context.Context, msg *govv1.MsgVote) (*govv1.MsgV
 	// given schema. return error if fails
 	if len(msg.Metadata) > 0 {
 		if _, err := types.UnmarshalVoteMetadata(msg.Metadata); err != nil {
-			return nil, sdkerrors.Wrap(types.ErrInvalidMetadata, err.Error())
+			return nil, types.ErrInvalidMetadata.Wrap(err.Error())
 		}
 	}
 

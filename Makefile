@@ -13,36 +13,41 @@ export GO111MODULE = on
 GO_MAJOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1)
 GO_MINOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
 
+GO_MINIMUM_MAJOR_VERSION = 1
+GO_MINIMUM_MINOR_VERSION = 19
+
+GO_VERSION_ERR_MSG = ❌ ERROR: Go version $(GO_MINIMUM_MAJOR_VERSION).$(GO_MINIMUM_MINOR_VERSION)+ is required
+
 # ********** process build tags **********
 
 build_tags = netgo
 ifeq ($(LEDGER_ENABLED),true)
-  ifeq ($(OS),Windows_NT)
-    GCCEXE = $(shell where gcc.exe 2> NUL)
-    ifeq ($(GCCEXE),)
-      $(error gcc.exe not installed for ledger support, please install or set LEDGER_ENABLED=false)
-    else
-      build_tags += ledger
-    endif
-  else
-    UNAME_S = $(shell uname -s)
-    ifeq ($(UNAME_S),OpenBSD)
-      $(warning OpenBSD detected, disabling ledger support (https://github.com/cosmos/cosmos-sdk/issues/1988))
-    else
-      GCC = $(shell command -v gcc 2> /dev/null)
-      ifeq ($(GCC),)
-        $(error gcc not installed for ledger support, please install or set LEDGER_ENABLED=false)
-      else
-        build_tags += ledger
-      endif
-    endif
-  endif
+	ifeq ($(OS),Windows_NT)
+		GCCEXE = $(shell where gcc.exe 2> NUL)
+		ifeq ($(GCCEXE),)
+			$(error gcc.exe not installed for ledger support, please install or set LEDGER_ENABLED=false)
+		else
+			build_tags += ledger
+		endif
+	else
+		UNAME_S = $(shell uname -s)
+		ifeq ($(UNAME_S),OpenBSD)
+			$(warning OpenBSD detected, disabling ledger support (https://github.com/cosmos/cosmos-sdk/issues/1988))
+		else
+			GCC = $(shell command -v gcc 2> /dev/null)
+			ifeq ($(GCC),)
+				$(error gcc not installed for ledger support, please install or set LEDGER_ENABLED=false)
+			else
+				build_tags += ledger
+			endif
+		endif
+	endif
 endif
 
 ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
-  build_tags += gcc cleveldb
+	build_tags += gcc cleveldb
 else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
-  build_tags += gcc rocksdb
+	build_tags += gcc rocksdb
 endif
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
@@ -55,18 +60,18 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 # ********** process linker flags **********
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=mars \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=marsd \
-		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
+          -X github.com/cosmos/cosmos-sdk/version.AppName=marsd \
+          -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+          -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+          -X github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)
 
 ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
-  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
+	ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
 else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
-  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
+	ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
 endif
 ifeq (,$(findstring nostrip,$(MARS_BUILD_OPTIONS)))
-  ldflags += -w -s
+	ldflags += -w -s
 endif
 ifeq ($(LINK_STATICALLY),true)
 	ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
@@ -77,14 +82,14 @@ ldflags := $(strip $(ldflags))
 BUILD_FLAGS := -tags '$(build_tags)' -ldflags '$(ldflags)'
 # check for nostrip option
 ifeq (,$(findstring nostrip,$(MARS_BUILD_OPTIONS)))
-  BUILD_FLAGS += -trimpath
+	BUILD_FLAGS += -trimpath
 endif
 
 all: proto-gen lint test install
 
-###############################################################################
-###                                  Build                                  ###
-###############################################################################
+################################################################################
+###                                  Build                                   ###
+################################################################################
 
 install: enforce-go-version
 	@echo "🤖 Installing marsd..."
@@ -96,7 +101,7 @@ build: enforce-go-version
 	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
 
-# Make sure that Go version is 1.19
+# Make sure that Go version is 1.19+
 #
 # From Osmosis discord:
 # https://discord.com/channels/798583171548840026/837144686387920936/1049449765240315925
@@ -109,23 +114,28 @@ build: enforce-go-version
 #   https://github.com/persistenceOne/incident-reports/blob/main/06-nov-2022_V4_upgrade_halt.md
 enforce-go-version:
 	@echo "🤖 Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
-ifeq ($(GO_MINOR_VERSION) \>= 19,19)
-	@echo "❌ ERROR: Go version 1.19 is required"
-	@exit 1
-endif
+	@if [ $(GO_MAJOR_VERSION) -gt $(GO_MINIMUM_MAJOR_VERSION) ]; then \
+		exit 0; \
+	elif [ $(GO_MAJOR_VERSION) -lt $(GO_MINIMUM_MAJOR_VERSION) ]; then \
+		echo '$(GO_VERSION_ERR_MSG)'; \
+		exit 1; \
+	elif [ $(GO_MINOR_VERSION) -lt $(GO_MINIMUM_MINOR_VERSION) ]; then \
+		echo '$(GO_VERSION_ERR_MSG)'; \
+		exit 1; \
+	fi
 
-###############################################################################
-###                           Tests & Simulation                            ###
-###############################################################################
+################################################################################
+###                                  Tests                                   ###
+################################################################################
 
 test:
 	@echo "🤖 Running tests..."
 	go test -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
 
-###############################################################################
-###                                Protobuf                                 ###
-###############################################################################
+################################################################################
+###                                 Protobuf                                 ###
+################################################################################
 
 # We use osmolabs' docker image instead of tendermintdev/sdk-proto-gen.
 # The only difference is that the Osmosis version uses Go 1.19 while the
@@ -149,9 +159,9 @@ proto-swagger-gen:
 		sh ./scripts/protoc-swagger-gen.sh; fi
 	@echo "✅ Completed Swagger code generation!"
 
-###############################################################################
-###                                Linting                                  ###
-###############################################################################
+################################################################################
+###                                 Linting                                  ###
+################################################################################
 
 golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
 

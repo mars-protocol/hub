@@ -1,6 +1,6 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import "cosmossdk.io/math"
 
 // Schedule corresponding to the Rust type `mars_vesting::msg::Schedule`
 type Schedule struct {
@@ -56,8 +56,8 @@ type VotingPowersQuery struct {
 // VotingPowerResponseItem corresponding to the `voting_powers` query's respons
 // type's repeating element
 type VotingPowerResponse struct {
-	User        string   `json:"user"`
-	VotingPower sdk.Uint `json:"voting_power"`
+	User        string    `json:"user"`
+	VotingPower math.Uint `json:"voting_power"`
 }
 
 // VotingPowerResponse corresponding to the response type of the `voting_powers`
