@@ -63,7 +63,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=mars \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=marsd \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
+		  -X github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)
 
 ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
@@ -87,9 +87,9 @@ endif
 
 all: proto-gen lint test install
 
-###############################################################################
-###                                  Build                                  ###
-###############################################################################
+################################################################################
+###                                  Build                                   ###
+################################################################################
 
 install: enforce-go-version
 	@echo "🤖 Installing marsd..."
@@ -124,18 +124,18 @@ enforce-go-version:
 		exit 1; \
 	fi
 
-###############################################################################
-###                           Tests & Simulation                            ###
-###############################################################################
+################################################################################
+###                                  Tests                                   ###
+################################################################################
 
 test:
 	@echo "🤖 Running tests..."
 	go test -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
 
-###############################################################################
-###                                Protobuf                                 ###
-###############################################################################
+################################################################################
+###                                 Protobuf                                 ###
+################################################################################
 
 # We use osmolabs' docker image instead of tendermintdev/sdk-proto-gen.
 # The only difference is that the Osmosis version uses Go 1.19 while the
@@ -159,9 +159,9 @@ proto-swagger-gen:
 		sh ./scripts/protoc-swagger-gen.sh; fi
 	@echo "✅ Completed Swagger code generation!"
 
-###############################################################################
-###                                Linting                                  ###
-###############################################################################
+################################################################################
+###                                 Linting                                  ###
+################################################################################
 
 golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
 
