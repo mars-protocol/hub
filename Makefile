@@ -96,10 +96,7 @@ build: enforce-go-version
 	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
 
-# Make sure that Go version is 1.20
-#
-# It has been discovered that difference in Go versions may lead to consensus
-# failure. For Mars Hub, we require always the latest Go version.
+# Make sure that Go version is 1.19
 #
 # From Osmosis discord:
 # https://discord.com/channels/798583171548840026/837144686387920936/1049449765240315925
@@ -112,8 +109,8 @@ build: enforce-go-version
 #   https://github.com/persistenceOne/incident-reports/blob/main/06-nov-2022_V4_upgrade_halt.md
 enforce-go-version:
 	@echo "🤖 Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
-ifneq ($(GO_MINOR_VERSION),20)
-	@echo "❌ ERROR: Go version 1.20 is required"
+ifneq ($(GO_MINOR_VERSION),19)
+	@echo "❌ ERROR: Go version 1.19 is required"
 	@exit 1
 endif
 
