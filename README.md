@@ -12,7 +12,7 @@ See reports [here](https://github.com/mars-protocol/mars-audits/tree/main/hub).
 
 ## Installation
 
-Install [Go programming language][5] version 1.20, and configure related environment variables. See [here][6] for a tutorial.
+Install the lastest version of [Go programming language][5] and configure related environment variables. See [here][6] for a tutorial.
 
 Clone this repository, checkout to the latest tag, the compile the code:
 
