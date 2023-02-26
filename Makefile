@@ -10,11 +10,16 @@ LEDGER_ENABLED ?= true
 
 export GO111MODULE = on
 
+# the Go version to use in reproducible build
+GO_VERSION := 1.20
+
+# currently installed Go version
 GO_MAJOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1)
 GO_MINOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
 
-GO_MINIMUM_MAJOR_VERSION = 1
-GO_MINIMUM_MINOR_VERSION = 19
+# minimum supported Go version
+GO_MINIMUM_MAJOR_VERSION = $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f2 | cut -d'.' -f1)
+GO_MINIMUM_MINOR_VERSION = $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f2 | cut -d'.' -f2)
 
 GO_VERSION_ERR_MSG = ❌ ERROR: Go version $(GO_MINIMUM_MAJOR_VERSION).$(GO_MINIMUM_MINOR_VERSION)+ is required
 
@@ -100,6 +105,46 @@ build: enforce-go-version
 	@echo "🤖 Building marsd..."
 	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
+
+# For use when publishing releases
+#
+# Copied from Osmosis:
+# https://github.com/osmosis-labs/osmosis/blob/v14.0.1/Makefile#L111
+build-reproducible: build-reproducible-amd64 build-reproducible-arm64
+
+build-reproducible-amd64: go.sum $(BUILDDIR)/
+	$(DOCKER) buildx create --name marsbuilder || true
+	$(DOCKER) buildx use marsbuilder
+	$(DOCKER) buildx build \
+		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg GIT_VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(COMMIT) \
+		--build-arg RUNNER_IMAGE=alpine:3.17 \
+		--platform linux/amd64 \
+		-t mars:local-amd64 \
+		--load \
+		-f Dockerfile .
+	$(DOCKER) rm -f marsbinary || true
+	$(DOCKER) create -ti --name marsbinary mars:local-amd64
+	$(DOCKER) cp marsbinary:/bin/marsd $(BUILDDIR)/marsd-linux-amd64
+	$(DOCKER) rm -f marsbinary
+
+build-reproducible-arm64: go.sum $(BUILDDIR)/
+	$(DOCKER) buildx create --name marsbuilder || true
+	$(DOCKER) buildx use marsbuilder
+	$(DOCKER) buildx build \
+		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg GIT_VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(COMMIT) \
+		--build-arg RUNNER_IMAGE=alpine:3.17 \
+		--platform linux/arm64 \
+		-t mars:local-arm64 \
+		--load \
+		-f Dockerfile .
+	$(DOCKER) rm -f marsbinary || true
+	$(DOCKER) create -ti --name marsbinary mars:local-arm64
+	$(DOCKER) cp marsbinary:/bin/marsd $(BUILDDIR)/marsd-linux-arm64
+	$(DOCKER) rm -f marsbinary
 
 # Make sure that Go version is 1.19+
 #
