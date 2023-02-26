@@ -63,4 +63,8 @@ COPY --from=builder /app/build/marsd /bin/marsd
 ENV HOME /mars
 WORKDIR $HOME
 
+EXPOSE 26656
+EXPOSE 26657
+EXPOSE 1317
+
 ENTRYPOINT ["marsd"]
