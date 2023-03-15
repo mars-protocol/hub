@@ -17,7 +17,7 @@ Install the lastest version of [Go programming language][5] and configure relate
 Clone this repository, checkout to the latest tag, the compile the code:
 
 ```bash
-git clone https://github.com/mars-protocol/hub/v2.git
+git clone https://github.com/mars-protocol/hub.git
 cd hub
 git checkout <tag>
 make install

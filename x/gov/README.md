@@ -2,7 +2,7 @@
 
 The `customgov` module is wrapper around Cosmos SDK's vanilla `gov` module, inheriting most of its functionalities, with two changes:
 
-- A custom vote tallying logic. Namely, tokens locked in the [vesting contract](https://github.com/mars-protocol/hub/v2-periphery/tree/main/contracts/vesting) count towards one's governance voting power.
+- A custom vote tallying logic. Namely, tokens locked in the [vesting contract](https://github.com/mars-protocol/hub/periphery/tree/main/contracts/vesting) count towards one's governance voting power.
 - Type check proposal and vote metadata.
 
 ## Tallying
@@ -22,7 +22,7 @@ If Alice votes NO, this overrides the validator's voting. The vote will be defea
 
 ### Note
 
-Currently, the module assumes the vesting contract is the first contract to be deployed on the chain, i.e. having the code ID of 1 and instance ID of 1. The module uses this info [to derive the contract's address](https://github.com/mars-protocol/hub/v2/blob/2d233fe074b008c49cf26362e1446d888fc81ca0/custom/gov/keeper/tally.go#L12-L15). Developers must make sure this is the case in the chain's genesis state.
+Currently, the module assumes the vesting contract is the first contract to be deployed on the chain, i.e. having the code ID of 1 and instance ID of 1. The module uses this info [to derive the contract's address](https://github.com/mars-protocol/hub/blob/2d233fe074b008c49cf26362e1446d888fc81ca0/custom/gov/keeper/tally.go#L12-L15). Developers must make sure this is the case in the chain's genesis state.
 
 Why not make it a configurable parameter? Because doing so involves modifying gov module's `Params` type definition which breaks a bunch of things, which we prefer not to.
 

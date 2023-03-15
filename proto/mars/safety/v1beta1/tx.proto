@@ -6,7 +6,7 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/mars-protocol/hub/v2/x/safety/types";
+option go_package = "github.com/mars-protocol/hub/x/safety/types";
 
 // Msg defines the safety module's Msg service
 service Msg {

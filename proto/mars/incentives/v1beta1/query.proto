@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "mars/incentives/v1beta1/store.proto";
 
-option go_package = "github.com/mars-protocol/hub/v2/x/incentives/types";
+option go_package = "github.com/mars-protocol/hub/x/incentives/types";
 
 // Query defines the gRPC querier service for the incentives module
 service Query {
