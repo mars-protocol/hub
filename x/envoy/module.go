@@ -119,6 +119,15 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 //------------------------------------------------------------------------------
+// Migration
+//------------------------------------------------------------------------------
+
+// InitModule is similar to InitGenesis, but used during chain upgrades.
+func (am AppModule) InitModule(ctx sdk.Context, genState *types.GenesisState) {
+	am.keeper.InitGenesis(ctx, genState)
+}
+
+//------------------------------------------------------------------------------
 // Deprecated stuff
 //------------------------------------------------------------------------------
 
