@@ -13,44 +13,123 @@ import (
 
 const govModuleAccount = "mars10d07y265gmmuvt4z0w9aw880jnsr700j8l2urg"
 
-func init() {
-	sdk.GetConfig().SetBech32PrefixForAccount("mars", "marspub")
-}
-
-func getMockMsgCreateSchedule() types.MsgCreateSchedule {
-	return types.MsgCreateSchedule{
+var (
+	mockMsgCreateSchedule = types.MsgCreateSchedule{
 		Authority: govModuleAccount,
 		StartTime: time.Unix(10000, 0),
 		EndTime:   time.Unix(20000, 0),
 		Amount:    sdk.NewCoins(sdk.NewCoin("umars", sdk.NewInt(10000))),
 	}
-}
 
-func getMockTerminateScheduleProposal() types.MsgTerminateSchedules {
-	return types.MsgTerminateSchedules{
+	mockMsgTerminateSchedules = types.MsgTerminateSchedules{
 		Authority: govModuleAccount,
 		Ids:       []uint64{1, 2, 3, 4, 5},
 	}
+)
+
+func init() {
+	sdk.GetConfig().SetBech32PrefixForAccount("mars", "marspub")
 }
 
 func TestValidateCreateScheduleProposal(t *testing.T) {
-	p := getMockMsgCreateSchedule()
-	p.EndTime = time.Unix(9999, 0)
-	require.Error(t, p.ValidateBasic(), types.ErrInvalidProposalStartEndTimes)
+	var msg types.MsgCreateSchedule
 
-	p = getMockMsgCreateSchedule()
-	p.Amount = sdk.NewCoins()
-	require.Error(t, p.ValidateBasic(), types.ErrInvalidProposalAmount)
+	testCases := []struct {
+		name     string
+		malleate func()
+		expError error
+	}{
+		{
+			"succeed",
+			func() {},
+			nil,
+		},
+		{
+			"fail - end time is earlier than start time",
+			func() {
+				msg.EndTime = time.Unix(9999, 0)
+			},
+			types.ErrInvalidProposalStartEndTimes,
+		},
+		{
+			"fail - amount is empty",
+			func() {
+				msg.Amount = sdk.NewCoins()
+			},
+			types.ErrInvalidProposalAmount,
+		},
+		{
+			"fail - amount contains zero coin",
+			func() {
+				msg.Amount = []sdk.Coin{{Denom: "umars", Amount: sdk.NewInt(0)}}
+			},
+			types.ErrInvalidProposalAmount,
+		},
+		{
+			"fail - amount contains negative coin",
+			func() {
+				msg.Amount = []sdk.Coin{{Denom: "umars", Amount: sdk.NewInt(-1)}}
+			},
+			types.ErrInvalidProposalAmount,
+		},
+		{
+			"fail - coins are out of order",
+			func() {
+				msg.Amount = []sdk.Coin{sdk.NewCoin("umars", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(12345))}
+			},
+			types.ErrInvalidProposalAmount,
+		},
+		{
+			"fail - duplicate denoms",
+			func() {
+				msg.Amount = []sdk.Coin{sdk.NewCoin("uastro", sdk.NewInt(12345)), sdk.NewCoin("uastro", sdk.NewInt(12345))}
+			},
+			types.ErrInvalidProposalAmount,
+		},
+	}
 
-	p = getMockMsgCreateSchedule()
-	require.NoError(t, p.ValidateBasic())
+	for _, tc := range testCases {
+		msg = mockMsgCreateSchedule
+		tc.malleate()
+
+		if tc.expError != nil {
+			require.Error(t, msg.ValidateBasic(), tc.expError.Error(), tc.name)
+		} else {
+			require.NoError(t, msg.ValidateBasic(), tc.name)
+		}
+	}
 }
 
 func TestValidateTerminateScheduleProposal(t *testing.T) {
-	p := getMockTerminateScheduleProposal()
-	p.Ids = []uint64{}
-	require.Error(t, p.ValidateBasic(), types.ErrInvalidProposalIds)
+	var msg types.MsgTerminateSchedules
 
-	p = getMockTerminateScheduleProposal()
-	require.NoError(t, p.ValidateBasic())
+	testCases := []struct {
+		name     string
+		malleate func()
+		expError error
+	}{
+		{
+			"succeed",
+			func() {},
+			nil,
+		},
+		{
+			"fail - ids are empty",
+			func() {
+				msg.Ids = []uint64{}
+			},
+			types.ErrInvalidProposalIds,
+		},
+	}
+
+	for _, tc := range testCases {
+		msg = mockMsgTerminateSchedules
+		tc.malleate()
+
+		if tc.expError != nil {
+			require.Error(t, msg.ValidateBasic(), tc.expError.Error(), tc.name)
+		} else {
+			require.NoError(t, msg.ValidateBasic(), tc.name)
+		}
+	}
 }

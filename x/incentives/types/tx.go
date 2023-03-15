@@ -25,10 +25,15 @@ func (m *MsgCreateSchedule) ValidateBasic() error {
 		return ErrInvalidProposalStartEndTimes
 	}
 
+	// amount cannot be empty
+	if m.Amount.Empty() {
+		return ErrInvalidProposalAmount.Wrap("amount cannot be empty")
+	}
+
 	// the coins must be valid (unique denoms, non-zero amount, and sorted
 	// alphabetically)
-	if m.Amount.Empty() {
-		return ErrInvalidProposalAmount
+	if err := m.Amount.Validate(); err != nil {
+		return ErrInvalidProposalAmount.Wrap(err.Error())
 	}
 
 	return nil
