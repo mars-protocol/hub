@@ -54,7 +54,7 @@ ifeq (cleveldb,$(findstring cleveldb,$(MARS_BUILD_OPTIONS)))
 else ifeq (rocksdb,$(findstring rocksdb,$(MARS_BUILD_OPTIONS)))
 	build_tags += gcc rocksdb
 else ifeq (pebbledb,$(findstring pebbledb,$(MARS_BUILD_OPTIONS)))
-  build_tags += pebbledb
+	build_tags += pebbledb
 endif
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
