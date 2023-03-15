@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/incentives/keeper"
+	"github.com/mars-protocol/hub/v2/x/incentives/keeper"
 )
 
 func TestUnreleasedIncentivesInvariant(t *testing.T) {

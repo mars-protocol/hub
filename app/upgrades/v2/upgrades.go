@@ -12,8 +12,8 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 
-	"github.com/mars-protocol/hub/x/envoy"
-	envoytypes "github.com/mars-protocol/hub/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/envoy"
+	envoytypes "github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 // CreateUpgradeHandler creates the upgrade handler for the v2 upgrade.

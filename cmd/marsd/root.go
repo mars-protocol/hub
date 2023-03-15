@@ -24,7 +24,7 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	marsapp "github.com/mars-protocol/hub/app"
+	marsapp "github.com/mars-protocol/hub/v2/app"
 )
 
 //------------------------------------------------------------------------------

@@ -64,7 +64,7 @@ The test is considered successful if we can:
 Download and install marsd (use the main branch):
 
 ```bash
-git clone https://github.com/mars-protocol/hub.git
+git clone https://github.com/mars-protocol/hub/v2.git
 cd hub
 make install
 ```
@@ -283,7 +283,7 @@ data:
   pending_owner: null
 ```
 
-[1]: https://github.com/mars-protocol/hub
+[1]: https://github.com/mars-protocol/hub/v2
 [2]: https://github.com/CosmWasm/wasmd
 [3]: https://github.com/informalsystems/hermes.git
 [4]: https://github.com/steak-enjoyers/cw-template

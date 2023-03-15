@@ -20,11 +20,11 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	marsapp "github.com/mars-protocol/hub/app"
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapp "github.com/mars-protocol/hub/v2/app"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/gov/testdata"
-	"github.com/mars-protocol/hub/x/gov/types"
+	"github.com/mars-protocol/hub/v2/x/gov/testdata"
+	"github.com/mars-protocol/hub/v2/x/gov/types"
 )
 
 var mockSchedule = &types.Schedule{

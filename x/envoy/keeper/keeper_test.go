@@ -17,9 +17,9 @@ import (
 	ibcchanneltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
 
-	marsapp "github.com/mars-protocol/hub/app"
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
-	"github.com/mars-protocol/hub/x/envoy/types"
+	marsapp "github.com/mars-protocol/hub/v2/app"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 var (

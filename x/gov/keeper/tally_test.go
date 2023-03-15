@@ -9,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/mars-protocol/hub/x/gov/keeper"
-	"github.com/mars-protocol/hub/x/gov/types"
+	"github.com/mars-protocol/hub/v2/x/gov/keeper"
+	"github.com/mars-protocol/hub/v2/x/gov/types"
 )
 
 // verify that the test is properly setup

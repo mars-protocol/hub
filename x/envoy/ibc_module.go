@@ -18,7 +18,7 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	"github.com/mars-protocol/hub/x/envoy/keeper"
+	"github.com/mars-protocol/hub/v2/x/envoy/keeper"
 )
 
 // IBCModule implements the ICS26 interface for the envoy module.

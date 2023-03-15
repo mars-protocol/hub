@@ -83,8 +83,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// customized core modules
-	customgov "github.com/mars-protocol/hub/x/gov"
-	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
+	customgov "github.com/mars-protocol/hub/v2/x/gov"
+	customgovkeeper "github.com/mars-protocol/hub/v2/x/gov/keeper"
 
 	// ibc modules
 	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
@@ -114,21 +114,21 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	// mars modules
-	"github.com/mars-protocol/hub/x/envoy"
-	envoykeeper "github.com/mars-protocol/hub/x/envoy/keeper"
-	envoytypes "github.com/mars-protocol/hub/x/envoy/types"
-	"github.com/mars-protocol/hub/x/incentives"
-	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
-	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
-	"github.com/mars-protocol/hub/x/safety"
-	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
-	safetytypes "github.com/mars-protocol/hub/x/safety/types"
+	"github.com/mars-protocol/hub/v2/x/envoy"
+	envoykeeper "github.com/mars-protocol/hub/v2/x/envoy/keeper"
+	envoytypes "github.com/mars-protocol/hub/v2/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/incentives"
+	incentiveskeeper "github.com/mars-protocol/hub/v2/x/incentives/keeper"
+	incentivestypes "github.com/mars-protocol/hub/v2/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/safety"
+	safetykeeper "github.com/mars-protocol/hub/v2/x/safety/keeper"
+	safetytypes "github.com/mars-protocol/hub/v2/x/safety/types"
 
-	"github.com/mars-protocol/hub/app/upgrades"
-	v2 "github.com/mars-protocol/hub/app/upgrades/v2"
+	"github.com/mars-protocol/hub/v2/app/upgrades"
+	v2 "github.com/mars-protocol/hub/v2/app/upgrades/v2"
 
-	marswasm "github.com/mars-protocol/hub/app/wasm"
-	marsdocs "github.com/mars-protocol/hub/docs"
+	marswasm "github.com/mars-protocol/hub/v2/app/wasm"
+	marsdocs "github.com/mars-protocol/hub/v2/docs"
 )
 
 const (

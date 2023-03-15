@@ -10,7 +10,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/mars-protocol/hub/x/gov/types"
+	"github.com/mars-protocol/hub/v2/x/gov/types"
 )
 
 //------------------------------------------------------------------------------

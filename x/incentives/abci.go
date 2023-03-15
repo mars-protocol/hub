@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	marsutils "github.com/mars-protocol/hub/utils"
+	marsutils "github.com/mars-protocol/hub/v2/utils"
 
-	"github.com/mars-protocol/hub/x/incentives/keeper"
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/keeper"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 // BeginBlocker distributes block rewards to validators who have signed the

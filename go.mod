@@ -1,4 +1,4 @@
-module github.com/mars-protocol/hub
+module github.com/mars-protocol/hub/v2
 
 go 1.19
 
