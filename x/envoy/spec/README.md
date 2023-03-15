@@ -36,5 +36,4 @@ To generate an example satisfying `AllSuccess`,
 apalache-mc check --inv=ExAllSuccess --max-error=3 --view=ActionType --out-dir=runs envoy.tla
 ```
 
-The counter-examples would be present at
-`./runs/envoy.tla/<APALACHE_RUN_ID>/violation*.tla`.
+The counter-examples would be present at `./runs/envoy.tla/<APALACHE_RUN_ID>/violation*.tla`.
