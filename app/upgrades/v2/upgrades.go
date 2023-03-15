@@ -22,6 +22,8 @@ import (
 // change to the existing modules.
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		ctx.Logger().Info("🚀 executing Mars Hub v2 upgrade 🚀")
+
 		ctx.Logger().Info("initializing interchain account module")
 		initICAModule(ctx, mm, vm)
 
