@@ -17,7 +17,7 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibcchannelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 
-	"github.com/mars-protocol/hub/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 // Keeper is the envoy module's keeper.

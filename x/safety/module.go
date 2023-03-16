@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/mars-protocol/hub/x/safety/client/cli"
-	"github.com/mars-protocol/hub/x/safety/keeper"
-	"github.com/mars-protocol/hub/x/safety/types"
+	"github.com/mars-protocol/hub/v2/x/safety/client/cli"
+	"github.com/mars-protocol/hub/v2/x/safety/keeper"
+	"github.com/mars-protocol/hub/v2/x/safety/types"
 )
 
 var (

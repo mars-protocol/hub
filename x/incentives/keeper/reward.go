@@ -7,7 +7,7 @@ import (
 
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 func newDecFromInt64(i int64) sdk.Dec {

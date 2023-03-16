@@ -10,7 +10,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 // Keeper is the incentives module's keeper

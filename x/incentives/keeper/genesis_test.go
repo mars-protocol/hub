@@ -9,8 +9,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	marsapp "github.com/mars-protocol/hub/app"
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapp "github.com/mars-protocol/hub/v2/app"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 )
 
 func setupGenesisTest() (ctx sdk.Context, app *marsapp.MarsApp) {

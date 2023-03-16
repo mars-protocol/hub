@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -82,8 +83,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// customized core modules
-	customgov "github.com/mars-protocol/hub/x/gov"
-	customgovkeeper "github.com/mars-protocol/hub/x/gov/keeper"
+	customgov "github.com/mars-protocol/hub/v2/x/gov"
+	customgovkeeper "github.com/mars-protocol/hub/v2/x/gov/keeper"
 
 	// ibc modules
 	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
@@ -113,18 +114,21 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	// mars modules
-	"github.com/mars-protocol/hub/x/envoy"
-	envoykeeper "github.com/mars-protocol/hub/x/envoy/keeper"
-	envoytypes "github.com/mars-protocol/hub/x/envoy/types"
-	"github.com/mars-protocol/hub/x/incentives"
-	incentiveskeeper "github.com/mars-protocol/hub/x/incentives/keeper"
-	incentivestypes "github.com/mars-protocol/hub/x/incentives/types"
-	"github.com/mars-protocol/hub/x/safety"
-	safetykeeper "github.com/mars-protocol/hub/x/safety/keeper"
-	safetytypes "github.com/mars-protocol/hub/x/safety/types"
+	"github.com/mars-protocol/hub/v2/x/envoy"
+	envoykeeper "github.com/mars-protocol/hub/v2/x/envoy/keeper"
+	envoytypes "github.com/mars-protocol/hub/v2/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/incentives"
+	incentiveskeeper "github.com/mars-protocol/hub/v2/x/incentives/keeper"
+	incentivestypes "github.com/mars-protocol/hub/v2/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/safety"
+	safetykeeper "github.com/mars-protocol/hub/v2/x/safety/keeper"
+	safetytypes "github.com/mars-protocol/hub/v2/x/safety/types"
 
-	marswasm "github.com/mars-protocol/hub/app/wasm"
-	marsdocs "github.com/mars-protocol/hub/docs"
+	"github.com/mars-protocol/hub/v2/app/upgrades"
+	v2 "github.com/mars-protocol/hub/v2/app/upgrades/v2"
+
+	marswasm "github.com/mars-protocol/hub/v2/app/wasm"
+	marsdocs "github.com/mars-protocol/hub/v2/docs"
 )
 
 const (
@@ -203,6 +207,10 @@ var (
 		safetytypes.ModuleName:         nil,
 		envoytypes.ModuleName:          nil,
 	}
+
+	// scheduled upgrades and forks
+	Upgrades = []upgrades.Upgrade{v2.Upgrade}
+	Forks    = []upgrades.Fork{}
 )
 
 func init() {
@@ -275,8 +283,9 @@ type MarsApp struct {
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
 
-	// the module manager
-	mm *module.Manager
+	// module manager and configurator
+	mm           *module.Manager
+	configurator module.Configurator
 }
 
 // NewMarsApp creates and initializes a new `MarsApp` instance
@@ -694,7 +703,13 @@ func NewMarsApp(
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
-	app.mm.RegisterServices(module.NewConfigurator(codec, app.MsgServiceRouter(), app.GRPCQueryRouter()))
+
+	app.configurator = module.NewConfigurator(codec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	app.mm.RegisterServices(app.configurator)
+
+	// setup upgrades
+	app.setupUpgradeStoreLoaders()
+	app.setupUpgradeHandlers()
 
 	// initialize stores
 	app.MountKVStores(keys)
@@ -762,6 +777,7 @@ func (app *MarsApp) LegacyAmino() *codec.LegacyAmino {
 
 // BeginBlocker application updates every begin block
 func (app *MarsApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	app.beginBlockForks(ctx)
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -876,6 +892,45 @@ func (app *MarsApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 
 func (app *MarsApp) GetTxConfig() client.TxConfig {
 	return MakeEncodingConfig().TxConfig
+}
+
+//------------------------------------------------------------------------------
+// Upgrades and forks
+//------------------------------------------------------------------------------
+
+func (app *MarsApp) setupUpgradeStoreLoaders() {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read upgrade info from disk: %s", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	for _, upgrade := range Upgrades {
+		if upgradeInfo.Name == upgrade.UpgradeName {
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
+		}
+	}
+}
+
+func (app *MarsApp) setupUpgradeHandlers() {
+	for _, upgrade := range Upgrades {
+		app.UpgradeKeeper.SetUpgradeHandler(
+			upgrade.UpgradeName,
+			upgrade.CreateUpgradeHandler(app.mm, app.configurator),
+		)
+	}
+}
+
+func (app *MarsApp) beginBlockForks(ctx sdk.Context) {
+	for _, fork := range Forks {
+		if ctx.BlockHeight() == fork.UpgradeHeight {
+			fork.BeginForkLogic(ctx)
+			return
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

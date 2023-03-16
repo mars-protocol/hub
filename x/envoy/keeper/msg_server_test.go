@@ -14,9 +14,9 @@ import (
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 
-	marsutils "github.com/mars-protocol/hub/utils"
-	"github.com/mars-protocol/hub/x/envoy/keeper"
-	"github.com/mars-protocol/hub/x/envoy/types"
+	marsutils "github.com/mars-protocol/hub/v2/utils"
+	"github.com/mars-protocol/hub/v2/x/envoy/keeper"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 var (

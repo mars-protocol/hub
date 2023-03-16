@@ -7,9 +7,9 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	marsutils "github.com/mars-protocol/hub/utils"
+	marsutils "github.com/mars-protocol/hub/v2/utils"
 
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 type msgServer struct{ k Keeper }

@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/mars-protocol/hub/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 // GetQueryCmd returns the parent command for all envoy module query commands.

@@ -9,9 +9,9 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 // TestCreatesModuleAccountAtGenesis asserts that the incentives module account

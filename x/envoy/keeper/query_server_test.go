@@ -4,8 +4,8 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
 
-	"github.com/mars-protocol/hub/x/envoy/keeper"
-	"github.com/mars-protocol/hub/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/envoy/keeper"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 func (suite *KeeperTestSuite) TestQueryAccount() {

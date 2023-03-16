@@ -5,7 +5,7 @@ import (
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	marsapp "github.com/mars-protocol/hub/app"
+	marsapp "github.com/mars-protocol/hub/v2/app"
 )
 
 func main() {

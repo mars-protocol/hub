@@ -10,7 +10,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/mars-protocol/hub/x/gov/keeper"
+	"github.com/mars-protocol/hub/v2/x/gov/keeper"
 )
 
 // EndBlocker called at the end of every block, processing proposals

@@ -10,7 +10,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/mars-protocol/hub/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 var (

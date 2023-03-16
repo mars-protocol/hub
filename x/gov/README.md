@@ -2,7 +2,7 @@
 
 The `customgov` module is wrapper around Cosmos SDK's vanilla `gov` module, inheriting most of its functionalities, with two changes:
 
-- A custom vote tallying logic. Namely, tokens locked in the [vesting contract](https://github.com/mars-protocol/hub-periphery/tree/main/contracts/vesting) count towards one's governance voting power.
+- A custom vote tallying logic. Namely, tokens locked in the [vesting contract](https://github.com/mars-protocol/periphery/tree/main/contracts/vesting) count towards one's governance voting power.
 - Type check proposal and vote metadata.
 
 ## Tallying

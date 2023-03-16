@@ -14,10 +14,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	marsapp "github.com/mars-protocol/hub/app"
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapp "github.com/mars-protocol/hub/v2/app"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 //--------------------------------------------------------------------------------------------------

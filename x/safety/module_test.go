@@ -9,8 +9,8 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
-	"github.com/mars-protocol/hub/x/safety/types"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
+	"github.com/mars-protocol/hub/v2/x/safety/types"
 )
 
 // TestCreatesModuleAccountAtGenesis asserts that the safety module account is

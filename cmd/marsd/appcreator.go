@@ -23,7 +23,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	marsapp "github.com/mars-protocol/hub/app"
+	marsapp "github.com/mars-protocol/hub/v2/app"
 )
 
 // appCreator is a wrapper for EncodingConfig. This allows us to reuse

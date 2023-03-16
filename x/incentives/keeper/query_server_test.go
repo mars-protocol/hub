@@ -10,11 +10,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	marsapp "github.com/mars-protocol/hub/app"
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapp "github.com/mars-protocol/hub/v2/app"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/incentives/keeper"
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/keeper"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 func setupQueryServerTest() (ctx sdk.Context, app *marsapp.MarsApp) {

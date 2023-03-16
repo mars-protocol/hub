@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mars-protocol/hub/x/safety/types"
+	"github.com/mars-protocol/hub/v2/x/safety/types"
 )
 
 // Keeper is the module's keeper

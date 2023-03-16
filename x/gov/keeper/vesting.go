@@ -10,7 +10,7 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	"github.com/mars-protocol/hub/x/gov/types"
+	"github.com/mars-protocol/hub/v2/x/gov/types"
 )
 
 // queryVotingPowers queries the vesting contract of user voting powers based on

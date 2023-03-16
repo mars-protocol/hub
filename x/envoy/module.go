@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/mars-protocol/hub/x/envoy/client/cli"
-	"github.com/mars-protocol/hub/x/envoy/keeper"
-	"github.com/mars-protocol/hub/x/envoy/types"
+	"github.com/mars-protocol/hub/v2/x/envoy/client/cli"
+	"github.com/mars-protocol/hub/v2/x/envoy/keeper"
+	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )
 
 var (
@@ -116,6 +116,15 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := am.keeper.ExportGenesis(ctx)
 	return cdc.MustMarshalJSON(gs)
+}
+
+//------------------------------------------------------------------------------
+// Migration
+//------------------------------------------------------------------------------
+
+// InitModule is similar to InitGenesis, but used during chain upgrades.
+func (am AppModule) InitModule(ctx sdk.Context) {
+	am.keeper.InitGenesis(ctx, &types.GenesisState{})
 }
 
 //------------------------------------------------------------------------------

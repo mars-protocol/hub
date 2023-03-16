@@ -13,11 +13,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	marsapp "github.com/mars-protocol/hub/app"
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapp "github.com/mars-protocol/hub/v2/app"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/incentives/keeper"
-	"github.com/mars-protocol/hub/x/incentives/types"
+	"github.com/mars-protocol/hub/v2/x/incentives/keeper"
+	"github.com/mars-protocol/hub/v2/x/incentives/types"
 )
 
 var mockSchedule = types.Schedule{

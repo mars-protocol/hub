@@ -11,10 +11,10 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	marsapptesting "github.com/mars-protocol/hub/app/testing"
+	marsapptesting "github.com/mars-protocol/hub/v2/app/testing"
 
-	"github.com/mars-protocol/hub/x/gov/keeper"
-	"github.com/mars-protocol/hub/x/gov/types"
+	"github.com/mars-protocol/hub/v2/x/gov/keeper"
+	"github.com/mars-protocol/hub/v2/x/gov/types"
 )
 
 func TestProposalMetadataTypeCheck(t *testing.T) {
