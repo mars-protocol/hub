@@ -1,6 +1,6 @@
-# v2 upgrade
+# v2
 
-In v2.0.0 upgrade we add the interchain account and envoy modules, without making any change to the existing modules.
+In v2 upgrade, we add the interchain account and envoy modules, without making any change to the existing modules.
 
 ## Manual testing
 
@@ -217,10 +217,10 @@ Marsd should halt at height 500 with the following log msg:
 11:53PM ERR CONSENSUS FAILURE!!! err="UPGRADE \"v2\" NEEDED at height: 500"
 ```
 
-Check out to `v2.0.0` and compile:
+Check out to `v2.0.0-rc0` and compile:
 
 ```bash
-git checkout v2.0.0
+git checkout v2.0.0-rc0
 make install
 marsd version --long
 ```
