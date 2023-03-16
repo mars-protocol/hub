@@ -86,7 +86,7 @@ func initEnvoyModule(ctx sdk.Context, mm *module.Manager, vm module.VersionMap) 
 	vm[envoytypes.ModuleName] = mm.Modules[envoytypes.ModuleName].ConsensusVersion()
 
 	envoyModule := getAppModule[envoy.AppModule](mm, envoytypes.ModuleName, "envoy.AppModule")
-	envoyModule.InitModule(ctx, &envoytypes.GenesisState{})
+	envoyModule.InitModule(ctx)
 }
 
 func getAppModule[T module.AppModule](mm *module.Manager, moduleName, typeName string) T {
