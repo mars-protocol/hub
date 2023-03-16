@@ -268,8 +268,11 @@ marsd tx envoy register-account connection-0 --from test --gas auto --gas-adjust
 In my case hermes didn't pick up the channel handshake events for some reason, so I had to do it manually:
 
 ```bash
-envoyModAcc="mars1s3fjkvr0yk2c0smyh4esrcyp893atwz0uga6lf"
+envoyModAcc=$(marsd q auth module-account envoy --output json | jq -r '.account.base_account.address')
 controllerPort="icacontroller-$envoyModAcc"
+```
+
+```bash
 hermes tx chan-open-try --dst-chain wasm-test-1 --src-chain mars-test-1 --dst-connection connection-0 --dst-port icahost --src-port $controllerPort --src-channel channel-1
 hermes tx chan-open-ack --dst-chain mars-test-1 --src-chain wasm-test-1 --dst-connection connection-0 --dst-port $controllerPort --src-port icahost --dst-channel channel-1 --src-channel channel-1
 hermes tx chan-open-confirm --dst-chain wasm-test-1 --src-chain mars-test-1 --dst-connection connection-0 --dst-port icahost --src-port $controllerPort --dst-channel channel-1 --src-channel channel-1
