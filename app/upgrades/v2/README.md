@@ -255,7 +255,7 @@ marsd q auth module-account envoy --home ~/.mars-v2-upgrade-test
 Try sending an IBC transfer again, should work:
 
 ```bash
-marsd-v1.0.0 tx ibc-transfer transfer transfer channel-0 $wasmTestAcc 12345umars --from test --gas auto --gas-adjustment 1.4 --home ~/.mars-v2-upgrade-test
+marsd tx ibc-transfer transfer transfer channel-0 $wasmTestAcc 12345umars --from test --gas auto --gas-adjustment 1.4 --home ~/.mars-v2-upgrade-test
 wasmd q bank balances $wasmTestAcc
 ```
 
