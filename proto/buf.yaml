@@ -1,5 +1,5 @@
 version: v1
-name: buf.build/mars-protocol/hub/v2
+name: buf.build/mars-protocol/hub
 deps:
   - buf.build/cosmos/cosmos-proto
   - buf.build/cosmos/cosmos-sdk

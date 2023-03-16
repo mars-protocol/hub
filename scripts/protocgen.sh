@@ -17,7 +17,7 @@ done
 
 # move proto files to the right places
 if [ -d "./github.com/mars-protocol/hub" ]; then
-  cp -r github.com/mars-protocol/hub* ./
+  cp -r github.com/mars-protocol/hub/* ./
   rm -rf github.com
 fi
 
