@@ -73,10 +73,8 @@ func (ac appCreator) createApp(
 	}
 
 	return marsapp.NewMarsApp(
-		logger, db, traceStore, true, skipUpgradeHeights,
+		logger, db, traceStore, true,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encodingConfig,
 		appOpts,
 		wasmOpts,
 		baseapp.SetPruning(pruningOpts),

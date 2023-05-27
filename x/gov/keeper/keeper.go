@@ -33,13 +33,13 @@ type Keeper struct {
 // require an additional wasm keeper, which is needed for our custom vote
 // tallying logic.
 func NewKeeper(
-	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace govtypes.ParamSubspace,
+	cdc codec.BinaryCodec, key storetypes.StoreKey, authKeeper govtypes.AccountKeeper, paramSpace govtypes.ParamSubspace,
 	accountKeeper govtypes.AccountKeeper, bankKeeper govtypes.BankKeeper, stakingKeeper govtypes.StakingKeeper,
 	wasmKeeper wasmtypes.ViewKeeper, legacyRouter govv1beta1.Router, router *baseapp.MsgServiceRouter,
-	config govtypes.Config,
+	config govtypes.Config, authority string,
 ) Keeper {
 	return Keeper{
-		Keeper:        govkeeper.NewKeeper(cdc, key, paramSpace, accountKeeper, bankKeeper, stakingKeeper, legacyRouter, router, config),
+		Keeper:        govkeeper.NewKeeper(cdc, key, authKeeper, accountKeeper, bankKeeper, stakingKeeper, legacyRouter, router, config, authority),
 		storeKey:      key,
 		stakingKeeper: stakingKeeper,
 		wasmKeeper:    wasmKeeper,
