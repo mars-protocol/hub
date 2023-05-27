@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ibcchanneltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	ibccore "github.com/cosmos/ibc-go/v6/modules/core/exported"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibccore "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
 	"github.com/mars-protocol/hub/v2/x/envoy/types"
 )

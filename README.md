@@ -29,7 +29,7 @@ A `marsd` executable will be created in the `$GOBIN` directory.
 
 Contents of this repository are open source under [GNU General Public License v3](./LICENSE) or later.
 
-[1]: https://github.com/tendermint/tendermint
+[1]: https://github.com/cometbft/cometbft
 [2]: https://github.com/cosmos/cosmos-sdk
 [3]: https://github.com/cosmos/ibc-go
 [4]: https://github.com/CosmWasm/wasmd
