@@ -145,7 +145,7 @@ func setupTest(t *testing.T, votingPowers []VotingPower) (ctx sdk.Context, app *
 	// typically we require the proposal's metadata to conform to a schema, but
 	// it's not necessary here as we're not creating the proposal through the
 	// msgServer.
-	proposal, err = govv1.NewProposal([]sdk.Msg{}, 1, "", time.Now(), time.Now())
+	proposal, err = govv1.NewProposal([]sdk.Msg{}, 1, "", time.Now(), time.Now(), metadata, title, description)
 	proposal.Status = govv1.StatusVotingPeriod
 	require.NoError(t, err)
 
