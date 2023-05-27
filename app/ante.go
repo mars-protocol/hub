@@ -5,22 +5,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	"github.com/mars-protocol/hub/v2/x/gov/keeper"
 
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
-// HandlerOptions extends the SDK's `AnteHandler` options by requiring
-// additional keepers.
+// HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
+// channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	IBCKeeper         *ibckeeper.Keeper
-	WasmConfig        wasmtypes.WasmConfig
-	TxCounterStoreKey storetypes.StoreKey
+	IBCKeeper         *keeper.Keeper
+	WasmConfig        *wasmtypes.WasmConfig
+	TXCounterStoreKey storetypes.StoreKey
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -62,7 +62,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 		// wasm
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
-		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
+		wasmkeeper.NewCountTXDecorator(options.TXCounterStoreKey),
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil

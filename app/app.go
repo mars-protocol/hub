@@ -1200,7 +1200,7 @@ func (app *MarsApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtype
 			},
 			IBCKeeper:         app.IBCKeeper,
 			WasmConfig:        &wasmConfig,
-			TXCounterStoreKey: txCounterStoreKey,
+			TXCounterStoreKey: TxCounterStoreKey,
 		},
 	)
 	if err != nil {
