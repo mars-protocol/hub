@@ -18,6 +18,8 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 
 	// cosmos SDK
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -26,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	"github.com/cosmos/cosmos-sdk/server"
 	api "github.com/cosmos/cosmos-sdk/server/api"
 	config "github.com/cosmos/cosmos-sdk/server/config"
@@ -42,6 +45,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -120,6 +124,7 @@ import (
 	// wasm modules
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// mars modules
 	"github.com/mars-protocol/hub/v2/x/envoy"
@@ -292,7 +297,10 @@ type MarsApp struct {
 
 	// module manager and configurator
 	ModuleManager *module.Manager
-	configurator  module.Configurator
+	// simulation manager
+	sm *module.SimulationManager
+	// configurator
+	configurator module.Configurator
 }
 
 // NewMarsApp creates and initializes a new `MarsApp` instance
@@ -402,12 +410,13 @@ func NewMarsApp(
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)
 
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
-		codec,
+		appCodec,
 		keys[banktypes.StoreKey],
 		app.AccountKeeper,
-		getSubspace(app, banktypes.ModuleName),
-		getBlockedModuleAccountAddrs(app), // NOTE: fee collector & safety fund are excluded from blocked addresses
+		BlockedAddresses(),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		appCodec,
@@ -445,12 +454,12 @@ func NewMarsApp(
 	// staking keeper and its dependencies
 	// NOTE: the order here (e.g. evidence keeper depends on slashing keeper, so
 	// must be defined after it)
-	stakingKeeper := stakingkeeper.NewKeeper(
+	app.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
 		keys[stakingtypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		getSubspace(app, stakingtypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
@@ -482,9 +491,8 @@ func NewMarsApp(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain
-	// these hooks.
-	app.StakingKeeper = *stakingKeeper.SetHooks(
+	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
+	app.StakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
@@ -539,41 +547,43 @@ func NewMarsApp(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	supportedCapabilities := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2"
-
 	// register wasm bindings of Mars modules here
 	wasmOpts = append(marswasm.RegisterCustomPlugins(&app.DistrKeeper), wasmOpts...)
 
-	// create wasm keeper
+	// The last arguments can contain custom message handlers, and custom query handlers,
+	// if we want to allow any custom callbacks
+	availableCapabilities := strings.Join(AllCapabilities(), ",")
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
 		keys[wasm.StoreKey],
-		getSubspace(app, wasm.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
-		app.DistrKeeper,
+		distrkeeper.NewQuerier(app.DistrKeeper),
+		app.IBCFeeKeeper, // ISC4 Wrapper: fee IBC middleware
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.ScopedWasmKeeper,
-		app.IBCTransferKeeper,
+		app.TransferKeeper,
 		app.MsgServiceRouter(),
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		supportedCapabilities,
+		availableCapabilities,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		wasmOpts...,
 	)
 
 	// mars module keepers
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
-		codec, keys[incentivestypes.StoreKey],
+		appCodec, keys[incentivestypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistrKeeper,
 		app.StakingKeeper,
 		authority,
 	)
+
 	app.SafetyKeeper = safetykeeper.NewKeeper(
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -600,7 +610,7 @@ func NewMarsApp(
 		getSubspace(app, govtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		&stakingKeeper,
+		app.StakingKeeper,
 		app.WasmKeeper,
 		initGovRouter(app),
 		app.MsgServiceRouter(),
@@ -848,7 +858,7 @@ func (app *MarsApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
 
-	return app.ModuleManager.InitGenesis(ctx, app.Codec, genesisState)
+	return app.ModuleManager.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
 // LoadHeight loads a particular height
