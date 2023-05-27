@@ -18,15 +18,18 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 
 	// cosmos SDK
-	"cosmossdk.io/simapp"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	tmservice "github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/server"
 	api "github.com/cosmos/cosmos-sdk/server/api"
 	config "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/store/streaming"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -47,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
@@ -225,7 +229,7 @@ func init() {
 
 // `MarsApp` must implement `simapp.App` and `servertypes.Application` interfaces
 var (
-	_ simapp.App              = (*MarsApp)(nil)
+	_ runtime.AppI            = (*MarsApp)(nil)
 	_ servertypes.Application = (*MarsApp)(nil)
 	_ ibctesting.TestingApp   = (*MarsApp)(nil)
 )
@@ -251,27 +255,28 @@ type MarsApp struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper       authkeeper.AccountKeeper
-	AuthzKeeper         authzkeeper.Keeper
-	BankKeeper          bankkeeper.Keeper
-	CapabilityKeeper    *capabilitykeeper.Keeper
-	CrisisKeeper        crisiskeeper.Keeper
-	DistrKeeper         distrkeeper.Keeper
-	EvidenceKeeper      evidencekeeper.Keeper
-	FeeGrantKeeper      feegrantkeeper.Keeper
-	GovKeeper           customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
-	ParamsKeeper        paramskeeper.Keeper
-	SlashingKeeper      slashingkeeper.Keeper
-	StakingKeeper       stakingkeeper.Keeper
-	UpgradeKeeper       upgradekeeper.Keeper
-	IBCKeeper           *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
-	IBCTransferKeeper   ibctransferkeeper.Keeper
-	ICAControllerKeeper icacontrollerkeeper.Keeper
-	ICAHostKeeper       icahostkeeper.Keeper
-	WasmKeeper          wasm.Keeper
-	IncentivesKeeper    incentiveskeeper.Keeper
-	SafetyKeeper        safetykeeper.Keeper
-	EnvoyKeeper         envoykeeper.Keeper
+	AccountKeeper         authkeeper.AccountKeeper
+	AuthzKeeper           authzkeeper.Keeper
+	BankKeeper            bankkeeper.Keeper
+	CapabilityKeeper      *capabilitykeeper.Keeper
+	CrisisKeeper          crisiskeeper.Keeper
+	DistrKeeper           distrkeeper.Keeper
+	EvidenceKeeper        evidencekeeper.Keeper
+	FeeGrantKeeper        feegrantkeeper.Keeper
+	GovKeeper             customgovkeeper.Keeper // replaces the vanilla gov keeper with our custom one
+	ParamsKeeper          paramskeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	StakingKeeper         stakingkeeper.Keeper
+	UpgradeKeeper         upgradekeeper.Keeper
+	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	IBCKeeper             *ibckeeper.Keeper // must be a pointer, so we can `SetRouter` on it correctly
+	IBCTransferKeeper     ibctransferkeeper.Keeper
+	ICAControllerKeeper   icacontrollerkeeper.Keeper
+	ICAHostKeeper         icahostkeeper.Keeper
+	WasmKeeper            wasm.Keeper
+	IncentivesKeeper      incentiveskeeper.Keeper
+	SafetyKeeper          safetykeeper.Keeper
+	EnvoyKeeper           envoykeeper.Keeper
 
 	// make scoped keepers public for testing purposes
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
@@ -281,27 +286,28 @@ type MarsApp struct {
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
 
 	// module manager and configurator
-	mm           *module.Manager
-	configurator module.Configurator
+	ModuleManager *module.Manager
+	configurator  module.Configurator
 }
 
 // NewMarsApp creates and initializes a new `MarsApp` instance
 func NewMarsApp(
-	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
-	homePath string, invCheckPeriod uint, encodingConfig EncodingConfig, appOpts servertypes.AppOptions,
-	wasmOpts []wasm.Option, baseAppOptions ...func(*baseapp.BaseApp),
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	loadLatest bool,
+	enabledProposals []wasm.ProposalType,
+	appOpts servertypes.AppOptions,
+	wasmOpts []wasm.Option,
+	baseAppOptions ...func(*baseapp.BaseApp),
 ) *MarsApp {
-	legacyAmino := encodingConfig.Amino
-	codec := encodingConfig.Codec
-	interfaceRegistry := encodingConfig.InterfaceRegistry
+	encodingConfig := MakeEncodingConfig()
 
-	bApp := baseapp.NewBaseApp(
-		Name,
-		logger,
-		db,
-		encodingConfig.TxConfig.TxDecoder(),
-		baseAppOptions...,
-	)
+	appCodec, legacyAmino := encodingConfig.Codec, encodingConfig.Amino
+	interfaceRegistry := encodingConfig.InterfaceRegistry
+	txConfig := encodingConfig.TxConfig
+
+	bApp := baseapp.NewBaseApp(Name, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
@@ -326,15 +332,22 @@ func NewMarsApp(
 		wasm.StoreKey,
 		incentivestypes.StoreKey,
 	)
+
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
+		logger.Error("failed to load state streaming", "err", err)
+		os.Exit(1)
+	}
 
 	app := &MarsApp{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
-		Codec:             codec,
+		appCodec:          appCodec,
+		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
-		invCheckPeriod:    invCheckPeriod,
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
@@ -346,7 +359,7 @@ func NewMarsApp(
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	app.ParamsKeeper = initParamsKeeper(
-		codec,
+		appCodec,
 		legacyAmino,
 		keys[paramstypes.StoreKey],
 		tkeys[paramstypes.TStoreKey],
@@ -373,19 +386,16 @@ func NewMarsApp(
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-		codec,
+		appCodec,
 		keys[authtypes.StoreKey],
-		getSubspace(app, authtypes.ModuleName),
 		authtypes.ProtoBaseAccount,
 		maccPerms,
 		AccountAddressPrefix,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	app.AuthzKeeper = authzkeeper.NewKeeper(
-		keys[authzkeeper.StoreKey],
-		codec,
-		app.BaseApp.MsgServiceRouter(),
-		app.AccountKeeper,
-	)
+
+	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)
+
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		codec,
 		keys[banktypes.StoreKey],
@@ -393,24 +403,29 @@ func NewMarsApp(
 		getSubspace(app, banktypes.ModuleName),
 		getBlockedModuleAccountAddrs(app), // NOTE: fee collector & safety fund are excluded from blocked addresses
 	)
+	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
-		getSubspace(app, crisistypes.ModuleName),
+		appCodec,
+		keys[crisistypes.StoreKey],
 		invCheckPeriod,
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
-		codec,
+		appCodec,
 		keys[feegrant.StoreKey],
 		app.AccountKeeper,
 	)
+
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		keys[upgradetypes.StoreKey],
-		codec,
+		appCodec,
 		homePath,
 		app.BaseApp,
-		authority,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	// staking keeper and its dependencies
@@ -594,24 +609,24 @@ func NewMarsApp(
 	// NOTE: Any module instantiated in the module manager that is later
 	// modified must be passed by reference here.
 	app.ModuleManager = module.NewManager(
-		auth.NewAppModule(codec, app.AccountKeeper, nil),
-		authzmodule.NewAppModule(codec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
-		bank.NewAppModule(codec, app.BankKeeper, app.AccountKeeper),
-		capability.NewAppModule(codec, *app.CapabilityKeeper),
+		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
+		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
-		distr.NewAppModule(codec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		feegrantmodule.NewAppModule(codec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
-		customgov.NewAppModule(codec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		customgov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
-		slashing.NewAppModule(codec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		staking.NewAppModule(codec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
-		wasm.NewAppModule(codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper),
 		safety.NewAppModule(app.SafetyKeeper),
 		envoy.NewAppModule(app.EnvoyKeeper),
@@ -636,7 +651,7 @@ func NewMarsApp(
 		authz.ModuleName,
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
-		ibchost.ModuleName,
+		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
@@ -699,9 +714,8 @@ func NewMarsApp(
 	)
 
 	app.ModuleManager.RegisterInvariants(&app.CrisisKeeper)
-	app.ModuleManager.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 
-	app.configurator = module.NewConfigurator(codec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.ModuleManager.RegisterServices(app.configurator)
 
 	// setup upgrades
