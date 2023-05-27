@@ -1,54 +1,64 @@
 package main
 
 import (
+	"errors"
+	"io"
+	"log"
 	"os"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	tmcfg "github.com/cometbft/cometbft/config"
-	tmcli "github.com/cometbft/cometbft/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
+	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 
-	authcli "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	marsapp "github.com/mars-protocol/hub/v2/app"
+	"github.com/mars-protocol/hub/v2/app"
+	"github.com/mars-protocol/hub/v2/app/params"
 )
 
-//------------------------------------------------------------------------------
-// Constructor for marsd root command
-//------------------------------------------------------------------------------
+// NewRootCmd creates a new root command for wasmd. It is called once in the
+// main function.
+func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
+	encodingConfig := app.MakeEncodingConfig()
 
-// NewRootCmd creates root command for the Mars app-chain daemon
-func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
+	cfg := sdk.GetConfig()
+	cfg.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
+	cfg.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
+	cfg.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
+	cfg.SetAddressVerifier(wasmtypes.VerifyAddressLen())
+	cfg.Seal()
+
 	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Codec).
+		WithCodec(encodingConfig.Marshaler).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(marsapp.DefaultNodeHome).
-		WithViper("MARS")
-
-	// **** create root command ****
+		WithHomeDir(app.DefaultNodeHome).
+		WithViper("") // In wasmd, we don't use any prefix for env variables.
 
 	rootCmd := &cobra.Command{
-		Use:   "marsd",
-		Short: "Mars app-chain daemon",
+		Use:   version.AppName,
+		Short: "Wasm Daemon (server)",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
@@ -69,64 +79,104 @@ func NewRootCmd(encodingConfig marsapp.EncodingConfig) *cobra.Command {
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
+			customTMConfig := initTendermintConfig()
 
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmcfg.DefaultConfig())
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
-		SilenceUsage: true,
 	}
 
-	// **** add subcommands ****
+	initRootCmd(rootCmd, encodingConfig)
 
-	ac := appCreator{encodingConfig}
-	server.AddCommands(
-		rootCmd,
-		marsapp.DefaultNodeHome,
-		ac.createApp,
-		ac.exportApp,
-		func(startCmd *cobra.Command) {
-			crisis.AddModuleInitFlags(startCmd)
-			wasm.AddModuleInitFlags(startCmd)
-		},
+	return rootCmd, encodingConfig
+}
+
+// initTendermintConfig helps to override default Tendermint Config values.
+// return tmcfg.DefaultConfig if no custom configuration is required for the application.
+func initTendermintConfig() *tmcfg.Config {
+	cfg := tmcfg.DefaultConfig()
+
+	// these values put a higher strain on node memory
+	// cfg.P2P.MaxNumInboundPeers = 100
+	// cfg.P2P.MaxNumOutboundPeers = 40
+
+	return cfg
+}
+
+// initAppConfig helps to override default appConfig template and configs.
+// return "", nil if no custom configuration is required for the application.
+func initAppConfig() (string, interface{}) {
+	// The following code snippet is just for reference.
+
+	type CustomAppConfig struct {
+		serverconfig.Config
+
+		Wasm wasmtypes.WasmConfig `mapstructure:"wasm"`
+	}
+
+	// Optionally allow the chain developer to overwrite the SDK's default
+	// server config.
+	srvCfg := serverconfig.DefaultConfig()
+	// The SDK's default minimum gas price is set to "" (empty value) inside
+	// app.toml. If left empty by validators, the node will halt on startup.
+	// However, the chain developer can set a default app.toml value for their
+	// validators here.
+	//
+	// In summary:
+	// - if you leave srvCfg.MinGasPrices = "", all validators MUST tweak their
+	//   own app.toml config,
+	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
+	//   own app.toml to override, or use this default value.
+	//
+	// In simapp, we set the min gas prices to 0.
+	srvCfg.MinGasPrices = "0stake"
+	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
+
+	customAppConfig := CustomAppConfig{
+		Config: *srvCfg,
+		Wasm:   wasmtypes.DefaultWasmConfig(),
+	}
+
+	customAppTemplate := serverconfig.DefaultConfigTemplate +
+		wasmtypes.DefaultConfigTemplate()
+
+	return customAppTemplate, customAppConfig
+}
+
+func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
+	rootCmd.AddCommand(
+		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
+		// testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
+		debug.Cmd(),
+		config.Cmd(),
+		pruning.PruningCmd(newApp),
 	)
 
+	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+
+	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
+		rpc.StatusCommand(),
 		genesisCommand(encodingConfig),
 		queryCommand(),
 		txCommand(),
-		genutilcli.InitCmd(marsapp.ModuleBasics, marsapp.DefaultNodeHome),
-		tmcli.NewCompletionCmd(rootCmd, true),
-		config.Cmd(),
-		debug.Cmd(),
-		keys.Commands(marsapp.DefaultNodeHome),
-		rpc.StatusCommand(),
+		keys.Commands(app.DefaultNodeHome),
 	)
-
-	return rootCmd
+	// add rosetta
+	rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Marshaler))
 }
 
-func genesisCommand(encodingConfig marsapp.EncodingConfig) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:                        "genesis",
-		Short:                      "Utilities for preparing the genesis state",
-		DisableFlagParsing:         true,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
+func addModuleInitFlags(startCmd *cobra.Command) {
+	crisis.AddModuleInitFlags(startCmd)
+	wasm.AddModuleInitFlags(startCmd)
+}
+
+// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
+func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
+	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, app.ModuleBasics, app.DefaultNodeHome)
+
+	for _, subCmd := range cmds {
+		cmd.AddCommand(subCmd)
 	}
-
-	cmd.AddCommand(
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, marsapp.DefaultNodeHome),
-		genutilcli.MigrateGenesisCmd(),
-		genutilcli.GenTxCmd(
-			marsapp.ModuleBasics,
-			encodingConfig.TxConfig,
-			banktypes.GenesisBalancesIterator{},
-			marsapp.DefaultNodeHome,
-		),
-		genutilcli.ValidateGenesisCmd(marsapp.ModuleBasics),
-		addGenesisAccountCmd(marsapp.DefaultNodeHome),
-		addGenesisWasmMsgCmd(marsapp.DefaultNodeHome),
-	)
-
 	return cmd
 }
 
@@ -135,21 +185,20 @@ func queryCommand() *cobra.Command {
 		Use:                        "query",
 		Aliases:                    []string{"q"},
 		Short:                      "Querying subcommands",
-		DisableFlagParsing:         true,
+		DisableFlagParsing:         false,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
 	cmd.AddCommand(
-		rpc.BlockCommand(),
+		authcmd.GetAccountCmd(),
 		rpc.ValidatorCommand(),
-		authcli.QueryTxCmd(),
-		authcli.QueryTxsByEventsCmd(),
+		rpc.BlockCommand(),
+		authcmd.QueryTxsByEventsCmd(),
+		authcmd.QueryTxCmd(),
 	)
 
-	marsapp.ModuleBasics.AddQueryCommands(cmd)
-
-	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
+	app.ModuleBasics.AddQueryCommands(cmd)
 
 	return cmd
 }
@@ -158,24 +207,93 @@ func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
 		Short:                      "Transactions subcommands",
-		DisableFlagParsing:         true,
+		DisableFlagParsing:         false,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
 	cmd.AddCommand(
-		authcli.GetSignCommand(),
-		authcli.GetSignBatchCommand(),
-		authcli.GetMultiSignCommand(),
-		authcli.GetValidateSignaturesCommand(),
-		authcli.GetBroadcastCommand(),
-		authcli.GetEncodeCommand(),
-		authcli.GetDecodeCommand(),
+		authcmd.GetSignCommand(),
+		authcmd.GetSignBatchCommand(),
+		authcmd.GetMultiSignCommand(),
+		authcmd.GetMultiSignBatchCmd(),
+		authcmd.GetValidateSignaturesCommand(),
+		authcmd.GetBroadcastCommand(),
+		authcmd.GetEncodeCommand(),
+		authcmd.GetDecodeCommand(),
+		authcmd.GetAuxToFeeCommand(),
 	)
 
-	marsapp.ModuleBasics.AddTxCommands(cmd)
-
-	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
+	app.ModuleBasics.AddTxCommands(cmd)
 
 	return cmd
+}
+
+// newApp creates the application
+func newApp(
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	appOpts servertypes.AppOptions,
+) servertypes.Application {
+	baseappOptions := server.DefaultBaseappOptions(appOpts)
+
+	var wasmOpts []wasm.Option
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+	}
+
+	return app.NewWasmApp(
+		logger, db, traceStore, true,
+		app.GetEnabledProposals(),
+		appOpts,
+		wasmOpts,
+		baseappOptions...,
+	)
+}
+
+// appExport creates a new wasm app (optionally at a given height) and exports state.
+func appExport(
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	height int64,
+	forZeroHeight bool,
+	jailAllowedAddrs []string,
+	appOpts servertypes.AppOptions,
+	modulesToExport []string,
+) (servertypes.ExportedApp, error) {
+	var wasmApp *app.WasmApp
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		return servertypes.ExportedApp{}, errors.New("application home is not set")
+	}
+
+	viperAppOpts, ok := appOpts.(*viper.Viper)
+	if !ok {
+		return servertypes.ExportedApp{}, errors.New("appOpts is not viper.Viper")
+	}
+
+	// overwrite the FlagInvCheckPeriod
+	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
+	appOpts = viperAppOpts
+
+	var emptyWasmOpts []wasm.Option
+	wasmApp = app.NewWasmApp(
+		logger,
+		db,
+		traceStore,
+		height == -1,
+		app.GetEnabledProposals(),
+		appOpts,
+		emptyWasmOpts,
+	)
+
+	if height != -1 {
+		if err := wasmApp.LoadHeight(height); err != nil {
+			return servertypes.ExportedApp{}, err
+		}
+	}
+
+	return wasmApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
