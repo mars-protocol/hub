@@ -140,16 +140,6 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 }
 
 // deprecated
-func (AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
-
-// deprecated
 func (AppModule) QuerierRoute() string {
 	return types.QuerierRoute
-}
-
-// deprecated
-func (AppModule) LegacyQuerierHandler(*codec.LegacyAmino) sdk.Querier {
-	return nil
 }

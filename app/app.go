@@ -103,6 +103,7 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibcporttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
@@ -318,7 +319,7 @@ func NewMarsApp(
 		slashingtypes.StoreKey,
 		stakingtypes.StoreKey,
 		upgradetypes.StoreKey,
-		ibchost.StoreKey,
+		ibcexported.StoreKey,
 		ibctransfertypes.StoreKey,
 		icacontrollertypes.StoreKey,
 		icahosttypes.StoreKey,
@@ -364,7 +365,7 @@ func NewMarsApp(
 	)
 
 	// grant capabilities for the ibc and ibc-transfer modules
-	app.ScopedIBCKeeper = app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
+	app.ScopedIBCKeeper = app.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
 	app.ScopedIBCTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	app.ScopedICAControllerKeeper = app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
@@ -454,8 +455,8 @@ func NewMarsApp(
 	// create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		codec,
-		keys[ibchost.StoreKey],
-		getSubspace(app, ibchost.ModuleName),
+		keys[ibcexported.StoreKey],
+		getSubspace(app, ibcexported.ModuleName),
 		app.StakingKeeper,
 		app.UpgradeKeeper, app.ScopedIBCKeeper,
 	)
@@ -592,7 +593,7 @@ func NewMarsApp(
 
 	// NOTE: Any module instantiated in the module manager that is later
 	// modified must be passed by reference here.
-	app.mm = module.NewManager(
+	app.ModuleManager = module.NewManager(
 		auth.NewAppModule(codec, app.AccountKeeper, nil),
 		authzmodule.NewAppModule(codec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		bank.NewAppModule(codec, app.BankKeeper, app.AccountKeeper),
@@ -620,7 +621,7 @@ func NewMarsApp(
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// `CanWithdrawInvariant` invariant.
 	// NOTE: staking module is required if `HistoricalEntries` param > 0
-	app.mm.SetOrderBeginBlockers(
+	app.ModuleManager.SetOrderBeginBlockers(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		distrtypes.ModuleName,
@@ -644,7 +645,7 @@ func NewMarsApp(
 		envoytypes.ModuleName,
 	)
 
-	app.mm.SetOrderEndBlockers(
+	app.ModuleManager.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
@@ -659,7 +660,7 @@ func NewMarsApp(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		ibchost.ModuleName,
+		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
@@ -673,7 +674,7 @@ func NewMarsApp(
 	// NOTE: Capability module must occur first so that it can initialize any
 	// capabilities so that other modules that want to create or claim
 	// capabilities afterwards in `InitChain` can do so safely.
-	app.mm.SetOrderInitGenesis(
+	app.ModuleManager.SetOrderInitGenesis(
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
@@ -688,7 +689,7 @@ func NewMarsApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		feegrant.ModuleName,
-		ibchost.ModuleName,
+		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
@@ -697,11 +698,11 @@ func NewMarsApp(
 		envoytypes.ModuleName,
 	)
 
-	app.mm.RegisterInvariants(&app.CrisisKeeper)
-	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
+	app.ModuleManager.RegisterInvariants(&app.CrisisKeeper)
+	app.ModuleManager.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 
 	app.configurator = module.NewConfigurator(codec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.mm.RegisterServices(app.configurator)
+	app.ModuleManager.RegisterServices(app.configurator)
 
 	// setup upgrades
 	app.setupUpgradeStoreLoaders()
@@ -774,12 +775,12 @@ func (app *MarsApp) LegacyAmino() *codec.LegacyAmino {
 // BeginBlocker application updates every begin block
 func (app *MarsApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	app.beginBlockForks(ctx)
-	return app.mm.BeginBlock(ctx, req)
+	return app.ModuleManager.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates on every end block
 func (app *MarsApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
+	return app.ModuleManager.EndBlock(ctx, req)
 }
 
 // InitChainer application updates at chain initialization
@@ -789,9 +790,9 @@ func (app *MarsApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 		panic(err)
 	}
 
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
 
-	return app.mm.InitGenesis(ctx, app.Codec, genesisState)
+	return app.ModuleManager.InitGenesis(ctx, app.Codec, genesisState)
 }
 
 // LoadHeight loads a particular height
@@ -915,7 +916,7 @@ func (app *MarsApp) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
 		app.UpgradeKeeper.SetUpgradeHandler(
 			upgrade.UpgradeName,
-			upgrade.CreateUpgradeHandler(app.mm, app.configurator),
+			upgrade.CreateUpgradeHandler(app.ModuleManager, app.configurator),
 		)
 	}
 }
