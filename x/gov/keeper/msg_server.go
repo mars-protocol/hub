@@ -107,6 +107,8 @@ func (k legacyMsgServer) SubmitProposal(goCtx context.Context, msg *govv1beta1.M
 		msg.InitialDeposit,
 		msg.Proposer,
 		string(metadataStr),
+		content.GetTitle(),
+		content.GetDescription(),
 	)
 	if err != nil {
 		return nil, err

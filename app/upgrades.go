@@ -85,7 +85,7 @@ func (app MarsApp) RegisterUpgradeHandlers() {
 			// Note: this migration is optional,
 			// You can include x/gov proposal migration documented in [UPGRADING.md](https://github.com/cosmos/cosmos-sdk/blob/main/UPGRADING.md)
 
-			return app.ModuleManager.RunMigrations(ctx, app.configurator(), fromVM)
+			return app.ModuleManager.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
 

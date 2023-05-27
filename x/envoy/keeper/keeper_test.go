@@ -42,7 +42,7 @@ func init() {
 	ibctesting.DefaultTestingAppInit = func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		encCfg := marsapp.MakeEncodingConfig()
 		app := marsapptesting.MakeSimpleMockApp()
-		return app, marsapp.DefaultGenesisState(encCfg.Codec)
+		return app, marsapp.DefaultGenesisState(encCfg.Marshaler)
 	}
 }
 
