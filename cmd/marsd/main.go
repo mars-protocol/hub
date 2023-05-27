@@ -3,15 +3,21 @@ package main
 import (
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	marsapp "github.com/mars-protocol/hub/v2/app"
+	"github.com/mars-protocol/hub/v2/app"
 )
 
 func main() {
-	setAddressPrefixes(marsapp.AccountAddressPrefix)
-	rootCmd := NewRootCmd(marsapp.MakeEncodingConfig())
-	if err := svrcmd.Execute(rootCmd, "MARS", marsapp.DefaultNodeHome); err != nil {
-		os.Exit(1)
+	rootCmd, _ := NewRootCmd()
+
+	if err := svrcmd.Execute(rootCmd, "MARS", app.DefaultNodeHome); err != nil {
+		switch e := err.(type) {
+		case server.ErrorCode:
+			os.Exit(e.Code)
+
+		default:
+			os.Exit(1)
+		}
 	}
 }
