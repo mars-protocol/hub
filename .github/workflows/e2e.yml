@@ -19,7 +19,7 @@ jobs:
           mv wasmd-${TAG} wasmd
 
       - name: Setup Go-lang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: '1.20'
 
