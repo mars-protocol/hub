@@ -36,7 +36,7 @@ func (qs queryServer) Account(goCtx context.Context, req *types.QueryAccountRequ
 	return &types.QueryAccountResponse{Account: account}, nil
 }
 
-func (qs queryServer) Accounts(goCtx context.Context, req *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
+func (qs queryServer) Accounts(goCtx context.Context, _ *types.QueryAccountsRequest) (*types.QueryAccountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	_, portID, err := qs.k.GetOwnerAndPortID()
