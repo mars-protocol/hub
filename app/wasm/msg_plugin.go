@@ -3,8 +3,8 @@ package wasm
 import (
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
@@ -38,7 +38,7 @@ func (m *CustomMessenger) DispatchMsg(
 	if msg.Custom != nil {
 		var marsMsg MarsMsg
 		if err := json.Unmarshal(msg.Custom, &marsMsg); err != nil {
-			return nil, nil, sdkerrors.Wrapf(err, "invalid custom msg: %s", msg.Custom)
+			return nil, nil, errors.Wrapf(err, "invalid custom msg: %s", msg.Custom)
 		}
 
 		if marsMsg.FundCommunityPool != nil {

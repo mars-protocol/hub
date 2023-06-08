@@ -6,7 +6,6 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -20,17 +19,17 @@ func queryVotingPowers(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk
 
 	req, err := json.Marshal(&types.QueryMsg{VotingPowers: query})
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrFailedToQueryVesting, "failed to marshal query request: %s", err)
+		return nil, types.ErrFailedToQueryVesting.Wrapf("failed to marshal query request: %s", err)
 	}
 
 	res, err := k.QuerySmart(ctx, contractAddr, req)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrFailedToQueryVesting, "query returned error: %s", err)
+		return nil, types.ErrFailedToQueryVesting.Wrapf("query returned error: %s", err)
 	}
 
 	err = json.Unmarshal(res, &votingPowersResponse)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrFailedToQueryVesting, "failed to unmarshal query response: %s", err)
+		return nil, types.ErrFailedToQueryVesting.Wrapf("failed to unmarshal query response: %s", err)
 	}
 
 	return votingPowersResponse, nil
@@ -46,7 +45,7 @@ func queryVotingPowers(ctx sdk.Context, k wasmtypes.ViewKeeper, contractAddr sdk
 func incrementVotingPowers(votingPowersResponse types.VotingPowersResponse, tokensInVesting map[string]sdkmath.Int, totalTokensInVesting *sdkmath.Int) error {
 	for _, item := range votingPowersResponse {
 		if _, ok := tokensInVesting[item.User]; ok {
-			return sdkerrors.Wrapf(types.ErrFailedToQueryVesting, "query response contains duplicate address: %s", item.User)
+			return types.ErrFailedToQueryVesting.Wrapf("query response contains duplicate address: %s", item.User)
 		}
 
 		tokensInVesting[item.User] = sdkmath.Int(item.VotingPower)

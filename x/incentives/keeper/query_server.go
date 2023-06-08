@@ -30,7 +30,7 @@ func (qs queryServer) Schedule(goCtx context.Context, req *types.QueryScheduleRe
 
 	schedule, found := qs.k.GetSchedule(ctx, req.Id)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "incentives schedule not found for id %d", req.Id)
+		return nil, sdkerrors.ErrNotFound.Wrapf("incentives schedule not found for id %d", req.Id)
 	}
 
 	return &types.QueryScheduleResponse{Schedule: schedule}, nil

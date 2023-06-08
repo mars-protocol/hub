@@ -3,17 +3,17 @@ package wasm
 import (
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 )
 
-func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
+func CustomQuerier(_ *QueryPlugin) func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 		var marsQuery MarsQuery
 		if err := json.Unmarshal(request, &marsQuery); err != nil {
-			return nil, sdkerrors.Wrapf(err, "invalid custom query: %s", request)
+			return nil, errors.Wrapf(err, "invalid custom query: %s", request)
 		}
 
 		// here, dispatch query request to the appropriate query function
