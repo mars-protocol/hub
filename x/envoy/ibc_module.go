@@ -30,13 +30,13 @@ func NewIBCModule(k keeper.Keeper) ibcporttypes.IBCModule {
 }
 
 func (im IBCModule) OnChanOpenInit(
-	ctx sdk.Context,
-	order ibcchanneltypes.Order,
-	connectionHops []string,
-	portID string,
-	channelID string,
-	chanCap *capabilitytypes.Capability,
-	counterparty ibcchanneltypes.Counterparty,
+	_ sdk.Context,
+	_ ibcchanneltypes.Order,
+	_ []string,
+	_ string,
+	_ string,
+	_ *capabilitytypes.Capability,
+	_ ibcchanneltypes.Counterparty,
 	version string,
 ) (string, error) {
 	// the module is supposed to validate the version string here.
@@ -46,14 +46,14 @@ func (im IBCModule) OnChanOpenInit(
 }
 
 func (im IBCModule) OnChanOpenTry(
-	ctx sdk.Context,
-	order ibcchanneltypes.Order,
-	connectionHops []string,
-	portID,
-	channelID string,
-	chanCap *capabilitytypes.Capability,
-	counterparty ibcchanneltypes.Counterparty,
-	counterpartyVersion string,
+	_ sdk.Context,
+	_ ibcchanneltypes.Order,
+	_ []string,
+	_,
+	_ string,
+	_ *capabilitytypes.Capability,
+	_ ibcchanneltypes.Counterparty,
+	_ string,
 ) (string, error) {
 	// ICA channel handshake cannot be initiated from the host chain.
 	// the controller middleware should have rejected this request.
@@ -63,11 +63,11 @@ func (im IBCModule) OnChanOpenTry(
 }
 
 func (im IBCModule) OnChanOpenAck(
-	ctx sdk.Context,
-	portID,
-	channelID string,
-	counterpartyChannelID string,
-	counterpartyVersion string,
+	_ sdk.Context,
+	_,
+	_ string,
+	_ string,
+	_ string,
 ) error {
 	// counterpartyVersion is already validated by the controller middleware.
 	// we assume it's valid and don't validate again here.
@@ -75,34 +75,34 @@ func (im IBCModule) OnChanOpenAck(
 }
 
 func (im IBCModule) OnChanOpenConfirm(
-	ctx sdk.Context,
-	portID,
-	channelID string,
+	_ sdk.Context,
+	_,
+	_ string,
 ) error {
 	// see the comment in OnChanOpenTry on why we panic here
 	panic("UNREACHABLE: envoy module OnChanOpenConfirm")
 }
 
 func (im IBCModule) OnChanCloseInit(
-	ctx sdk.Context,
-	portID,
-	channelID string,
+	_ sdk.Context,
+	_,
+	_ string,
 ) error {
 	return nil
 }
 
 func (im IBCModule) OnChanCloseConfirm(
-	ctx sdk.Context,
-	portID,
-	channelID string,
+	_ sdk.Context,
+	_,
+	_ string,
 ) error {
 	return nil
 }
 
 func (im IBCModule) OnRecvPacket(
-	ctx sdk.Context,
-	packet ibcchanneltypes.Packet,
-	relayer sdk.AccAddress,
+	_ sdk.Context,
+	_ ibcchanneltypes.Packet,
+	_ sdk.AccAddress,
 ) ibcexported.Acknowledgement {
 	// the ICA controller does not expect to receive any packet.
 	// the controller middleware should have rejected this request.
@@ -121,7 +121,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet ibcchanneltypes.Packet,
 	acknowledgement []byte,
-	relayer sdk.AccAddress,
+	_ sdk.AccAddress,
 ) error {
 	logger := im.k.Logger(ctx)
 	logger.Info(
@@ -215,7 +215,7 @@ func handleProtoMsg[T proto.Message](bz []byte, tyName string) (string, error) {
 func (im IBCModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet ibcchanneltypes.Packet,
-	relayer sdk.AccAddress,
+	_ sdk.AccAddress,
 ) error {
 	im.k.Logger(ctx).Info(
 		"ICS-27 packet timed out",

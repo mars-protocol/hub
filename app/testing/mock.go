@@ -191,12 +191,12 @@ func MakeRandomConsensusPubkeys(numPks int) []*codectypes.Any {
 	anys := []*codectypes.Any{}
 
 	for _, pk := range pks {
-		any, err := codectypes.NewAnyWithValue(pk)
+		pkAny, err := codectypes.NewAnyWithValue(pk)
 		if err != nil {
 			panic(err)
 		}
 
-		anys = append(anys, any)
+		anys = append(anys, pkAny)
 	}
 
 	return anys
