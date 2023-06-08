@@ -10,8 +10,18 @@ LEDGER_ENABLED ?= true
 
 export GO111MODULE = on
 
+# the Go version to use in reproducible build
+GO_VERSION := 1.20
+
+# currently installed Go version
 GO_MAJOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1)
 GO_MINOR_VERSION = $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
+
+# minimum supported Go version
+GO_MINIMUM_MAJOR_VERSION = $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f2 | cut -d'.' -f1)
+GO_MINIMUM_MINOR_VERSION = $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f2 | cut -d'.' -f2)
+
+GO_VERSION_ERR_MSG = ❌ ERROR: Go version $(GO_MINIMUM_MAJOR_VERSION).$(GO_MINIMUM_MINOR_VERSION)+ is required
 
 # ********** process build tags **********
 
@@ -96,7 +106,7 @@ build: enforce-go-version
 	go build $(BUILD_FLAGS) -o $(BUILDDIR)/ ./cmd/marsd
 	@echo "✅ Completed build!"
 
-# Make sure that Go version is 1.19
+# Make sure that Go version is 1.19+
 #
 # From Osmosis discord:
 # https://discord.com/channels/798583171548840026/837144686387920936/1049449765240315925
@@ -109,10 +119,15 @@ build: enforce-go-version
 #   https://github.com/persistenceOne/incident-reports/blob/main/06-nov-2022_V4_upgrade_halt.md
 enforce-go-version:
 	@echo "🤖 Go version: $(GO_MAJOR_VERSION).$(GO_MINOR_VERSION)"
-ifneq ($(GO_MINOR_VERSION),19)
-	@echo "❌ ERROR: Go version 1.19 is required"
-	@exit 1
-endif
+	@if [ $(GO_MAJOR_VERSION) -gt $(GO_MINIMUM_MAJOR_VERSION) ]; then \
+		exit 0; \
+	elif [ $(GO_MAJOR_VERSION) -lt $(GO_MINIMUM_MAJOR_VERSION) ]; then \
+		echo '$(GO_VERSION_ERR_MSG)'; \
+		exit 1; \
+	elif [ $(GO_MINOR_VERSION) -lt $(GO_MINIMUM_MINOR_VERSION) ]; then \
+		echo '$(GO_VERSION_ERR_MSG)'; \
+		exit 1; \
+	fi
 
 ###############################################################################
 ###                           Tests & Simulation                            ###
