@@ -205,7 +205,7 @@ func (m *MsgSendFunds) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	return nil
 }
 
-// MsgSendFundsResponse is the respones type for the Msg/SendFunds RPC method.
+// MsgSendFundsResponse is the response type for the Msg/SendFunds RPC method.
 type MsgSendFundsResponse struct {
 }
 

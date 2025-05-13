@@ -86,7 +86,7 @@ message MsgSendFunds {
   ];
 }
 
-// MsgSendFundsResponse is the respones type for the Msg/SendFunds RPC method.
+// MsgSendFundsResponse is the response type for the Msg/SendFunds RPC method.
 message MsgSendFundsResponse {}
 
 //------------------------------------------------------------------------------
