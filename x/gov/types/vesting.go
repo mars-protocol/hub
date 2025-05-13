@@ -17,7 +17,7 @@ type InstantiateMsg struct {
 
 // ExecuteMsg corresponding to the Rust enum `mars_vesting::msg::ExecuteMsg`
 //
-// NOTE: For covenience, we don't include other enum variants, as they are not
+// NOTE: For convenience, we don't include other enum variants, as they are not
 // needed here.
 type ExecuteMsg struct {
 	CreatePosition *CreatePosition `json:"create_position,omitempty"`
@@ -35,7 +35,7 @@ type Withdraw struct{}
 
 // QueryMsg corresponding to the Rust enum `mars_vesting::msg::QueryMsg`
 //
-// NOTE: For covenience, we don't include other enum variants, as they are not
+// NOTE: For convenience, we don't include other enum variants, as they are not
 // needed here.
 type QueryMsg struct {
 	VotingPower  *VotingPowerQuery  `json:"voting_power,omitempty"`
